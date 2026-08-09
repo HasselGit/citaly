@@ -339,7 +339,48 @@ body {
   border-left: 4px solid #25D366;
   margin-top: 16px;
   font-size: 13px;
-  color: #075E54;
+  color: #128C7E;
   line-height: 1.4;
   box-shadow: var(--shadow-soft);
+}
+
+/* Modal Action Buttons (Executive Precision High-Contrast) */
+.btn-modal-action {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.btn-reschedule {
+  background-color: #0F172A;
+  color: #FFFFFF !important;
+  border: 1px solid #0F172A;
+}
+
+.btn-reschedule:hover, .btn-reschedule:active {
+  background-color: #1E293B;
+  transform: translateY(-1px);
+}
+
+.btn-cancel-appt {
+  background-color: #FFF1F2;
+  color: #E11D48 !important;
+  border: 1.5px solid #FDA4AF;
+}
+
+.btn-cancel-appt:hover, .btn-cancel-appt:active {
+  background-color: #FFE4E6;
+  border-color: #F43F5E;
+  transform: translateY(-1px);
 }

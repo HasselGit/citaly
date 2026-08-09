@@ -130,6 +130,11 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Por favor, selecciona un horario disponible primero.');
       return;
     }
+    // Limpiar campos del formulario para la privacidad entre pacientes
+    document.getElementById('patient-name').value = '';
+    document.getElementById('patient-phone').value = '';
+    waPreviewBox.style.display = 'none';
+
     modalOverlay.classList.add('active');
   });
 
@@ -159,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (checkData.has_active_appointment) {
         activePatientAppt = checkData.appointment;
-        existingApptInfo.innerText = `Hola ${checkData.appointment.patient_name}, detectamos que ya tienes una cita de ${checkData.appointment.service_name} el día ${checkData.appointment.start_time_formatted}. ¿Deseas reprogramarla para la nueva fecha elegida o cancelarla?`;
+        existingApptInfo.innerText = `Hola ${checkData.appointment.patient_name}, detectamos que ya tienes un turno activo de ${checkData.appointment.service_name} el día ${checkData.appointment.start_time_formatted}. ¿Deseas reprogramarlo para el nuevo día y horario elegido o cancelarlo?`;
         modalOverlay.classList.remove('active');
         existingModal.classList.add('active');
         return;
