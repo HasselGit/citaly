@@ -44,8 +44,6 @@ class AppointmentCreateRequest(BaseModel):
 
 # --- Endpoints ---
 
-@app_tenant_resolver = lambda req: getattr(req.state, "subdomain", "demo")
-
 @router.get("/tenant-info", response_model=TenantOut)
 def get_tenant_info(request: Request, db: Session = Depends(get_db)):
     subdomain = getattr(request.state, "subdomain", "demo")
