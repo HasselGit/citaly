@@ -12,11 +12,19 @@
   ],
   "routes": [
     {
+      "src": "/",
+      "dest": "/static/index.html"
+    },
+    {
+      "src": "/dashboard",
+      "dest": "/static/dashboard.html"
+    },
+    {
       "src": "/static/(.*)",
       "dest": "/static/$1"
     },
     {
-      "src": "/(.*)",
+      "src": "/api/(.*)",
       "dest": "main.py"
     }
   ],
