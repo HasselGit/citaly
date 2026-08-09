@@ -38,6 +38,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    print(f"[GLOBAL EXCEPTION] {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Error interno del servidor", "error": str(exc)}
+    )
+
 # Registrar Routers
 app.include_router(booking_router)
 app.include_router(cron_router)
