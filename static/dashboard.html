@@ -234,6 +234,14 @@
           </div>
         </div>
 
+        <!-- Buscador Rápido de Paciente -->
+        <div class="glass-card rounded-2xl p-4 mb-4">
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-3 text-slate-400 text-sm">search</span>
+            <input type="text" id="search-patient-input" placeholder="Buscar por nombre de paciente o celular..." class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-primary focus:outline-none focus:border-primary">
+          </div>
+        </div>
+
         <!-- Filtro por Especialidad (Píldoras Estilizadas Executive) -->
         <div class="glass-card rounded-2xl p-4 mb-6">
           <span class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-mono">Filtrar por Tratamiento / Especialidad:</span>
@@ -250,22 +258,28 @@
           </div>
         </div>
 
-        <!-- Resumen de Ocupación por Especialidad -->
+        <!-- Resumen de Ocupación por Especialidad con Barras de Progreso -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div class="glass-card rounded-2xl p-4 flex items-center justify-between">
-            <div>
+          <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-2">
               <div class="text-xs font-bold text-slate-500 uppercase font-mono">Ortodoncia / Control</div>
-              <div id="count-ortodoncia" class="text-xl font-extrabold text-primary font-display">0 turnos agendados</div>
+              <span class="px-2.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded-md">Sesión 120 min</span>
             </div>
-            <span class="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-lg">Sesión 120 min</span>
+            <div id="count-ortodoncia" class="text-xl font-extrabold text-primary font-display mb-2">0 turnos agendados</div>
+            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+              <div id="bar-ortodoncia" class="bg-secondary h-full rounded-full transition-all duration-500" style="width: 0%;"></div>
+            </div>
           </div>
 
-          <div class="glass-card rounded-2xl p-4 flex items-center justify-between">
-            <div>
+          <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-2">
               <div class="text-xs font-bold text-slate-500 uppercase font-mono">Limpieza & Blanqueamiento</div>
-              <div id="count-limpieza" class="text-xl font-extrabold text-primary font-display">0 turnos agendados</div>
+              <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-md">Sesión 45 min</span>
             </div>
-            <span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-lg">Sesión 45 min</span>
+            <div id="count-limpieza" class="text-xl font-extrabold text-primary font-display mb-2">0 turnos agendados</div>
+            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+              <div id="bar-limpieza" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%;"></div>
+            </div>
           </div>
         </div>
 
@@ -286,7 +300,7 @@
         
         <div class="mb-6">
           <h2 class="text-2xl md:text-3xl font-extrabold text-primary tracking-tight mb-1 font-display">Monitor de WhatsApp Automatizado</h2>
-          <p class="text-xs md:text-sm text-slate-500">Trazabilidad de los mensajes de confirmación enviados vía Meta Cloud API.</p>
+          <p class="text-xs md:text-sm text-slate-500">Trazabilidad en tiempo real de notificaciones enviadas vía Meta Cloud API.</p>
         </div>
 
         <div class="glass-card rounded-2xl p-6 elevation-2">

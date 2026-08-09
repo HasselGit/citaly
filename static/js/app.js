@@ -120,6 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.slot-pill').forEach(p => p.classList.remove('selected'));
         pill.classList.add('selected');
         selectedTimeSlot = pill.getAttribute('data-iso');
+        btnOpenModal.removeAttribute('disabled');
+        btnOpenModal.style.background = '#0F172A';
       });
     });
   }

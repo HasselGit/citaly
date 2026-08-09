@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const agendaContainer = document.getElementById('agenda-timeline-container');
   const whatsappLogContainer = document.getElementById('whatsapp-log-container');
+  const searchInput = document.getElementById('search-patient-input');
 
   const metricTotalTurnos = document.getElementById('metric-total-turnos');
   const metricConfirmados = document.getElementById('metric-confirmados');
@@ -16,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const countOrtodoncia = document.getElementById('count-ortodoncia');
   const countLimpieza = document.getElementById('count-limpieza');
+  const barOrtodoncia = document.getElementById('bar-ortodoncia');
+  const barLimpieza = document.getElementById('bar-limpieza');
 
   const filterDayBtn = document.getElementById('filter-day');
   const filterWeekBtn = document.getElementById('filter-week');
@@ -40,10 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const tabTarget = btn.getAttribute('data-tab');
       if (tabTarget === activeTab) {
         btn.classList.add('text-secondary', 'font-bold');
-        btn.classList.remove('text-on-surface-variant');
+        btn.classList.remove('text-slate-500');
       } else {
         btn.classList.remove('text-secondary', 'font-bold');
-        btn.classList.add('text-on-surface-variant');
+        btn.classList.add('text-slate-500');
       }
     });
   }
@@ -72,8 +75,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let filtered = [...allAppointments];
 
+    // Filtro por especialidad
     if (selectedSpecialty !== 'all') {
       filtered = filtered.filter(a => a.service_name === selectedSpecialty);
+    }
+
+    // Buscador por nombre o celular
+    const searchVal = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    if (searchVal) {
+      filtered = filtered.filter(a => 
+        (a.patient_name && a.patient_name.toLowerCase().includes(searchVal)) ||
+        (a.patient_whatsapp && a.patient_whatsapp.toLowerCase().includes(searchVal))
+      );
     }
 
     if (filtered.length === 0) {
@@ -120,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           <div class="flex items-center gap-2 justify-between sm:justify-end">
             ${statusBadge}
-            <a href="/r/${a.token_cancellation}" target="_blank" class="p-1.5 text-slate-400 hover:text-red-600 transition-colors" title="Gestionar / Liberar Slot">
+            <a href="/r/${a.token_cancellation}" target="_blank" class="p-1.5 text-slate-400 hover:text-red-600 transition-colors" title="Gestionar / Liberar Horario">
               <span class="material-symbols-outlined text-sm">cancel</span>
             </a>
           </div>
@@ -144,20 +157,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     whatsappLogContainer.innerHTML = allAppointments.map(a => `
-      <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-        <div class="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+      <div class="flex items-center gap-3 p-3.5 rounded-xl bg-white border border-slate-200 text-xs shadow-sm">
+        <div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
           ✓
         </div>
         <div class="flex-1">
           <div class="font-bold text-slate-900">Mensaje de Confirmación Enviado a ${a.patient_name}</div>
-          <div class="text-slate-500">WhatsApp: ${a.patient_whatsapp} • Tratamiento: ${a.service_name}</div>
+          <div class="text-slate-500">Celular: ${a.patient_whatsapp} • Especialidad: ${a.service_name}</div>
         </div>
-        <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-bold rounded">Enviado Meta API</span>
+        <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 font-bold rounded-lg flex items-center gap-1">
+          <span>🟢</span> Entregado Meta API
+        </span>
       </div>
     `).join('');
   }
 
-  // 5. Actualizar Métricas Reales y Conteo por Especialidad
+  // 5. Actualizar Métricas Reales y Conteo por Especialidad con Barras
   function updateMetrics() {
     const total = allAppointments.length;
     const confirmados = allAppointments.filter(a => a.status === 'SCHEDULED' || a.status === 'CONFIRMED').length;
@@ -171,9 +186,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (countOrtodoncia) countOrtodoncia.innerText = `${countOrt} turnos agendados`;
     if (countLimpieza) countLimpieza.innerText = `${countLimp} turnos agendados`;
+
+    if (barOrtodoncia) barOrtodoncia.style.width = total > 0 ? `${Math.min(100, Math.round((countOrt / total) * 100))}%` : '0%';
+    if (barLimpieza) barLimpieza.style.width = total > 0 ? `${Math.min(100, Math.round((countLimp / total) * 100))}%` : '0%';
   }
 
-  // Event Listeners de Filtros Píldoras de Especialidad
+  // Event Listeners
+  if (searchInput) searchInput.addEventListener('input', renderAgenda);
+
   specialtyPills.forEach(pill => {
     pill.addEventListener('click', () => {
       specialtyPills.forEach(p => {
@@ -188,7 +208,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Event Listeners de Filtros Día / Semana / Mes
   if (filterDayBtn) filterDayBtn.addEventListener('click', () => { currentFilter = 'day'; setActiveFilterBtn(filterDayBtn); renderAgenda(); });
   if (filterWeekBtn) filterWeekBtn.addEventListener('click', () => { currentFilter = 'week'; setActiveFilterBtn(filterWeekBtn); renderAgenda(); });
   if (filterMonthBtn) filterMonthBtn.addEventListener('click', () => { currentFilter = 'month'; setActiveFilterBtn(filterMonthBtn); renderAgenda(); });
@@ -197,10 +216,10 @@ document.addEventListener('DOMContentLoaded', () => {
     [filterDayBtn, filterWeekBtn, filterMonthBtn].forEach(btn => {
       if (btn) {
         btn.classList.remove('bg-primary', 'text-white');
-        btn.classList.add('bg-slate-100', 'text-slate-700');
+        btn.classList.add('bg-white', 'text-slate-700');
       }
     });
-    activeBtn.classList.remove('bg-slate-100', 'text-slate-700');
+    activeBtn.classList.remove('bg-white', 'text-slate-700');
     activeBtn.classList.add('bg-primary', 'text-white');
   }
 

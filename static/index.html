@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Citaly Pro - Reserva de Turnos</title>
+  <title>Citaly Pro - Reserva tu Turno</title>
   
   <!-- Fonts: Hanken Grotesk, Work Sans, JetBrains Mono -->
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
@@ -14,29 +14,29 @@
 
   <div class="app-container">
     
-    <!-- Logo Corporativo Citaly Pro (Vector SVG Elegante & Minimalista) -->
-    <header class="brand-header border-b border-slate-200/80 pb-4 mb-6 flex items-center justify-between" style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid #E2E8F0; margin-bottom: 24px;">
+    <!-- Sticky Header Glassmorphism (Permanece visible al hacer scroll) -->
+    <header class="brand-header-sticky">
       <div style="display: flex; align-items: center; gap: 12px;">
-        <!-- Isotipo SVG Vectorial de Alta Gama Citaly Pro -->
-        <div style="width: 42px; height: 42px; background: #0F172A; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); position: relative; overflow: hidden;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Isotipo SVG Vectorial Citaly Pro -->
+        <div style="width: 40px; height: 40px; background: #0F172A; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2); flex-shrink: 0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12" stroke="#F9FAFB" stroke-width="2.5" stroke-linecap="round"/>
             <path d="M8 12L11 15L21 4" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
 
         <div>
-          <div style="font-family: 'Hanken Grotesk', sans-serif; font-size: 20px; font-weight: 800; color: #0F172A; letter-spacing: -0.03em; line-height: 1.1;">
-            CITALY <span style="color: #D97706; font-weight: 800;">PRO</span>
+          <div style="font-family: 'Hanken Grotesk', sans-serif; font-size: 18px; font-weight: 800; color: #0F172A; letter-spacing: -0.03em; line-height: 1.1;">
+            CITALY <span style="color: #D97706;">PRO</span>
           </div>
-          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 1px;">
-            Consultorio Dr. Alejandro Pérez
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em;">
+            Dr. Alejandro Pérez
           </div>
         </div>
       </div>
 
-      <span style="background: #FEF3C7; color: #92400E; font-family: 'Hanken Grotesk', sans-serif; font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 9999px; border: 1px solid #FCD34D; display: flex; align-items: center; gap: 4px;">
-        <span>✔</span> Oficial
+      <span style="background: #FEF3C7; color: #92400E; font-family: 'Hanken Grotesk', sans-serif; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 9999px; border: 1px solid #FCD34D;">
+        Oficial ✔
       </span>
     </header>
 
@@ -46,22 +46,27 @@
       <p class="sub-title">Selecciona el tratamiento, el día y el horario de tu preferencia.</p>
     </div>
 
-    <!-- 1. Selecciona un Servicio -->
+    <!-- 1. Selecciona un Servicio (Carrusel Horizontal Continuo) -->
     <section class="section-card">
-      <h2 class="section-title">1. Tratamiento / Especialidad</h2>
-      <div class="service-list" id="services-container">
-        <!-- Renderizado dinámico de servicios -->
+      <h2 class="section-title">
+        <span>🏥</span>
+        <span>1. Tratamiento / Especialidad</span>
+      </h2>
+
+      <div class="service-carousel" id="services-container">
+        <!-- Renderizado dinámico de especialidades -->
         <div class="service-card active" data-service-id="s1" data-duration="120">
           <div>
             <div class="service-name">Ortodoncia / Control</div>
-            <div class="service-duration">⏱ 2 hs de sesión</div>
+            <div class="service-duration">⏱ Sesión de 120 min</div>
           </div>
           <div class="service-price">$15.000 ARS</div>
         </div>
+
         <div class="service-card" data-service-id="s2" data-duration="45">
           <div>
             <div class="service-name">Limpieza & Blanqueamiento</div>
-            <div class="service-duration">⏱ 45 min de sesión</div>
+            <div class="service-duration">⏱ Sesión de 45 min</div>
           </div>
           <div class="service-price">$8.000 ARS</div>
         </div>
@@ -70,7 +75,10 @@
 
     <!-- 2. Elige Fecha y Horario -->
     <section class="section-card">
-      <h2 class="section-title">2. Día y Horario</h2>
+      <h2 class="section-title">
+        <span>📅</span>
+        <span>2. Día y Horario Disponible</span>
+      </h2>
       
       <div class="calendar-header">
         <span id="current-month-year">Cargando fecha...</span>
@@ -86,9 +94,10 @@
       </div>
     </section>
 
-    <!-- Botón Principal para Confirmar Datos -->
-    <button class="btn-primary" id="btn-open-modal" disabled>
-      Confirmar Horario Elegido
+    <!-- Botón Principal Sticky en la parte inferior -->
+    <button class="btn-primary-sticky" id="btn-open-modal" disabled>
+      <span>Confirmar Horario Elegido</span>
+      <span>→</span>
     </button>
 
   </div>
@@ -110,7 +119,7 @@
           <input type="tel" id="patient-phone" class="form-input" placeholder="Ej. +5491112345678" required autocomplete="off">
         </div>
 
-        <button type="submit" class="btn-primary" style="margin-top: 16px; background: #0F172A; color: white;">
+        <button type="submit" class="btn-primary-sticky" style="position: static; margin-top: 16px; background: #0F172A; color: white;">
           Finalizar Reserva de Turno ✔
         </button>
         <button type="button" id="btn-close-modal" style="width: 100%; background: none; border: none; padding: 12px; margin-top: 6px; color: #64748B; font-weight: 600; cursor: pointer; font-size: 14px;">
@@ -126,7 +135,7 @@
     </div>
   </div>
 
-  <!-- Modal de Auto-Gestión / Cita Existente (Diseño Executive Precision Rediseñado) -->
+  <!-- Modal de Auto-Gestión / Cita Existente -->
   <div class="modal-overlay" id="existing-appointment-modal">
     <div class="modal-card" style="border-top: 4px solid #D97706;">
       <div style="width: 52px; height: 52px; background: #FEF3C7; color: #D97706; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: bold; margin: 0 auto 14px auto;">
