@@ -1,6 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
+  function getInitialBookingDate() {
+    const d = new Date();
+    // Si ya pasaron las 18:00 hs de hoy, la atención de hoy finalizó. Seleccionar el día siguiente.
+    if (d.getHours() >= 18) {
+      d.setDate(d.getDate() + 1);
+    }
+    return d;
+  }
+
   let selectedServiceId = null;
-  let selectedDate = new Date();
+  let selectedDate = getInitialBookingDate();
   let selectedTimeSlot = null;
 
   const servicesContainer = document.getElementById('services-container');
@@ -13,6 +22,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const bookingForm = document.getElementById('booking-form');
   const waPreviewBox = document.getElementById('whatsapp-preview-box');
   const waMessageText = document.getElementById('whatsapp-message-text');
+
+  // Auto-refrescar cuando el usuario vuelve a abrir la app o desbloquea el celular
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      fetchAvailability();
+    }
+  });
+
+  window.addEventListener('focus', () => {
+    fetchAvailability();
+  });
 
   // 1. Cargar servicios
   async function fetchServices() {
