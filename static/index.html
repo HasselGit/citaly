@@ -14,51 +14,53 @@
 
   <div class="app-container">
     
-    <!-- Sticky Header Glassmorphism (Permanece visible al hacer scroll) -->
+    <!-- Sticky Header & Title Block (Queda 100% fijo arriba al hacer scroll) -->
     <header class="brand-header-sticky">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <!-- Isotipo SVG Vectorial Citaly Pro -->
-        <div style="width: 40px; height: 40px; background: #0F172A; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2); flex-shrink: 0;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12" stroke="#F9FAFB" stroke-width="2.5" stroke-linecap="round"/>
-            <path d="M8 12L11 15L21 4" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+      <div class="sticky-top-bar">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <!-- Isotipo Vectorial Citaly Pro -->
+          <div style="width: 36px; height: 36px; background: #0F172A; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2); flex-shrink: 0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12" stroke="#F9FAFB" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M8 12L11 15L21 4" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+
+          <div>
+            <div style="font-family: 'Hanken Grotesk', sans-serif; font-size: 16px; font-weight: 800; color: #0F172A; letter-spacing: -0.03em; line-height: 1.1;">
+              CITALY <span style="color: #D97706;">PRO</span>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em;">
+              Dr. Alejandro Pérez
+            </div>
+          </div>
         </div>
 
-        <div>
-          <div style="font-family: 'Hanken Grotesk', sans-serif; font-size: 18px; font-weight: 800; color: #0F172A; letter-spacing: -0.03em; line-height: 1.1;">
-            CITALY <span style="color: #D97706;">PRO</span>
-          </div>
-          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em;">
-            Dr. Alejandro Pérez
-          </div>
-        </div>
+        <span style="background: #FEF3C7; color: #92400E; font-family: 'Hanken Grotesk', sans-serif; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 9999px; border: 1px solid #FCD34D;">
+          Oficial ✔
+        </span>
       </div>
 
-      <span style="background: #FEF3C7; color: #92400E; font-family: 'Hanken Grotesk', sans-serif; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 9999px; border: 1px solid #FCD34D;">
-        Oficial ✔
-      </span>
+      <!-- Título Principal Fijo -->
+      <div>
+        <h1 class="main-title-sticky">Reserva tu turno</h1>
+        <p class="sub-title-sticky">Selecciona el tratamiento, el día y el horario de tu preferencia.</p>
+      </div>
     </header>
 
-    <!-- Main Title -->
-    <div style="margin-bottom: 20px;">
-      <h1 class="main-title">Reserva tu turno</h1>
-      <p class="sub-title">Selecciona el tratamiento, el día y el horario de tu preferencia.</p>
-    </div>
-
-    <!-- 1. Selecciona un Servicio (Carrusel Horizontal Continuo) -->
+    <!-- 1. Selecciona un Servicio (Grid Bento de 2 Columnas - Rápido y Visible) -->
     <section class="section-card">
       <h2 class="section-title">
         <span>🏥</span>
         <span>1. Tratamiento / Especialidad</span>
       </h2>
 
-      <div class="service-carousel" id="services-container">
-        <!-- Renderizado dinámico de especialidades -->
+      <div class="service-grid" id="services-container">
+        <!-- Renderizado dinámico de especialidades en Bento Grid -->
         <div class="service-card active" data-service-id="s1" data-duration="120">
           <div>
             <div class="service-name">Ortodoncia / Control</div>
-            <div class="service-duration">⏱ Sesión de 120 min</div>
+            <div class="service-duration">⏱ 120 min</div>
           </div>
           <div class="service-price">$15.000 ARS</div>
         </div>
@@ -66,15 +68,15 @@
         <div class="service-card" data-service-id="s2" data-duration="45">
           <div>
             <div class="service-name">Limpieza & Blanqueamiento</div>
-            <div class="service-duration">⏱ Sesión de 45 min</div>
+            <div class="service-duration">⏱ 45 min</div>
           </div>
           <div class="service-price">$8.000 ARS</div>
         </div>
       </div>
     </section>
 
-    <!-- 2. Elige Fecha y Horario -->
-    <section class="section-card">
+    <!-- 2. Elige Fecha y Horario (Encuadrado en Tarjeta con Animación) -->
+    <section class="calendar-card animate-slide-up" id="calendar-section">
       <h2 class="section-title">
         <span>📅</span>
         <span>2. Día y Horario Disponible</span>
@@ -84,13 +86,13 @@
         <span id="current-month-year">Cargando fecha...</span>
       </div>
 
-      <!-- IDs sincronizados con app.js -->
+      <!-- Píldoras de fechas encuadradas -->
       <div class="date-scroll" id="date-scroll-container">
-        <!-- Píldoras de fechas semanales dinámicas -->
+        <!-- Píldoras semanales dinámicas -->
       </div>
 
       <div class="time-grid" id="slots-container">
-        <!-- Horarios dinámicos libres / ocupados -->
+        <!-- Horarios dinámicos libres / ocupados con animación -->
       </div>
     </section>
 

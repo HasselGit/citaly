@@ -46,6 +46,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.service-card').forEach(c => c.classList.remove('active'));
         card.classList.add('active');
         selectedServiceId = card.getAttribute('data-service-id');
+        
+        // Animación suave de transición al revelar el calendario
+        const calSec = document.getElementById('calendar-section');
+        if (calSec) {
+          calSec.classList.remove('animate-slide-up');
+          void calSec.offsetWidth; // Force reflow
+          calSec.classList.add('animate-slide-up');
+        }
+        
         fetchAvailability();
       });
     });
@@ -67,8 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       html += `
         <div class="date-pill ${isSelected ? 'active' : ''}" data-date="${d.toISOString().split('T')[0]}">
-          <span class="date-day-name">${daysName[d.getDay()]}</span>
-          <span class="date-day-num">${d.getDate()}</span>
+          <span class="date-day">${daysName[d.getDay()]}</span>
+          <span class="date-num">${d.getDate()}</span>
         </div>
       `;
     }
@@ -80,6 +89,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
         pill.classList.add('active');
         selectedDate = new Date(pill.getAttribute('data-date'));
+        
+        if (slotsContainer) {
+          slotsContainer.classList.remove('animate-slide-up');
+          void slotsContainer.offsetWidth;
+          slotsContainer.classList.add('animate-slide-up');
+        }
+
         fetchAvailability();
       });
     });
