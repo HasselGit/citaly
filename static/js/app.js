@@ -60,6 +60,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function formatLocalDate(d) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   // 2. Renderizar fechas semanales
   function renderDatePills() {
     const daysName = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
@@ -73,9 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
       const isSelected = d.toDateString() === selectedDate.toDateString();
+      const dateIsoStr = formatLocalDate(d);
 
       html += `
-        <div class="date-pill ${isSelected ? 'active' : ''}" data-date="${d.toISOString().split('T')[0]}">
+        <div class="date-pill ${isSelected ? 'active' : ''}" data-date="${dateIsoStr}">
           <span class="date-day">${daysName[d.getDay()]}</span>
           <span class="date-num">${d.getDate()}</span>
         </div>
@@ -88,7 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
       pill.addEventListener('click', () => {
         document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
         pill.classList.add('active');
-        selectedDate = new Date(pill.getAttribute('data-date'));
+        const [y, m, dayNum] = pill.getAttribute('data-date').split('-').map(Number);
+        selectedDate = new Date(y, m - 1, dayNum);
         
         if (slotsContainer) {
           slotsContainer.classList.remove('animate-slide-up');
@@ -105,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function fetchAvailability() {
     if (!selectedServiceId) return;
 
-    const dateStr = selectedDate.toISOString().split('T')[0];
+    const dateStr = formatLocalDate(selectedDate);
     slotsContainer.innerHTML = `<div style="grid-column: span 3; text-align: center; color: var(--text-muted); font-size: 13px;">Cargando disponibilidad...</div>`;
 
     try {
