@@ -42,6 +42,10 @@ class AppointmentCreateRequest(BaseModel):
     patient_full_name: str
     patient_whatsapp: str
 
+class RescheduleRequest(BaseModel):
+    appointment_id: str
+    new_start_time: str
+
 # --- Endpoints ---
 
 @router.get("/tenant-info", response_model=TenantOut)
@@ -210,6 +214,85 @@ def get_appointments(request: Request, db: Session = Depends(get_db)):
             "token_cancellation": a.token_cancellation
         })
     return result
+
+@router.get("/check-patient")
+def check_patient_existing_appointment(
+    phone: str,
+    service_id: str,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    Verifica si el paciente ya tiene una cita activa agendada para este tratamiento.
+    """
+    subdomain = getattr(request.state, "subdomain", "demo")
+    tenant = db.query(Tenant).filter(Tenant.subdomain == subdomain).first()
+    if not tenant:
+        return {"has_active_appointment": False}
+
+    patient = db.query(Patient).filter(
+        Patient.tenant_id == tenant.id,
+        Patient.whatsapp_phone == phone
+    ).first()
+
+    if not patient:
+        return {"has_active_appointment": False}
+
+    appt = db.query(Appointment).filter(
+        Appointment.tenant_id == tenant.id,
+        Appointment.patient_id == patient.id,
+        Appointment.service_id == service_id,
+        Appointment.status.in_(["SCHEDULED", "CONFIRMED"])
+    ).first()
+
+    if appt:
+        service = db.query(Service).filter(Service.id == appt.service_id).first()
+        return {
+            "has_active_appointment": True,
+            "appointment": {
+                "id": appt.id,
+                "patient_name": patient.full_name,
+                "service_name": service.name if service else "",
+                "start_time_iso": appt.start_time.isoformat(),
+                "start_time_formatted": appt.start_time.strftime("%d/%m/%Y a las %H:%M hs"),
+                "token_cancellation": appt.token_cancellation
+            }
+        }
+
+    return {"has_active_appointment": False}
+
+@router.post("/reschedule")
+def reschedule_appointment(
+    payload: RescheduleRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Reprograma un turno existente a un nuevo horario liberando la fecha anterior.
+    """
+    appt = db.query(Appointment).filter(Appointment.id == payload.appointment_id).first()
+    if not appt:
+        raise HTTPException(status_code=404, detail="Cita no encontrada")
+
+    service = db.query(Service).filter(Service.id == appt.service_id).first()
+    if not service:
+        raise HTTPException(status_code=404, detail="Tratamiento no encontrado")
+
+    try:
+        new_start_dt = datetime.fromisoformat(payload.new_start_time)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Formato de hora inválido")
+
+    new_end_dt = new_start_dt + timedelta(minutes=service.duration_minutes)
+
+    appt.start_time = new_start_dt
+    appt.end_time = new_end_dt
+    appt.status = "SCHEDULED"
+    db.commit()
+
+    return {
+        "success": True,
+        "message": f"Turno reprogramado exitosamente para el {new_start_dt.strftime('%d/%m a las %H:%M hs')}"
+    }
 
 @router.post("/cancel/{token}")
 def cancel_appointment(token: str, db: Session = Depends(get_db)):

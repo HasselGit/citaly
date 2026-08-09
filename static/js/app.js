@@ -137,13 +137,41 @@ document.addEventListener('DOMContentLoaded', () => {
     modalOverlay.classList.remove('active');
   });
 
-  // 5. Finalizar Reserva
+  const existingModal = document.getElementById('existing-appointment-modal');
+  const existingApptInfo = document.getElementById('existing-appt-info');
+  const btnRescheduleExisting = document.getElementById('btn-reschedule-existing');
+  const btnCancelExisting = document.getElementById('btn-cancel-existing');
+  const btnCloseExistingModal = document.getElementById('btn-close-existing-modal');
+
+  let activePatientAppt = null;
+
+  // 5. Finalizar Reserva con comprobación Anti-Duplicados
   bookingForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const name = document.getElementById('patient-name').value;
     const phone = document.getElementById('patient-phone').value;
 
+    // Verificar primero si el paciente ya tiene un turno activo para esta especialidad
+    try {
+      const checkRes = await fetch(`/api/v1/booking/check-patient?phone=${encodeURIComponent(phone)}&service_id=${selectedServiceId}`);
+      const checkData = await checkRes.json();
+
+      if (checkData.has_active_appointment) {
+        activePatientAppt = checkData.appointment;
+        existingApptInfo.innerText = `Hola ${checkData.appointment.patient_name}, detectamos que ya tienes una cita de ${checkData.appointment.service_name} el día ${checkData.appointment.start_time_formatted}. ¿Deseas reprogramarla para la nueva fecha elegida o cancelarla?`;
+        existingModal.style.display = 'flex';
+        modalOverlay.classList.remove('active');
+        return;
+      }
+    } catch (err) {
+      console.warn('Error al verificar turno existente:', err);
+    }
+
+    createAppointmentCall(name, phone);
+  });
+
+  async function createAppointmentCall(name, phone) {
     try {
       const res = await fetch('/api/v1/booking/appointments', {
         method: 'POST',
@@ -172,7 +200,55 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Ocurrió un error al procesar la reserva. Intenta de nuevo.');
       console.error(err);
     }
-  });
+  }
+
+  // Acciones Modal Cita Existente (Reprogramar / Cancelar)
+  if (btnRescheduleExisting) {
+    btnRescheduleExisting.addEventListener('click', async () => {
+      if (!activePatientAppt) return;
+      try {
+        const res = await fetch('/api/v1/booking/reschedule', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            appointment_id: activePatientAppt.id,
+            new_start_time: selectedTimeSlot
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('✅ ' + data.message);
+          existingModal.style.display = 'none';
+          fetchAvailability();
+        }
+      } catch (e) {
+        alert('Error al reprogramar el turno.');
+      }
+    });
+  }
+
+  if (btnCancelExisting) {
+    btnCancelExisting.addEventListener('click', async () => {
+      if (!activePatientAppt) return;
+      try {
+        const res = await fetch(`/api/v1/booking/cancel/${activePatientAppt.token_cancellation}`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          alert('✅ Cita anterior cancelada exitosamente. El horario ha sido liberado.');
+          existingModal.style.display = 'none';
+          fetchAvailability();
+        }
+      } catch (e) {
+        alert('Error al cancelar el turno.');
+      }
+    });
+  }
+
+  if (btnCloseExistingModal) {
+    btnCloseExistingModal.addEventListener('click', () => {
+      existingModal.style.display = 'none';
+    });
+  }
 
   // Inicialización
   renderDatePills();

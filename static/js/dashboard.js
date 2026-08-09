@@ -14,13 +14,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const metricConfirmados = document.getElementById('metric-confirmados');
   const metricPendientes = document.getElementById('metric-pendientes');
 
+  const countOrtodoncia = document.getElementById('count-ortodoncia');
+  const countLimpieza = document.getElementById('count-limpieza');
+
   const filterDayBtn = document.getElementById('filter-day');
   const filterWeekBtn = document.getElementById('filter-week');
   const filterMonthBtn = document.getElementById('filter-month');
-  const serviceFilterSelect = document.getElementById('service-filter-select');
+  const specialtyPills = document.querySelectorAll('.specialty-pill-btn');
 
   let allAppointments = [];
   let currentFilter = 'day';
+  let selectedSpecialty = 'all';
 
   // 1. Navegación por pestañas (SPA Tab Switching)
   function showTab(tabName) {
@@ -28,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tabReservas) tabReservas.style.display = tabName === 'reservas' ? 'block' : 'none';
     if (tabWhatsapp) tabWhatsapp.style.display = tabName === 'whatsapp' ? 'block' : 'none';
 
-    // Actualizar estilos de los botones activos
     updateNavStyles(tabName);
   }
 
@@ -69,16 +72,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let filtered = [...allAppointments];
 
-    const selectedService = serviceFilterSelect ? serviceFilterSelect.value : 'all';
-    if (selectedService !== 'all') {
-      filtered = filtered.filter(a => a.service_name === selectedService);
+    if (selectedSpecialty !== 'all') {
+      filtered = filtered.filter(a => a.service_name === selectedSpecialty);
     }
 
     if (filtered.length === 0) {
       agendaContainer.innerHTML = `
         <div class="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
           <span class="material-symbols-outlined text-4xl text-slate-400 mb-2">event_busy</span>
-          <p class="text-sm font-semibold text-slate-600">No hay turnos registrados en este período.</p>
+          <p class="text-sm font-semibold text-slate-600">No hay turnos registrados para este filtro.</p>
           <p class="text-xs text-slate-400 mt-1">Los turnos solicitados por los pacientes aparecerán aquí con su detalle.</p>
         </div>
       `;
@@ -155,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
     `).join('');
   }
 
-  // 5. Actualizar Métricas Reales
+  // 5. Actualizar Métricas Reales y Conteo por Especialidad
   function updateMetrics() {
     const total = allAppointments.length;
     const confirmados = allAppointments.filter(a => a.status === 'SCHEDULED' || a.status === 'CONFIRMED').length;
@@ -163,13 +165,33 @@ document.addEventListener('DOMContentLoaded', () => {
     if (metricTotalTurnos) metricTotalTurnos.innerText = total;
     if (metricConfirmados) metricConfirmados.innerText = confirmados;
     if (metricPendientes) metricPendientes.innerText = total - confirmados;
+
+    const countOrt = allAppointments.filter(a => a.service_name.includes('Ortodoncia')).length;
+    const countLimp = allAppointments.filter(a => a.service_name.includes('Limpieza')).length;
+
+    if (countOrtodoncia) countOrtodoncia.innerText = `${countOrt} turnos agendados`;
+    if (countLimpieza) countLimpieza.innerText = `${countLimp} turnos agendados`;
   }
+
+  // Event Listeners de Filtros Píldoras de Especialidad
+  specialtyPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      specialtyPills.forEach(p => {
+        p.classList.remove('bg-primary', 'text-white');
+        p.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+      });
+      pill.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+      pill.classList.add('bg-primary', 'text-white');
+
+      selectedSpecialty = pill.getAttribute('data-specialty');
+      renderAgenda();
+    });
+  });
 
   // Event Listeners de Filtros Día / Semana / Mes
   if (filterDayBtn) filterDayBtn.addEventListener('click', () => { currentFilter = 'day'; setActiveFilterBtn(filterDayBtn); renderAgenda(); });
   if (filterWeekBtn) filterWeekBtn.addEventListener('click', () => { currentFilter = 'week'; setActiveFilterBtn(filterWeekBtn); renderAgenda(); });
   if (filterMonthBtn) filterMonthBtn.addEventListener('click', () => { currentFilter = 'month'; setActiveFilterBtn(filterMonthBtn); renderAgenda(); });
-  if (serviceFilterSelect) serviceFilterSelect.addEventListener('change', renderAgenda);
 
   function setActiveFilterBtn(activeBtn) {
     [filterDayBtn, filterWeekBtn, filterMonthBtn].forEach(btn => {

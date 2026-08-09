@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-  <title>Dashboard Citaly Pro - Panel de Administración</title>
+  <title>Dashboard Citaly Pro - Executive Precision</title>
   <link rel="manifest" href="/static/manifest.json">
   <meta name="theme-color" content="#0F172A">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -221,14 +221,39 @@
           </div>
         </div>
 
-        <!-- Filtro por Especialidad -->
-        <div class="glass-card rounded-xl p-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Filtrar por Especialidad:</label>
-          <select id="service-filter-select" class="w-full sm:w-72 p-2 bg-slate-100 border border-slate-300 rounded-xl text-xs font-bold text-primary">
-            <option value="all">Ver Todas las Especialidades</option>
-            <option value="Ortodoncia / Control">Ortodoncia / Control (2 hs)</option>
-            <option value="Limpieza & Blanqueamiento">Limpieza & Blanqueamiento (45 min)</option>
-          </select>
+        <!-- Filtro por Especialidad (Píldoras Estilizadas Executive en vez de desplegable negro) -->
+        <div class="glass-card rounded-2xl p-4 mb-6">
+          <span class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Filtrar por Especialidad / Servicio:</span>
+          <div class="flex items-center gap-2 overflow-x-auto pb-1" id="specialty-pills-container">
+            <button data-specialty="all" class="specialty-pill-btn px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl transition-all shadow-sm">
+              Ver Todas las Especialidades
+            </button>
+            <button data-specialty="Ortodoncia / Control" class="specialty-pill-btn px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-all">
+              Ortodoncia / Control (2 hs)
+            </button>
+            <button data-specialty="Limpieza & Blanqueamiento" class="specialty-pill-btn px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-all">
+              Limpieza & Blanqueamiento (45 min)
+            </button>
+          </div>
+        </div>
+
+        <!-- Resumen de Ocupación por Especialidad -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div class="glass-card rounded-2xl p-4 flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-slate-500 uppercase">Ortodoncia / Control (2hs)</div>
+              <div id="count-ortodoncia" class="text-xl font-extrabold text-primary">0 turnos agendados</div>
+            </div>
+            <span class="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-lg">Bloque 120 min</span>
+          </div>
+
+          <div class="glass-card rounded-2xl p-4 flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-slate-500 uppercase">Limpieza & Blanqueamiento (45m)</div>
+              <div id="count-limpieza" class="text-xl font-extrabold text-primary">0 turnos agendados</div>
+            </div>
+            <span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-lg">Bloque 45 min</span>
+          </div>
         </div>
 
         <!-- Listado de Turnos Agendados -->
@@ -248,7 +273,7 @@
         
         <div class="mb-6">
           <h2 class="text-2xl md:text-3xl font-bold text-primary tracking-tight mb-1">Monitor de WhatsApp Automatizado</h2>
-          <p class="text-xs md:text-sm text-on-surface-variant">Trazabilidad de los mensajes de confirmación enviadas vía Meta Cloud API.</p>
+          <p class="text-xs md:text-sm text-on-surface-variant">Trazabilidad de los mensajes de confirmación enviados vía Meta Cloud API.</p>
         </div>
 
         <div class="glass-card rounded-2xl p-6 elevation-2">

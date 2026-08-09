@@ -104,6 +104,31 @@
     </div>
   </div>
 
+  <!-- Modal de Gestión / Aviso de Turno Existente -->
+  <div class="modal-overlay" id="existing-appointment-modal" style="display: none;">
+    <div class="modal-card">
+      <div style="width: 48px; height: 48px; background: #FEF3C7; color: #D97706; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin: 0 auto 12px auto;">
+        ℹ️
+      </div>
+      <h3 style="font-family: 'Hanken Grotesk', sans-serif; font-size: 18px; font-weight: 800; text-align: center; margin-bottom: 8px;">Ya tienes una cita agendada</h3>
+      <p style="color: var(--text-muted); font-size: 13px; text-align: center; margin-bottom: 16px;" id="existing-appt-info">
+        Detectamos un turno activo a tu nombre. Para evitar ausentismos, solo puedes tener 1 cita activa por especialidad.
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <button type="button" id="btn-reschedule-existing" class="btn-primary" style="background: var(--navy-primary);">
+          🔄 Reprogramar para la Nueva Fecha
+        </button>
+        <button type="button" id="btn-cancel-existing" class="btn-primary" style="background: #EF4444; margin-top: 4px;">
+          ❌ Cancelar Cita Existente y Liberar Slot
+        </button>
+        <button type="button" id="btn-close-existing-modal" style="width: 100%; background: none; border: none; padding: 10px; color: var(--text-muted); font-weight: 600; cursor: pointer; font-size: 13px;">
+          Volver
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script src="/static/js/app.js"></script>
 </body>
 </html>
