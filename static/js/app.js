@@ -1,0 +1,180 @@
+document.addEventListener('DOMContentLoaded', () => {
+  let selectedServiceId = null;
+  let selectedDate = new Date();
+  let selectedTimeSlot = null;
+
+  const servicesContainer = document.getElementById('services-container');
+  const dateScrollContainer = document.getElementById('date-scroll-container');
+  const slotsContainer = document.getElementById('slots-container');
+  const currentMonthYear = document.getElementById('current-month-year');
+  const btnOpenModal = document.getElementById('btn-open-modal');
+  const modalOverlay = document.getElementById('booking-modal');
+  const btnCloseModal = document.getElementById('btn-close-modal');
+  const bookingForm = document.getElementById('booking-form');
+  const waPreviewBox = document.getElementById('whatsapp-preview-box');
+  const waMessageText = document.getElementById('whatsapp-message-text');
+
+  // 1. Cargar servicios
+  async function fetchServices() {
+    try {
+      const res = await fetch('/api/v1/booking/services');
+      const services = await res.json();
+      
+      if (services && services.length > 0) {
+        servicesContainer.innerHTML = services.map((s, idx) => `
+          <div class="service-card ${idx === 0 ? 'active' : ''}" data-service-id="${s.id}" data-duration="${s.duration_minutes}">
+            <div>
+              <div class="service-name">${s.name}</div>
+              <div class="service-duration">⏱ ${s.duration_minutes >= 60 ? (s.duration_minutes / 60) + ' hs' : s.duration_minutes + ' min'}</div>
+            </div>
+            <div class="service-price">$${s.price ? Number(s.price).toLocaleString('es-AR') : 0} ARS</div>
+          </div>
+        `).join('');
+
+        selectedServiceId = services[0].id;
+        attachServiceClickEvents();
+        fetchAvailability();
+      }
+    } catch (e) {
+      console.error('Error al cargar servicios:', e);
+    }
+  }
+
+  function attachServiceClickEvents() {
+    document.querySelectorAll('.service-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.service-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        selectedServiceId = card.getAttribute('data-service-id');
+        fetchAvailability();
+      });
+    });
+  }
+
+  // 2. Renderizar fechas semanales
+  function renderDatePills() {
+    const daysName = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    const monthsName = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    
+    let html = '';
+    const today = new Date();
+    currentMonthYear.innerText = `${monthsName[today.getMonth()]} ${today.getFullYear()}`;
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      const isSelected = d.toDateString() === selectedDate.toDateString();
+
+      html += `
+        <div class="date-pill ${isSelected ? 'active' : ''}" data-date="${d.toISOString().split('T')[0]}">
+          <span class="date-day-name">${daysName[d.getDay()]}</span>
+          <span class="date-day-num">${d.getDate()}</span>
+        </div>
+      `;
+    }
+
+    dateScrollContainer.innerHTML = html;
+
+    document.querySelectorAll('.date-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        selectedDate = new Date(pill.getAttribute('data-date'));
+        fetchAvailability();
+      });
+    });
+  }
+
+  // 3. Cargar disponibilidad desde la API
+  async function fetchAvailability() {
+    if (!selectedServiceId) return;
+
+    const dateStr = selectedDate.toISOString().split('T')[0];
+    slotsContainer.innerHTML = `<div style="grid-column: span 3; text-align: center; color: var(--text-muted); font-size: 13px;">Cargando disponibilidad...</div>`;
+
+    try {
+      const res = await fetch(`/api/v1/booking/availability?service_id=${selectedServiceId}&target_date_str=${dateStr}`);
+      const data = await res.json();
+
+      if (data.slots && data.slots.length > 0) {
+        slotsContainer.innerHTML = data.slots.map(slot => {
+          if (slot.is_available) {
+            return `<div class="slot-pill available" data-iso="${slot.start_iso}">${slot.time_str}</div>`;
+          } else {
+            return `<div class="slot-pill disabled">${slot.time_str}</div>`;
+          }
+        }).join('');
+
+        attachSlotClickEvents();
+      } else {
+        slotsContainer.innerHTML = `<div style="grid-column: span 3; text-align: center; color: var(--text-muted); font-size: 13px;">No hay turnos disponibles para este día.</div>`;
+      }
+    } catch (e) {
+      console.error('Error al cargar disponibilidad:', e);
+    }
+  }
+
+  function attachSlotClickEvents() {
+    document.querySelectorAll('.slot-pill.available').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.slot-pill').forEach(p => p.classList.remove('selected'));
+        pill.classList.add('selected');
+        selectedTimeSlot = pill.getAttribute('data-iso');
+      });
+    });
+  }
+
+  // 4. Modal de Confirmación
+  btnOpenModal.addEventListener('click', () => {
+    if (!selectedTimeSlot) {
+      alert('Por favor, selecciona un horario disponible primero.');
+      return;
+    }
+    modalOverlay.classList.add('active');
+  });
+
+  btnCloseModal.addEventListener('click', () => {
+    modalOverlay.classList.remove('active');
+  });
+
+  // 5. Finalizar Reserva
+  bookingForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('patient-name').value;
+    const phone = document.getElementById('patient-phone').value;
+
+    try {
+      const res = await fetch('/api/v1/booking/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service_id: selectedServiceId,
+          start_time: selectedTimeSlot,
+          patient_full_name: name,
+          patient_whatsapp: phone
+        })
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        waMessageText.innerText = result.whatsapp_preview;
+        waPreviewBox.style.display = 'block';
+        
+        setTimeout(() => {
+          alert('¡Reserva confirmada con éxito!');
+          modalOverlay.classList.remove('active');
+          fetchAvailability();
+        }, 3000);
+      }
+    } catch (err) {
+      alert('Ocurrió un error al procesar la reserva. Intenta de nuevo.');
+      console.error(err);
+    }
+  });
+
+  // Inicialización
+  renderDatePills();
+  fetchServices();
+});

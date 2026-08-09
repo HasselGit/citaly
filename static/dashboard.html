@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Citaly Pro</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <style>
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: 100vh;
+      background: #F8FAFC;
+    }
+
+    .sidebar {
+      background: #0F172A;
+      color: #FFFFFF;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .sidebar-brand {
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-item {
+      padding: 12px 16px;
+      border-radius: 10px;
+      color: #94A3B8;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: #1E293B;
+      color: #FFFFFF;
+    }
+
+    .main-content {
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .metric-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05);
+    }
+
+    .metric-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #64748B;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-value {
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      color: #0F172A;
+      margin: 8px 0 4px 0;
+    }
+
+    .metric-subtext {
+      font-size: 13px;
+      color: #64748B;
+    }
+
+    .qr-banner {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span>Citaly</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active">📊 Dashboard</a>
+        <a href="#" class="nav-item">📅 Calendario</a>
+        <a href="#" class="nav-item">👥 Clientes</a>
+        <a href="#" class="nav-item">⚙️ Configuración</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <span style="color: #64748B; font-size: 13px; font-weight: 600;">Resumen de Actividad</span>
+          <h1 style="font-family: 'Hanken Grotesk', sans-serif; font-size: 28px; font-weight: 800; color: #0F172A;">Buen día, equipo</h1>
+          <p style="color: #64748B; font-size: 14px;">Aquí tienes el impacto de tu gestión automatizada de esta semana.</p>
+        </div>
+      </div>
+
+      <!-- Metrics Row -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">REDUCCIÓN DE AUSENTISMO</div>
+          <div class="metric-value" style="color: #D97706;">-42%</div>
+          <div class="metric-subtext">este mes</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-label">HORAS AHORRADAS</div>
+          <div class="metric-value">18 <span style="font-size: 20px;">hs</span></div>
+          <div class="metric-subtext">En gestión manual de reservas</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-label">RECORDATORIOS ENVIADOS</div>
+          <div class="metric-value">142</div>
+          <div class="metric-subtext" style="color: #10B981;">+12% vs semana anterior</div>
+        </div>
+      </div>
+
+      <!-- Growth QR Banner Card -->
+      <div class="qr-banner">
+        <div>
+          <h3 style="font-family: 'Hanken Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: #0F172A; margin-bottom: 6px;">Crecer tu agenda</h3>
+          <p style="color: #64748B; font-size: 14px; max-width: 480px; margin-bottom: 16px;">Comparte tu enlace único de reservas en redes sociales o imprímelo para tu mostrador. Los clientes podrán agendar 24/7 sin contactarte.</p>
+          <button class="btn-primary" style="width: auto; padding: 12px 20px;" onclick="copyLink()">
+            🔗 Compartir Link de Reserva
+          </button>
+        </div>
+
+        <div style="text-align: center; background: #F8FAFC; padding: 16px; border-radius: 12px; border: 1px dashed #CBD5E1;">
+          <div style="font-size: 40px;">📱</div>
+          <span style="font-size: 11px; font-weight: 600; color: #64748B;">Escanea para reservar</span>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script>
+    function copyLink() {
+      navigator.clipboard.writeText(window.location.origin + '/?tenant=drperez');
+      alert('¡Link del consultorio copiado al portapapeles!');
+    }
+  </script>
+</body>
+</html>

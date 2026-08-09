@@ -1,0 +1,345 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700;800&family=JetBrains+Mono:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap');
+
+:root {
+  --primary-navy: #0F172A;
+  --primary-navy-hover: #1E293B;
+  --accent-amber: #D97706;
+  --accent-amber-light: #FEF3C7;
+  --bg-neutral: #F9FAFB;
+  --surface-card: #FFFFFF;
+  --surface-secondary: #F3F4F6;
+  --text-dark: #0F172A;
+  --text-muted: #64748B;
+  --text-disabled: #94A3B8;
+  --border-light: #E2E8F0;
+  --radius-card: 16px;
+  --radius-pill: 9999px;
+  --shadow-soft: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -1px rgba(15, 23, 42, 0.03);
+  --shadow-elevated: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.04);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Work Sans', sans-serif;
+  background-color: var(--bg-neutral);
+  color: var(--text-dark);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Container Mobile-First */
+.app-container {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: var(--bg-neutral);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Header */
+.header-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--surface-card);
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-soft);
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.verified-icon {
+  color: var(--accent-amber);
+  font-size: 16px;
+}
+
+.main-title {
+  text-align: center;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--primary-navy);
+  margin-top: 4px;
+}
+
+.sub-title {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-top: -12px;
+  margin-bottom: 8px;
+}
+
+/* Sections & Cards */
+.section-card {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-card);
+  padding: 20px;
+  box-shadow: var(--shadow-soft);
+}
+
+.section-title {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-navy);
+  margin-bottom: 14px;
+}
+
+/* Service Options */
+.service-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.service-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-radius: 12px;
+  border: 2px solid var(--border-light);
+  background-color: var(--surface-card);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.service-card:hover, .service-card.active {
+  border-color: var(--primary-navy);
+  background-color: #F8FAFC;
+  box-shadow: var(--shadow-elevated);
+}
+
+.service-card.active {
+  border-width: 2px;
+}
+
+.service-name {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--primary-navy);
+}
+
+.service-duration {
+  font-size: 13px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.service-price {
+  font-family: 'JetBrains Mono', monospace;
+  background-color: var(--primary-navy);
+  color: #FFFFFF;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Calendar Date Selector */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.date-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+}
+
+.date-pill {
+  flex: 0 0 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  background-color: var(--surface-card);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.date-pill.active {
+  background-color: var(--primary-navy);
+  color: #FFFFFF;
+  border-color: var(--primary-navy);
+  box-shadow: var(--shadow-elevated);
+}
+
+.date-day-name {
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.date-day-num {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+/* Time Slots Grid */
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.slot-pill {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  background-color: var(--surface-card);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.slot-pill.available:hover, .slot-pill.selected {
+  background-color: var(--primary-navy);
+  color: #FFFFFF;
+  border-color: var(--primary-navy);
+}
+
+.slot-pill.disabled {
+  background-color: var(--surface-secondary);
+  color: var(--text-disabled);
+  border-color: var(--border-light);
+  text-decoration: line-through;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* CTA Button */
+.btn-primary {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  background-color: var(--primary-navy);
+  color: #FFFFFF;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: var(--shadow-elevated);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-navy-hover);
+  transform: translateY(-1px);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--surface-card);
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal-card {
+  transform: translateY(0);
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  font-family: 'Work Sans', sans-serif;
+  font-size: 15px;
+  background: var(--bg-neutral);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-navy);
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
+}
+
+/* Live WhatsApp Preview Box */
+.whatsapp-preview-card {
+  background-color: #DCF8C6;
+  border-radius: 12px;
+  padding: 14px;
+  border-left: 4px solid #25D366;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #075E54;
+  line-height: 1.4;
+  box-shadow: var(--shadow-soft);
+}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Reserva tu turno - Citaly</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Business Header Badge -->
+    <header class="header-badge">
+      <span id="business-name">Consultorio Odontológico Dr. Pérez</span>
+      <span class="verified-icon">✔</span>
+    </header>
+
+    <!-- Main Title -->
+    <div>
+      <h1 class="main-title">Reserva tu turno</h1>
+      <p class="sub-title">Selecciona el servicio, la fecha y el horario de tu preferencia.</p>
+    </div>
+
+    <!-- 1. Selecciona un Servicio -->
+    <section class="section-card">
+      <h2 class="section-title">1. Selecciona un Servicio</h2>
+      <div class="service-list" id="services-container">
+        <!-- Renderizado dinámico de servicios -->
+        <div class="service-card active" data-service-id="s1" data-duration="120">
+          <div>
+            <div class="service-name">Ortodoncia / Control</div>
+            <div class="service-duration">⏱ 2 hs</div>
+          </div>
+          <div class="service-price">$15.000 ARS</div>
+        </div>
+        <div class="service-card" data-service-id="s2" data-duration="45">
+          <div>
+            <div class="service-name">Limpieza & Blanqueamiento</div>
+            <div class="service-duration">⏱ 45 min</div>
+          </div>
+          <div class="service-price">$8.000 ARS</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Elige Fecha y Horario -->
+    <section class="section-card">
+      <h2 class="section-title">2. Elige Fecha y Horario</h2>
+      
+      <div class="calendar-header">
+        <span id="current-month-year">Octubre 2023</span>
+        <div>‹ ›</div>
+      </div>
+
+      <!-- Date Pills Scroll -->
+      <div class="date-scroll" id="date-scroll-container">
+        <!-- Generación dinámica de fechas -->
+      </div>
+
+      <!-- Available & Occupied Time Slots Grid -->
+      <div class="slots-grid" id="slots-container">
+        <!-- Generación dinámica de slots libres/ocupados -->
+      </div>
+    </section>
+
+    <!-- Confirm Booking Button -->
+    <button class="btn-primary" id="btn-open-modal">
+      Confirmar Reserva ✔
+    </button>
+
+  </div>
+
+  <!-- Modal/Drawer de Confirmación de Datos del Paciente -->
+  <div class="modal-overlay" id="booking-modal">
+    <div class="modal-card">
+      <h3 style="font-family: 'Hanken Grotesk', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 12px;">Ingresa tus Datos</h3>
+      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Te enviaremos el recordatorio automático a tu WhatsApp 24h antes.</p>
+      
+      <form id="booking-form">
+        <div class="form-group">
+          <label class="form-label">Nombre Completo</label>
+          <input type="text" id="patient-name" class="form-input" placeholder="Ej. Juan Pérez" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Celular (WhatsApp)</label>
+          <input type="tel" id="patient-phone" class="form-input" placeholder="Ej. +5491112345678" required>
+        </div>
+
+        <button type="submit" class="btn-primary" style="margin-top: 12px;">
+          Finalizar Reserva ✔
+        </button>
+        <button type="button" id="btn-close-modal" style="width: 100%; background: none; border: none; padding: 12px; margin-top: 6px; color: var(--text-muted); font-weight: 600; cursor: pointer;">
+          Cancelar
+        </button>
+      </form>
+
+      <!-- Resumen / Previa del WhatsApp al Confirmar -->
+      <div id="whatsapp-preview-box" class="whatsapp-preview-card" style="display: none;">
+        <strong>WhatsApp Enviado en Tiempo Real:</strong>
+        <p id="whatsapp-message-text" style="margin-top: 6px;"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

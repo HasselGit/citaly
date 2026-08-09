@@ -9,6 +9,7 @@ from app.core.config import settings
 from app.db.session import engine, Base, get_db
 from app.middleware.tenant import SubdomainTenantMiddleware
 from app.models import Tenant, Service, Patient, Appointment, WhatsAppLog
+from app.api.v1.endpoints.booking import router as booking_router
 
 # Crear las tablas en la base de datos de Supabase si no existen
 try:
@@ -34,6 +35,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Registrar Routers
+app.include_router(booking_router)
+
+# Montar archivos estáticos del frontend
+if os.path.exists("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/api/health")
 def health_check(request: Request, db: Session = Depends(get_db)):
