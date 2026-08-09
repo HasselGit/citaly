@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateMetrics() {
     const totalCount = allAppointments.length;
     if (metricRecordatorios) {
-      metricRecordatorios.innerText = totalCount > 0 ? totalCount : '142';
+      metricRecordatorios.innerText = totalCount;
     }
   }
 
