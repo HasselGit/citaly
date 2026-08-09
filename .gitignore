@@ -2,6 +2,12 @@
 .env
 .env.local
 
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+citaly_dev.db
+
 # Python
 __pycache__/
 *.py[cod]
