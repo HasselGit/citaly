@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         statusBadge = `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-lg flex items-center gap-1">🟡 Recordatorio Enviado</span>`;
         borderClass = 'border-amber-500 bg-amber-50/60';
       } else if (a.status === 'CANCELLED') {
-        statusBadge = `<span class="px-2.5 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-lg flex items-center gap-1">🔴 Slot Liberado</span>`;
+        statusBadge = `<span class="px-2.5 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-lg flex items-center gap-1">🔴 Horario Liberado</span>`;
         borderClass = 'border-red-400 bg-red-50/60';
       }
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Citaly Pro - Reserva tu Turno</title>
+  <title>Citaly Pro - Reserva de Turnos</title>
   
   <!-- Fonts: Hanken Grotesk, Work Sans, JetBrains Mono -->
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
@@ -14,23 +14,29 @@
 
   <div class="app-container">
     
-    <!-- Header con Logo Corporativo Minimalista Citaly Pro -->
-    <header class="brand-header border-b border-slate-200/80 pb-4 mb-6 flex items-center justify-between">
-      <div style="display: flex; items-center: center; gap: 10px;">
-        <div style="width: 36px; height: 36px; background: #0F172A; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #D97706; font-size: 18px; font-weight: 800; box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.15);">
-          ✓
+    <!-- Logo Corporativo Citaly Pro (Vector SVG Elegante & Minimalista) -->
+    <header class="brand-header border-b border-slate-200/80 pb-4 mb-6 flex items-center justify-between" style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid #E2E8F0; margin-bottom: 24px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <!-- Isotipo SVG Vectorial de Alta Gama Citaly Pro -->
+        <div style="width: 42px; height: 42px; background: #0F172A; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); position: relative; overflow: hidden;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12" stroke="#F9FAFB" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M8 12L11 15L21 4" stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
+
         <div>
-          <div style="font-family: 'Hanken Grotesk', sans-serif; font-size: 18px; font-weight: 800; color: #0F172A; letter-spacing: -0.02em; line-height: 1.1;">
-            CITALY <span style="color: #D97706;">PRO</span>
+          <div style="font-family: 'Hanken Grotesk', sans-serif; font-size: 20px; font-weight: 800; color: #0F172A; letter-spacing: -0.03em; line-height: 1.1;">
+            CITALY <span style="color: #D97706; font-weight: 800;">PRO</span>
           </div>
-          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em;">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 1px;">
             Consultorio Dr. Alejandro Pérez
           </div>
         </div>
       </div>
-      <span class="verified-badge" style="background: #FEF3C7; color: #92400E; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 9999px;">
-        Oficial ✔
+
+      <span style="background: #FEF3C7; color: #92400E; font-family: 'Hanken Grotesk', sans-serif; font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 9999px; border: 1px solid #FCD34D; display: flex; align-items: center; gap: 4px;">
+        <span>✔</span> Oficial
       </span>
     </header>
 
@@ -67,14 +73,15 @@
       <h2 class="section-title">2. Día y Horario</h2>
       
       <div class="calendar-header">
-        <span id="current-month-year">Cargando...</span>
+        <span id="current-month-year">Cargando fecha...</span>
       </div>
 
-      <div class="date-scroll" id="date-pills-container">
-        <!-- Píldoras de fechas -->
+      <!-- IDs sincronizados con app.js -->
+      <div class="date-scroll" id="date-scroll-container">
+        <!-- Píldoras de fechas semanales dinámicas -->
       </div>
 
-      <div class="time-grid" id="time-slots-container">
+      <div class="time-grid" id="slots-container">
         <!-- Horarios dinámicos libres / ocupados -->
       </div>
     </section>
@@ -127,7 +134,7 @@
       </div>
       <h3 style="font-family: 'Hanken Grotesk', sans-serif; font-size: 20px; font-weight: 800; text-align: center; color: #0F172A; margin-bottom: 8px;">Ya tienes una cita agendada</h3>
       <p style="color: #475569; font-size: 14px; text-align: center; line-height: 1.5; margin-bottom: 20px;" id="existing-appt-info">
-        Detectamos un turno activo a tu nombre. ¿Deseas reprogramarlo para la nueva fecha elegida o cancelarlo?
+        Detectamos un turno activo a tu nombre. ¿Deseas reprogramarlo para el nuevo día y horario elegido o cancelarlo?
       </p>
 
       <div style="display: flex; flex-direction: column; gap: 10px;">
