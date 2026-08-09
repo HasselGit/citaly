@@ -1,5 +1,9 @@
 # CITALY - Plataforma SaaS Universal de Agendas Inteligentes & Reducción de Ausentismo por WhatsApp
 
+> 🤖 **Directrices para Agentes de IA:** Consulta el archivo [PROJECT_STATE.md](file:///c:/Users/Usuario/Desktop/Citaly/PROJECT_STATE.md) para ver el estado exacto del desarrollo y las instrucciones de continuación.
+
+---
+
 Citaly es un sistema de agenda inteligente mobile-first diseñado para automatizar la reserva de turnos, el bloqueo dinámico de horarios por tratamiento/duración y la reducción del ausentismo mediante recordatorios automáticos por WhatsApp (**Meta Cloud API**).
 
 ---
