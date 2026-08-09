@@ -179,8 +179,37 @@ def create_appointment(
         "patient_name": patient.full_name,
         "start_time": appointment.start_time.isoformat(),
         "cancellation_token": token_cancel,
-        "whatsapp_preview": f"✅ Tu cita con {tenant.business_name} para {service.name} está confirmada para el {appointment.start_time.strftime('%d/%m a las %H:%M hs')}. Reprogramar o cancelar aquí: https://citaly.com/r/{token_cancel}"
+        "whatsapp_preview": f"✅ Tu cita con {tenant.business_name} para {service.name} está confirmada para el {appointment.start_time.strftime('%d/%m a las %H:%M hs')}. Reprogramar o cancelar aquí: https://citaly-six.vercel.app/r/{token_cancel}"
     }
+
+@router.get("/appointments")
+def get_appointments(request: Request, db: Session = Depends(get_db)):
+    """
+    Retorna la lista de turnos agendados para el Dashboard de la secretaria.
+    """
+    subdomain = getattr(request.state, "subdomain", "demo")
+    tenant = db.query(Tenant).filter(Tenant.subdomain == subdomain).first()
+    if not tenant:
+        return []
+
+    appts = db.query(Appointment).filter(Appointment.tenant_id == tenant.id).order_by(Appointment.start_time.asc()).all()
+    
+    result = []
+    for a in appts:
+        patient = db.query(Patient).filter(Patient.id == a.patient_id).first()
+        service = db.query(Service).filter(Service.id == a.service_id).first()
+        result.append({
+            "id": a.id,
+            "patient_name": patient.full_name if patient else "Paciente",
+            "patient_whatsapp": patient.whatsapp_phone if patient else "",
+            "service_name": service.name if service else "Servicio",
+            "duration_minutes": service.duration_minutes if service else 30,
+            "start_time": a.start_time.isoformat(),
+            "time_str": a.start_time.strftime("%H:%M"),
+            "status": a.status,
+            "token_cancellation": a.token_cancellation
+        })
+    return result
 
 @router.post("/cancel/{token}")
 def cancel_appointment(token: str, db: Session = Depends(get_db)):

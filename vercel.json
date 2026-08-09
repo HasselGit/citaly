@@ -20,6 +20,10 @@
       "dest": "/static/dashboard.html"
     },
     {
+      "src": "/r/(.*)",
+      "dest": "/static/cancel.html?token=$1"
+    },
+    {
       "src": "/static/(.*)",
       "dest": "/static/$1"
     },
