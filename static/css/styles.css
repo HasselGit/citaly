@@ -201,35 +201,51 @@ h1, h2, h3, h4, .font-display {
   color: var(--primary-navy);
 }
 
-.date-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+/* Stacked Overlapping Day Cards Deck (Efecto de tarjetas superpuestas sin scroll) */
+.date-scroll {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  padding: 10px 4px 12px 4px;
+  overflow: visible;
 }
 
 .date-pill {
+  flex: 1;
+  margin-left: -8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 12px 6px;
-  background: var(--surface-muted);
+  padding: 12px 2px;
+  background: #FFFFFF;
   border: 1.5px solid var(--border-light);
-  border-radius: 14px;
+  border-radius: 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-shadow: -4px 0 10px rgba(15, 23, 42, 0.06);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  z-index: 1;
+}
+
+.date-pill:first-child {
+  margin-left: 0;
 }
 
 .date-pill:hover {
-  border-color: var(--primary-navy);
+  z-index: 10;
+  transform: translateY(-4px) scale(1.05);
+  border-color: var(--secondary-amber);
 }
 
 .date-pill.active {
   background: var(--primary-navy);
   border-color: var(--primary-navy);
   color: #FFFFFF !important;
-  transform: scale(1.05);
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
+  z-index: 20;
+  transform: translateY(-6px) scale(1.12);
+  box-shadow: 0 10px 22px -4px rgba(15, 23, 42, 0.35);
 }
 
 .date-pill.active .date-day,
