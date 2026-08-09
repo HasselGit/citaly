@@ -10,6 +10,8 @@ from app.db.session import engine, Base, get_db
 from app.middleware.tenant import SubdomainTenantMiddleware
 from app.models import Tenant, Service, Patient, Appointment, WhatsAppLog
 from app.api.v1.endpoints.booking import router as booking_router
+from app.api.v1.endpoints.cron import router as cron_router
+from app.api.v1.endpoints.webhook import router as webhook_router
 
 # Crear las tablas en la base de datos de Supabase si no existen
 try:
@@ -38,6 +40,8 @@ app.add_middleware(
 
 # Registrar Routers
 app.include_router(booking_router)
+app.include_router(cron_router)
+app.include_router(webhook_router)
 
 # Montar archivos estáticos del frontend
 if os.path.exists("static"):
