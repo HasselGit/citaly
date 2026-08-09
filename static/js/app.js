@@ -160,8 +160,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (checkData.has_active_appointment) {
         activePatientAppt = checkData.appointment;
         existingApptInfo.innerText = `Hola ${checkData.appointment.patient_name}, detectamos que ya tienes una cita de ${checkData.appointment.service_name} el día ${checkData.appointment.start_time_formatted}. ¿Deseas reprogramarla para la nueva fecha elegida o cancelarla?`;
-        existingModal.style.display = 'flex';
         modalOverlay.classList.remove('active');
+        existingModal.classList.add('active');
         return;
       }
     } catch (err) {
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await res.json();
         if (data.success) {
           alert('✅ ' + data.message);
-          existingModal.style.display = 'none';
+          existingModal.classList.remove('active');
           fetchAvailability();
         }
       } catch (e) {
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await res.json();
         if (data.success) {
           alert('✅ Cita anterior cancelada exitosamente. El horario ha sido liberado.');
-          existingModal.style.display = 'none';
+          existingModal.classList.remove('active');
           fetchAvailability();
         }
       } catch (e) {
@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnCloseExistingModal) {
     btnCloseExistingModal.addEventListener('click', () => {
-      existingModal.style.display = 'none';
+      existingModal.classList.remove('active');
     });
   }
 
