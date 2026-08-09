@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Citaly Pro</title>
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0F172A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="stylesheet" href="/static/css/styles.css">
   <style>
     .dashboard-layout {
@@ -179,8 +183,16 @@
   </div>
 
   <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/sw.js')
+          .then(reg => console.log('[PWA] Service Worker registrado con éxito:', reg.scope))
+          .catch(err => console.error('[PWA] Error al registrar Service Worker:', err));
+      });
+    }
+
     function copyLink() {
-      navigator.clipboard.writeText(window.location.origin + '/?tenant=drperez');
+      navigator.clipboard.writeText(window.location.origin + '/static/index.html?tenant=drperez');
       alert('¡Link del consultorio copiado al portapapeles!');
     }
   </script>

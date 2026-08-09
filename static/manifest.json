@@ -1,0 +1,22 @@
+{
+  "name": "Citaly - Agenda Inteligente",
+  "short_name": "Citaly",
+  "description": "Sistema de Agenda Inteligente, Reservas y Reducción de Ausentismo por WhatsApp",
+  "start_url": "/static/dashboard.html",
+  "display": "standalone",
+  "background_color": "#F9FAFB",
+  "theme_color": "#0F172A",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
