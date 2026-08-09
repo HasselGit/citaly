@@ -174,6 +174,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const name = document.getElementById('patient-name').value;
     const phone = document.getElementById('patient-phone').value;
+    const submitBtn = bookingForm.querySelector('button[type="submit"]');
+
+    if (submitBtn) {
+      submitBtn.innerText = 'Procesando Reserva ⌛...';
+      submitBtn.disabled = true;
+    }
 
     // Verificar primero si el paciente ya tiene un turno activo para esta especialidad
     try {
@@ -185,16 +191,21 @@ document.addEventListener('DOMContentLoaded', () => {
         existingApptInfo.innerText = `Hola ${checkData.appointment.patient_name}, detectamos que ya tienes un turno activo de ${checkData.appointment.service_name} el día ${checkData.appointment.start_time_formatted}. ¿Deseas reprogramarlo para el nuevo día y horario elegido o cancelarlo?`;
         modalOverlay.classList.remove('active');
         existingModal.classList.add('active');
+
+        if (submitBtn) {
+          submitBtn.innerText = 'Finalizar Reserva de Turno ✔';
+          submitBtn.disabled = false;
+        }
         return;
       }
     } catch (err) {
       console.warn('Error al verificar turno existente:', err);
     }
 
-    createAppointmentCall(name, phone);
+    createAppointmentCall(name, phone, submitBtn);
   });
 
-  async function createAppointmentCall(name, phone) {
+  async function createAppointmentCall(name, phone, submitBtn) {
     try {
       const res = await fetch('/api/v1/booking/appointments', {
         method: 'POST',
@@ -210,18 +221,20 @@ document.addEventListener('DOMContentLoaded', () => {
       const result = await res.json();
 
       if (result.success) {
-        waMessageText.innerText = result.whatsapp_preview;
-        waPreviewBox.style.display = 'block';
-        
-        setTimeout(() => {
-          alert('¡Reserva confirmada con éxito!');
-          modalOverlay.classList.remove('active');
-          fetchAvailability();
-        }, 3000);
+        alert('🎉 ¡Reserva confirmada exitosamente!');
+        modalOverlay.classList.remove('active');
+        fetchAvailability();
+      } else {
+        alert(result.detail || 'Ocurrió un error al procesar la reserva.');
       }
     } catch (err) {
       alert('Ocurrió un error al procesar la reserva. Intenta de nuevo.');
       console.error(err);
+    } finally {
+      if (submitBtn) {
+        submitBtn.innerText = 'Finalizar Reserva de Turno ✔';
+        submitBtn.disabled = false;
+      }
     }
   }
 

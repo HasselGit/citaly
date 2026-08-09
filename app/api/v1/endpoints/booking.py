@@ -215,6 +215,12 @@ def get_appointments(request: Request, db: Session = Depends(get_db)):
         })
     return result
 
+import re
+
+def clean_phone(phone: str) -> str:
+    digits = re.sub(r'\D', '', phone or '')
+    return digits[-10:] if len(digits) >= 10 else digits
+
 @router.get("/check-patient")
 def check_patient_existing_appointment(
     phone: str,
@@ -230,17 +236,24 @@ def check_patient_existing_appointment(
     if not tenant:
         return {"has_active_appointment": False}
 
-    patient = db.query(Patient).filter(
-        Patient.tenant_id == tenant.id,
-        Patient.whatsapp_phone == phone
-    ).first()
+    target_digits = clean_phone(phone)
+    if not target_digits:
+        return {"has_active_appointment": False}
 
-    if not patient:
+    # Buscar todos los pacientes del tenant y comparar digitos limpios
+    patients = db.query(Patient).filter(Patient.tenant_id == tenant.id).all()
+    matched_patient = None
+    for p in patients:
+        if clean_phone(p.whatsapp_phone) == target_digits:
+            matched_patient = p
+            break
+
+    if not matched_patient:
         return {"has_active_appointment": False}
 
     appt = db.query(Appointment).filter(
         Appointment.tenant_id == tenant.id,
-        Appointment.patient_id == patient.id,
+        Appointment.patient_id == matched_patient.id,
         Appointment.service_id == service_id,
         Appointment.status.in_(["SCHEDULED", "CONFIRMED"])
     ).first()
@@ -251,7 +264,7 @@ def check_patient_existing_appointment(
             "has_active_appointment": True,
             "appointment": {
                 "id": appt.id,
-                "patient_name": patient.full_name,
+                "patient_name": matched_patient.full_name,
                 "service_name": service.name if service else "",
                 "start_time_iso": appt.start_time.isoformat(),
                 "start_time_formatted": appt.start_time.strftime("%d/%m/%Y a las %H:%M hs"),
