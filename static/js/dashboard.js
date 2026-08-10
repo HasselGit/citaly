@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let allAppointments = [];
   let currentFilter = 'day';
   let selectedSpecialty = 'all';
+  let syncInterval = null;
 
   // 1. Navegación por pestañas (SPA Tab Switching)
   function showTab(tabName) {
@@ -42,10 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
       const tabTarget = btn.getAttribute('data-tab');
       if (tabTarget === activeTab) {
-        btn.classList.add('text-secondary', 'font-bold');
+        btn.classList.add('text-indigo-600', 'font-bold');
         btn.classList.remove('text-slate-500');
       } else {
-        btn.classList.remove('text-secondary', 'font-bold');
+        btn.classList.remove('text-indigo-600', 'font-bold');
         btn.classList.add('text-slate-500');
       }
     });
@@ -55,10 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
   navReservasBtns.forEach(b => b.addEventListener('click', (e) => { e.preventDefault(); showTab('reservas'); }));
   navWhatsappBtns.forEach(b => b.addEventListener('click', (e) => { e.preventDefault(); showTab('whatsapp'); }));
 
-  // 2. Cargar citas reales de Supabase
+  // 2. Cargar citas reales de Supabase con no-store
   async function fetchDashboardAppointments() {
     try {
-      const res = await fetch('/api/v1/booking/appointments');
+      const res = await fetch('/api/v1/booking/appointments', { cache: 'no-store' });
       const data = await res.json();
       allAppointments = data || [];
       renderAgenda();
@@ -69,7 +70,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 3. Renderizar Desglose de Turnos (Vista Reservas)
+  // 3. Auto-Sincronización en vivo cada 4 segundos
+  function startDashboardAutoSync() {
+    if (syncInterval) clearInterval(syncInterval);
+    syncInterval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        fetchDashboardAppointments();
+      }
+    }, 4000);
+  }
+
+  // 4. Renderizar Desglose de Turnos (Vista Reservas)
   function renderAgenda() {
     if (!agendaContainer) return;
 
@@ -94,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
           <span class="material-symbols-outlined text-4xl text-slate-400 mb-2">event_busy</span>
           <p class="text-sm font-semibold text-slate-600">No hay turnos registrados para este filtro.</p>
-          <p class="text-xs text-slate-400 mt-1">Los turnos solicitados por los pacientes aparecerán aquí con su detalle.</p>
+          <p class="text-xs text-slate-400 mt-1">Los turnos solicitados por los pacientes aparecerán aquí en vivo.</p>
         </div>
       `;
       return;
@@ -142,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
-  // 4. Renderizar Trazabilidad de WhatsApp (Vista WhatsApp Hub)
+  // 5. Renderizar Trazabilidad de WhatsApp (Vista WhatsApp Hub)
   function renderWhatsAppLogs() {
     if (!whatsappLogContainer) return;
 
@@ -172,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
     `).join('');
   }
 
-  // 5. Actualizar Métricas Reales y Conteo por Especialidad con Barras
+  // 6. Actualizar Métricas Reales y Conteo por Especialidad con Barras
   function updateMetrics() {
     const total = allAppointments.length;
     const confirmados = allAppointments.filter(a => a.status === 'SCHEDULED' || a.status === 'CONFIRMED').length;
@@ -223,6 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
     activeBtn.classList.add('bg-primary', 'text-white');
   }
 
-  // Inicializar
+  // Inicializar y encender auto-sync en vivo
   fetchDashboardAppointments();
+  startDashboardAutoSync();
 });

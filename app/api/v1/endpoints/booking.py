@@ -88,11 +88,14 @@ def get_services(request: Request, db: Session = Depends(get_db)):
         Service.is_active == True
     ).all()
 
+from fastapi import Response
+
 @router.get("/availability")
 def get_availability(
     service_id: str,
     target_date_str: str, # YYYY-MM-DD
     request: Request,
+    response: Response,
     db: Session = Depends(get_db)
 ):
     subdomain = getattr(request.state, "subdomain", "demo")
@@ -104,6 +107,9 @@ def get_availability(
         target_date = date.fromisoformat(target_date_str)
     except ValueError:
         raise HTTPException(status_code=400, detail="Formato de fecha inválido. Use YYYY-MM-DD")
+
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
 
     slots = calculate_available_slots(db, tenant.id, service_id, target_date)
     return {

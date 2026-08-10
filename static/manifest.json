@@ -1,10 +1,10 @@
 {
-  "name": "Citaly - Agenda Inteligente",
-  "short_name": "Citaly",
+  "name": "TuTurno Pro - Agenda Inteligente",
+  "short_name": "TuTurno",
   "description": "Sistema de Agenda Inteligente, Reservas y Reducción de Ausentismo por WhatsApp",
   "start_url": "/static/dashboard.html",
   "display": "standalone",
-  "background_color": "#F9FAFB",
+  "background_color": "#F8FAFC",
   "theme_color": "#0F172A",
   "orientation": "portrait",
   "icons": [

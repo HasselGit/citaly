@@ -49,19 +49,24 @@ def calculate_available_slots(
         slot_start = current_time
         slot_end = current_time + timedelta(minutes=duration_minutes)
 
+        # Verificar si la hora ya pasó en el día de hoy
+        now = datetime.now()
+        is_past = (target_date == now.date()) and (slot_start <= now)
+
         # Verificar si solapa con alguna cita existente
         is_occupied = False
-        for appt in existing_appointments:
-            # Hay solapamiento si: slot_start < appt.end_time AND slot_end > appt.start_time
-            if slot_start < appt.end_time and slot_end > appt.start_time:
-                is_occupied = True
-                break
+        if not is_past:
+            for appt in existing_appointments:
+                # Hay solapamiento si: slot_start < appt.end_time AND slot_end > appt.start_time
+                if slot_start < appt.end_time and slot_end > appt.start_time:
+                    is_occupied = True
+                    break
 
         slots.append({
             "time_str": slot_start.strftime("%H:%M"),
             "start_iso": slot_start.isoformat(),
             "end_iso": slot_end.isoformat(),
-            "is_available": not is_occupied
+            "is_available": not (is_occupied or is_past)
         })
 
         # Avanzar en intervalos de 30 min
