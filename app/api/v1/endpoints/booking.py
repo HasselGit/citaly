@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime, date, timedelta
 import uuid
+import re
 
 from app.db.session import get_db
 from app.models.tenant import Tenant
@@ -46,99 +47,75 @@ class RescheduleRequest(BaseModel):
     appointment_id: str
     new_start_time: str
 
-# --- Endpoints ---
+# Helper para normalizar teléfonos
+def clean_phone_digits(phone: str) -> str:
+    digits = re.sub(r'\D', '', phone or '')
+    return digits[-10:] if len(digits) >= 10 else digits
 
-@router.get("/tenant-info", response_model=TenantOut)
-def get_tenant_info(request: Request, db: Session = Depends(get_db)):
+def get_or_create_primary_tenant(db: Session) -> Tenant:
     tenant = db.query(Tenant).first()
     if not tenant:
         tenant = Tenant(
-            subdomain="demo",
+            subdomain="dr-alejandro-perez",
             business_name="Consultorio Odontológico Dr. Pérez",
             owner_name="Dr. Alejandro Pérez",
             category="Odontología",
-            whatsapp_number="+5491100001111"
+            whatsapp_number="+549230220875"
         )
         db.add(tenant)
         db.commit()
         db.refresh(tenant)
 
-        # Agregar servicios semilla
-        s1 = Service(id=str(uuid.uuid4()), tenant_id=tenant.id, name="Ortodoncia / Control", duration_minutes=120, price=15000)
-        s2 = Service(id=str(uuid.uuid4()), tenant_id=tenant.id, name="Limpieza & Blanqueamiento", duration_minutes=45, price=8000)
-        s3 = Service(id=str(uuid.uuid4()), tenant_id=tenant.id, name="Implante Dental & Cirugía", duration_minutes=90, price=45000)
-        s4 = Service(id=str(uuid.uuid4()), tenant_id=tenant.id, name="Endodoncia / Conducto", duration_minutes=60, price=22000)
-        s5 = Service(id=str(uuid.uuid4()), tenant_id=tenant.id, name="Extracción Muela de Juicio", duration_minutes=60, price=18000)
-        s6 = Service(id=str(uuid.uuid4()), tenant_id=tenant.id, name="Consulta & Diagnóstico", duration_minutes=30, price=5000)
-        db.add_all([s1, s2, s3, s4, s5, s6])
+    # Asegurar que existan los 6 servicios requeridos
+    existing_services = db.query(Service).filter(Service.tenant_id == tenant.id).all()
+    if not existing_services or len(existing_services) < 6:
+        names = [s.name for s in existing_services]
+        seed_data = [
+            ("Ortodoncia / Control", 120, 15000),
+            ("Limpieza & Blanqueamiento", 45, 8000),
+            ("Implante Dental & Cirugía", 90, 45000),
+            ("Endodoncia / Conducto", 60, 22000),
+            ("Extracción Muela de Juicio", 60, 18000),
+            ("Consulta & Diagnóstico", 30, 5000)
+        ]
+        for s_name, duration, price in seed_data:
+            if s_name not in names:
+                db.add(Service(
+                    id=str(uuid.uuid4()),
+                    tenant_id=tenant.id,
+                    name=s_name,
+                    duration_minutes=duration,
+                    price=price,
+                    is_active=True
+                ))
         db.commit()
 
     return tenant
 
-DEFAULT_MOCK_SERVICES = [
-    {"id": "s1", "name": "Ortodoncia / Control", "duration_minutes": 120, "price": 15000},
-    {"id": "s2", "name": "Limpieza & Blanqueamiento", "duration_minutes": 45, "price": 8000},
-    {"id": "s3", "name": "Implante Dental & Cirugía", "duration_minutes": 90, "price": 45000},
-    {"id": "s4", "name": "Endodoncia / Conducto", "duration_minutes": 60, "price": 22000},
-    {"id": "s5", "name": "Extracción Muela de Juicio", "duration_minutes": 60, "price": 18000},
-    {"id": "s6", "name": "Consulta & Diagnóstico", "duration_minutes": 30, "price": 5000}
-]
+# --- Endpoints ---
+
+@router.get("/tenant-info", response_model=TenantOut)
+def get_tenant_info(request: Request, db: Session = Depends(get_db)):
+    tenant = get_or_create_primary_tenant(db)
+    return tenant
 
 @router.get("/services")
 def get_services(request: Request, db: Session = Depends(get_db)):
-    subdomain = getattr(request.state, "subdomain", "demo")
-    try:
-        tenant = db.query(Tenant).filter(Tenant.subdomain == subdomain).first()
-        if not tenant:
-            get_tenant_info(request, db)
-            tenant = db.query(Tenant).filter(Tenant.subdomain == subdomain).first()
+    tenant = get_or_create_primary_tenant(db)
+    existing_services = db.query(Service).filter(
+        Service.tenant_id == tenant.id,
+        Service.is_active == True
+    ).all()
 
-        if not tenant:
-            tenant = db.query(Tenant).first()
-
-        if tenant:
-            existing_services = db.query(Service).filter(
-                Service.tenant_id == tenant.id,
-                Service.is_active == True
-            ).all()
-
-            if len(existing_services) < 6:
-                names = [s.name for s in existing_services]
-                new_services = []
-                if "Implante Dental & Cirugía" not in names:
-                    new_services.append(Service(id=str(uuid.uuid4()), tenant_id=tenant.id, name="Implante Dental & Cirugía", duration_minutes=90, price=45000))
-                if "Endodoncia / Conducto" not in names:
-                    new_services.append(Service(id=str(uuid.uuid4()), tenant_id=tenant.id, name="Endodoncia / Conducto", duration_minutes=60, price=22000))
-                if "Extracción Muela de Juicio" not in names:
-                    new_services.append(Service(id=str(uuid.uuid4()), tenant_id=tenant.id, name="Extracción Muela de Juicio", duration_minutes=60, price=18000))
-                if "Consulta & Diagnóstico" not in names:
-                    new_services.append(Service(id=str(uuid.uuid4()), tenant_id=tenant.id, name="Consulta & Diagnóstico", duration_minutes=30, price=5000))
-
-                if new_services:
-                    db.add_all(new_services)
-                    db.commit()
-
-                existing_services = db.query(Service).filter(
-                    Service.tenant_id == tenant.id,
-                    Service.is_active == True
-                ).all()
-
-            if existing_services:
-                return [
-                    {
-                        "id": s.id,
-                        "name": s.name,
-                        "duration_minutes": s.duration_minutes,
-                        "price": float(s.price) if s.price else 0.0
-                    }
-                    for s in existing_services
-                ]
-    except Exception as e:
-        print(f"[SERVICES ERROR] {e}")
-
-    return DEFAULT_MOCK_SERVICES
-
-from fastapi import Response
+    return [
+        {
+            "id": s.id,
+            "name": s.name,
+            "duration_minutes": s.duration_minutes,
+            "price": float(s.price) if s.price else 0.0
+        }
+        for s in existing_services
+    ]
 
 @router.get("/availability")
 def get_availability(
@@ -148,10 +125,7 @@ def get_availability(
     response: Response,
     db: Session = Depends(get_db)
 ):
-    subdomain = getattr(request.state, "subdomain", "demo")
-    tenant = db.query(Tenant).filter(Tenant.subdomain == subdomain).first()
-    if not tenant:
-        raise HTTPException(status_code=404, detail="Consultorio no encontrado")
+    tenant = get_or_create_primary_tenant(db)
 
     try:
         target_date = date.fromisoformat(target_date_str)
@@ -163,7 +137,7 @@ def get_availability(
 
     slots = calculate_available_slots(db, tenant.id, service_id, target_date)
     return {
-        "subdomain": subdomain,
+        "subdomain": tenant.subdomain,
         "service_id": service_id,
         "date": target_date_str,
         "slots": slots
@@ -175,59 +149,37 @@ def create_appointment(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    subdomain = getattr(request.state, "subdomain", "demo")
-    tenant = db.query(Tenant).filter(Tenant.subdomain == subdomain).first()
-    if not tenant:
-        tenant = db.query(Tenant).first()
-        if not tenant:
-            tenant = Tenant(
-                subdomain=subdomain,
-                business_name="Consultorio Odontológico Dr. Pérez",
-                owner_name="Dr. Alejandro Pérez",
-                category="Odontología",
-                whatsapp_number="+5491100001111"
-            )
-            db.add(tenant)
-            db.commit()
-            db.refresh(tenant)
+    tenant = get_or_create_primary_tenant(db)
 
-    # Buscar servicio por ID, o fallback por primer servicio disponible del tenant
+    # 1. Resolver el servicio solicitado
     service = db.query(Service).filter(
         Service.tenant_id == tenant.id,
         Service.id == payload.service_id
     ).first()
 
     if not service:
-        service = db.query(Service).filter(Service.tenant_id == tenant.id).first()
-
-    if not service:
-        service = Service(
-            id=str(uuid.uuid4()),
-            tenant_id=tenant.id,
-            name="Ortodoncia / Control",
-            duration_minutes=120,
-            price=15000
-        )
-        db.add(service)
-        db.commit()
-        db.refresh(service)
+        # Fallback por nombre o primer servicio activo
+        service = db.query(Service).filter(Service.tenant_id == tenant.id, Service.is_active == True).first()
 
     try:
         start_dt = datetime.fromisoformat(payload.start_time)
     except ValueError:
         raise HTTPException(status_code=400, detail="Formato de hora de inicio inválido")
 
-    end_dt = start_dt + timedelta(minutes=service.duration_minutes)
+    end_dt = start_dt + timedelta(minutes=service.duration_minutes if service else 30)
 
-    # 1. Buscar o crear el paciente de forma rápida
-    clean_phone = payload.patient_whatsapp.replace(" ", "").replace("-", "").replace("+", "")
-    patient = db.query(Patient).filter(
-        Patient.tenant_id == tenant.id,
-        (Patient.whatsapp_phone == payload.patient_whatsapp) | (Patient.whatsapp_phone == clean_phone)
-    ).first()
+    # 2. Registrar o vincular al paciente
+    target_digits = clean_phone_digits(payload.patient_whatsapp)
+    patients = db.query(Patient).filter(Patient.tenant_id == tenant.id).all()
+    patient = None
+    for p in patients:
+        if clean_phone_digits(p.whatsapp_phone) == target_digits:
+            patient = p
+            break
 
     if not patient:
         patient = Patient(
+            id=str(uuid.uuid4()),
             tenant_id=tenant.id,
             full_name=payload.patient_full_name,
             whatsapp_phone=payload.patient_whatsapp
@@ -236,11 +188,12 @@ def create_appointment(
         db.commit()
         db.refresh(patient)
 
-    # 2. Crear la cita
+    # 3. Crear la reserva
     token_cancel = str(uuid.uuid4())
     appointment = Appointment(
+        id=str(uuid.uuid4()),
         tenant_id=tenant.id,
-        service_id=service.id,
+        service_id=service.id if service else "s1",
         patient_id=patient.id,
         start_time=start_dt,
         end_time=end_dt,
@@ -251,8 +204,9 @@ def create_appointment(
     db.commit()
     db.refresh(appointment)
 
-    # 3. Registrar log de WhatsApp inicial
+    # 4. Registrar log de WhatsApp inicial
     wa_log = WhatsAppLog(
+        id=str(uuid.uuid4()),
         appointment_id=appointment.id,
         message_type="CONFIRMATION",
         status="SENT"
@@ -264,17 +218,17 @@ def create_appointment(
         "success": True,
         "appointment_id": appointment.id,
         "business_name": tenant.business_name,
-        "service_name": service.name,
+        "service_name": service.name if service else "Consulta",
         "patient_name": patient.full_name,
         "start_time": appointment.start_time.isoformat(),
         "cancellation_token": token_cancel,
-        "whatsapp_preview": f"✅ Tu cita con {tenant.business_name} para {service.name} está confirmada para el {appointment.start_time.strftime('%d/%m a las %H:%M hs')}. Reprogramar o cancelar aquí: https://citaly-six.vercel.app/r/{token_cancel}"
+        "whatsapp_preview": f"✅ Tu cita con {tenant.business_name} para {service.name if service else 'Consulta'} está confirmada para el {appointment.start_time.strftime('%d/%m a las %H:%M hs')}."
     }
 
 @router.get("/appointments")
 def get_appointments(request: Request, db: Session = Depends(get_db)):
     """
-    Retorna la lista de turnos agendados para el Dashboard de la secretaria.
+    Retorna la lista completa de turnos agendados para el Dashboard Administrativo.
     """
     appts = db.query(Appointment).order_by(Appointment.start_time.asc()).all()
     
@@ -286,20 +240,15 @@ def get_appointments(request: Request, db: Session = Depends(get_db)):
             "id": a.id,
             "patient_name": patient.full_name if patient else "Paciente",
             "patient_whatsapp": patient.whatsapp_phone if patient else "",
-            "service_name": service.name if service else "Servicio",
+            "service_name": service.name if service else "Especialidad",
             "duration_minutes": service.duration_minutes if service else 30,
             "start_time": a.start_time.isoformat(),
             "time_str": a.start_time.strftime("%H:%M"),
             "status": a.status,
             "token_cancellation": a.token_cancellation
         })
+
     return result
-
-import re
-
-def clean_phone(phone: str) -> str:
-    digits = re.sub(r'\D', '', phone or '')
-    return digits[-10:] if len(digits) >= 10 else digits
 
 @router.get("/check-patient")
 def check_patient_existing_appointment(
@@ -308,23 +257,15 @@ def check_patient_existing_appointment(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    """
-    Verifica si el paciente ya tiene una cita activa agendada para este tratamiento.
-    """
-    subdomain = getattr(request.state, "subdomain", "demo")
-    tenant = db.query(Tenant).filter(Tenant.subdomain == subdomain).first()
-    if not tenant:
-        return {"has_active_appointment": False}
-
-    target_digits = clean_phone(phone)
+    tenant = get_or_create_primary_tenant(db)
+    target_digits = clean_phone_digits(phone)
     if not target_digits:
         return {"has_active_appointment": False}
 
-    # Buscar todos los pacientes del tenant y comparar digitos limpios
     patients = db.query(Patient).filter(Patient.tenant_id == tenant.id).all()
     matched_patient = None
     for p in patients:
-        if clean_phone(p.whatsapp_phone) == target_digits:
+        if clean_phone_digits(p.whatsapp_phone) == target_digits:
             matched_patient = p
             break
 
@@ -345,7 +286,7 @@ def check_patient_existing_appointment(
             "appointment": {
                 "id": appt.id,
                 "patient_name": matched_patient.full_name,
-                "service_name": service.name if service else "",
+                "service_name": service.name if service else "Especialidad",
                 "start_time_iso": appt.start_time.isoformat(),
                 "start_time_formatted": appt.start_time.strftime("%d/%m/%Y a las %H:%M hs"),
                 "token_cancellation": appt.token_cancellation
@@ -359,23 +300,18 @@ def reschedule_appointment(
     payload: RescheduleRequest,
     db: Session = Depends(get_db)
 ):
-    """
-    Reprograma un turno existente a un nuevo horario liberando la fecha anterior.
-    """
     appt = db.query(Appointment).filter(Appointment.id == payload.appointment_id).first()
     if not appt:
         raise HTTPException(status_code=404, detail="Cita no encontrada")
 
     service = db.query(Service).filter(Service.id == appt.service_id).first()
-    if not service:
-        raise HTTPException(status_code=404, detail="Tratamiento no encontrado")
 
     try:
         new_start_dt = datetime.fromisoformat(payload.new_start_time)
     except ValueError:
         raise HTTPException(status_code=400, detail="Formato de hora inválido")
 
-    new_end_dt = new_start_dt + timedelta(minutes=service.duration_minutes)
+    new_end_dt = new_start_dt + timedelta(minutes=service.duration_minutes if service else 30)
 
     appt.start_time = new_start_dt
     appt.end_time = new_end_dt
