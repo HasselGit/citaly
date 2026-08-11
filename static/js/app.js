@@ -308,14 +308,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 4. Auto-Sincronización en Tiempo Real (cada 4 segundos)
+  // 4. Auto-Sincronización en Tiempo Real (cada 2.5 segundos)
   function startAutoSync() {
     if (syncInterval) clearInterval(syncInterval);
     syncInterval = setInterval(() => {
       if (document.visibilityState === 'visible' && !modalOverlay.classList.contains('active')) {
         fetchAvailability();
       }
-    }, 4000);
+    }, 2500);
   }
 
   // 5. Modal de Confirmación con Resumen Claro y Transparente

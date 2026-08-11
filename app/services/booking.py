@@ -31,7 +31,6 @@ def calculate_available_slots(
     end_of_day = datetime.combine(target_date, time(23, 59, 59))
 
     existing_appointments = db.query(Appointment).filter(
-        Appointment.tenant_id == tenant_id,
         Appointment.status != "CANCELLED",
         Appointment.start_time >= start_of_day,
         Appointment.start_time <= end_of_day
