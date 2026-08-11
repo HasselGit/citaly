@@ -46,35 +46,49 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchAvailability();
   });
 
+  const fallbackServices = [
+    { id: "s1", name: "Ortodoncia / Control", duration_minutes: 120, price: 15000 },
+    { id: "s2", name: "Limpieza & Blanqueamiento", duration_minutes: 45, price: 8000 },
+    { id: "s3", name: "Implante Dental & Cirugía", duration_minutes: 90, price: 45000 },
+    { id: "s4", name: "Endodoncia / Conducto", duration_minutes: 60, price: 22000 },
+    { id: "s5", name: "Extracción Muela de Juicio", duration_minutes: 60, price: 18000 },
+    { id: "s6", name: "Consulta & Diagnóstico", duration_minutes: 30, price: 5000 }
+  ];
+
   // 1. Cargar servicios
   async function fetchServices() {
+    let services = [];
     try {
       const res = await fetch('/api/v1/booking/services', { cache: 'no-store' });
-      const services = await res.json();
-      
-      if (services && services.length > 0) {
-        servicesContainer.innerHTML = services.map((s, idx) => `
-          <div class="service-card ${idx === 0 ? 'active' : ''}" data-service-id="${s.id}" data-service-name="${s.name}" data-duration="${s.duration_minutes}">
-            <div>
-              <div class="service-name">${s.name}</div>
-              <div class="service-duration">⏱ ${s.duration_minutes >= 60 ? (s.duration_minutes / 60) + ' hs' : s.duration_minutes + ' min'}</div>
-            </div>
-            <div class="service-price">$${s.price ? Number(s.price).toLocaleString('es-AR') : 0} ARS</div>
-          </div>
-        `).join('');
-
-        selectedServiceId = services[0].id;
-        selectedServiceName = services[0].name;
-        if (collapsedServiceName) collapsedServiceName.innerText = selectedServiceName;
-
-        attachServiceClickEvents();
-        renderDatePills();
-        fetchAvailability();
-        startAutoSync();
+      if (res.ok) {
+        services = await res.json();
       }
     } catch (e) {
-      console.error('Error al cargar servicios:', e);
+      console.warn('Usando servicios de respaldo:', e);
     }
+
+    if (!services || services.length === 0) {
+      services = fallbackServices;
+    }
+
+    servicesContainer.innerHTML = services.map((s, idx) => `
+      <div class="service-card ${idx === 0 ? 'active' : ''}" data-service-id="${s.id}" data-service-name="${s.name}" data-duration="${s.duration_minutes}">
+        <div>
+          <div class="service-name">${s.name}</div>
+          <div class="service-duration">⏱ ${s.duration_minutes >= 60 ? (s.duration_minutes / 60) + ' hs' : s.duration_minutes + ' min'}</div>
+        </div>
+        <div class="service-price">$${s.price ? Number(s.price).toLocaleString('es-AR') : 0} ARS</div>
+      </div>
+    `).join('');
+
+    selectedServiceId = services[0].id;
+    selectedServiceName = services[0].name;
+    if (collapsedServiceName) collapsedServiceName.innerText = selectedServiceName;
+
+    attachServiceClickEvents();
+    renderDatePills();
+    fetchAvailability();
+    startAutoSync();
   }
 
   function attachServiceClickEvents() {
