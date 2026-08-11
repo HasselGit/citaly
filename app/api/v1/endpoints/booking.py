@@ -66,10 +66,14 @@ def get_tenant_info(request: Request, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(tenant)
 
-        # Agregar servicios semilla
+        # Agregar servicios semilla (6 servicios para probar la PWA con oferta amplia)
         s1 = Service(tenant_id=tenant.id, name="Ortodoncia / Control", duration_minutes=120, price=15000)
         s2 = Service(tenant_id=tenant.id, name="Limpieza & Blanqueamiento", duration_minutes=45, price=8000)
-        db.add_all([s1, s2])
+        s3 = Service(tenant_id=tenant.id, name="Implante Dental & Cirugía", duration_minutes=90, price=45000)
+        s4 = Service(tenant_id=tenant.id, name="Endodoncia / Conducto", duration_minutes=60, price=22000)
+        s5 = Service(tenant_id=tenant.id, name="Extracción Muela de Juicio", duration_minutes=60, price=18000)
+        s6 = Service(tenant_id=tenant.id, name="Consulta & Diagnóstico", duration_minutes=30, price=5000)
+        db.add_all([s1, s2, s3, s4, s5, s6])
         db.commit()
 
     return tenant
@@ -79,14 +83,37 @@ def get_services(request: Request, db: Session = Depends(get_db)):
     subdomain = getattr(request.state, "subdomain", "demo")
     tenant = db.query(Tenant).filter(Tenant.subdomain == subdomain).first()
     if not tenant:
-        # Inicializar tenant si es la primera vez
         get_tenant_info(request, db)
         tenant = db.query(Tenant).filter(Tenant.subdomain == subdomain).first()
 
-    return db.query(Service).filter(
+    existing_services = db.query(Service).filter(
         Service.tenant_id == tenant.id,
         Service.is_active == True
     ).all()
+
+    # Si hay menos de 6 servicios en base de datos, insertar los nuevos 4 servicios para que la prueba tenga los 6 completos
+    if len(existing_services) < 6:
+        names = [s.name for s in existing_services]
+        new_services = []
+        if "Implante Dental & Cirugía" not in names:
+            new_services.append(Service(tenant_id=tenant.id, name="Implante Dental & Cirugía", duration_minutes=90, price=45000))
+        if "Endodoncia / Conducto" not in names:
+            new_services.append(Service(tenant_id=tenant.id, name="Endodoncia / Conducto", duration_minutes=60, price=22000))
+        if "Extracción Muela de Juicio" not in names:
+            new_services.append(Service(tenant_id=tenant.id, name="Extracción Muela de Juicio", duration_minutes=60, price=18000))
+        if "Consulta & Diagnóstico" not in names:
+            new_services.append(Service(tenant_id=tenant.id, name="Consulta & Diagnóstico", duration_minutes=30, price=5000))
+
+        if new_services:
+            db.add_all(new_services)
+            db.commit()
+
+        existing_services = db.query(Service).filter(
+            Service.tenant_id == tenant.id,
+            Service.is_active == True
+        ).all()
+
+    return existing_services
 
 from fastapi import Response
 

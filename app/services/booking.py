@@ -1,12 +1,9 @@
-from datetime import datetime, date, time, timedelta
-from typing import List, Dict, Any
-from sqlalchemy.orm import Session
-from app.models.appointment import Appointment
-from app.models.service import Service
+from datetime import datetime, date, time, timedelta, timezone
 
 # Horario comercial por defecto: 09:00 a 18:00
 DEFAULT_START_HOUR = 9
 DEFAULT_END_HOUR = 18
+ARGENTINA_TIMEZONE_OFFSET = timedelta(hours=-3)
 
 def calculate_available_slots(
     db: Session,
@@ -45,13 +42,17 @@ def calculate_available_slots(
     current_time = datetime.combine(target_date, time(DEFAULT_START_HOUR, 0))
     closing_time = datetime.combine(target_date, time(DEFAULT_END_HOUR, 0))
 
+    # Obtener fecha y hora local real en UTC-3
+    now_local = datetime.now(timezone.utc) + ARGENTINA_TIMEZONE_OFFSET
+    today_local = now_local.date()
+    now_naive = now_local.replace(tzinfo=None)
+
     while current_time + timedelta(minutes=duration_minutes) <= closing_time:
         slot_start = current_time
         slot_end = current_time + timedelta(minutes=duration_minutes)
 
-        # Verificar si la hora ya pasó en el día de hoy
-        now = datetime.now()
-        is_past = (target_date == now.date()) and (slot_start <= now)
+        # Verificar si la hora ya pasó en la fecha local real
+        is_past = (target_date < today_local) or ((target_date == today_local) and (slot_start <= now_naive))
 
         # Verificar si solapa con alguna cita existente
         is_occupied = False
