@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitBtn = bookingForm.querySelector('button[type="submit"]');
 
     if (submitBtn) {
-      submitBtn.innerText = 'Procesando Reserva ⌛...';
+      submitBtn.classList.add('loading');
       submitBtn.disabled = true;
     }
 
@@ -387,7 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
         existingModal.classList.add('active');
 
         if (submitBtn) {
-          submitBtn.innerText = 'Finalizar Reserva de Turno ✔';
+          submitBtn.classList.remove('loading');
           submitBtn.disabled = false;
         }
         return;
@@ -422,7 +422,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modalOverlay.classList.remove('active');
         fetchAvailability();
       } else if (result && result.detail) {
-        // Fallback exitoso si el tratamiento fue procesado con fallback
         alert('🎉 ¡Reserva confirmada exitosamente! Te enviamos la confirmación a tu WhatsApp.');
         modalOverlay.classList.remove('active');
         fetchAvailability();
@@ -437,7 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
       fetchAvailability();
     } finally {
       if (submitBtn) {
-        submitBtn.innerText = 'Finalizar Reserva de Turno ✔';
+        submitBtn.classList.remove('loading');
         submitBtn.disabled = false;
       }
     }
