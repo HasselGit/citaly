@@ -1,4 +1,4 @@
-/* TuTurno Pro - Executive Precision Design System CSS */
+/* TuTurno Pro - Ultra-Intuitive Executive Precision Design System */
 
 @import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Work+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@600;700;800&display=swap');
 
@@ -8,9 +8,9 @@
   --secondary-amber: #D97706;
   --amber-dark: #92400E;
   --amber-light: #FEF3C7;
-  --bg-neutral: #F9FAFB;
+  --bg-neutral: #F8FAFC;
   --surface-card: #FFFFFF;
-  --surface-subtle: #F8FAFC;
+  --surface-subtle: #F1F5F9;
   --text-dark: #0F172A;
   --text-muted: #64748B;
   --border-light: #E2E8F0;
@@ -18,8 +18,8 @@
   --radius-md: 14px;
   --radius-lg: 20px;
   --radius-pill: 9999px;
-  --shadow-soft: 0 4px 14px -2px rgba(15, 23, 42, 0.05);
-  --shadow-elevated: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+  --shadow-soft: 0 4px 16px -2px rgba(15, 23, 42, 0.06);
+  --shadow-elevated: 0 12px 28px -4px rgba(15, 23, 42, 0.16);
 }
 
 * {
@@ -45,7 +45,7 @@ h1, h2, h3, h4, .font-display {
 .app-container {
   max-width: 520px;
   margin: 0 auto;
-  padding: 0 16px 36px 16px;
+  padding: 0 16px 40px 16px;
   position: relative;
 }
 
@@ -70,45 +70,40 @@ h1, h2, h3, h4, .font-display {
   margin-bottom: 12px;
 }
 
-/* Logo Oficial TuTurno */
+/* Logo Oficial TuTurno Transparente & Resaltado */
 .tuturno-logo-box {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: var(--surface-subtle);
-  padding: 6px 12px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border-light);
+  gap: 10px;
+  background: transparent;
+  padding: 4px 0;
 }
 
-.tuturno-emblem {
-  width: 24px;
-  height: 24px;
-  background: var(--primary-navy);
-  border-radius: 6px;
+.tuturno-emblem-transparent {
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+  filter: drop-shadow(0 3px 6px rgba(217, 119, 6, 0.3));
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tuturno-logo-box:hover .tuturno-emblem-transparent {
+  transform: scale(1.1) rotate(-4deg);
 }
 
 .tuturno-brand-text {
   font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 13px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--primary-navy);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  line-height: 1;
 }
 
 .tuturno-brand-text span {
   color: var(--secondary-amber);
-}
-
-.dev-by-tag {
-  font-size: 10px;
-  color: var(--text-muted);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 /* Encabezado Principal del Negocio Cliente (Dr. Alejandro Pérez) */
@@ -116,17 +111,17 @@ h1, h2, h3, h4, .font-display {
   background: var(--primary-navy);
   color: #FFFFFF;
   border-radius: var(--radius-md);
-  padding: 14px 16px;
+  padding: 14px 18px;
   margin-top: 4px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
 }
 
 .client-doctor-name {
   font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 800;
   color: #FFFFFF;
   letter-spacing: -0.02em;
@@ -134,92 +129,96 @@ h1, h2, h3, h4, .font-display {
 }
 
 .client-doctor-sub {
-  font-size: 11px;
+  font-size: 11.5px;
   color: #94A3B8;
   font-weight: 500;
-}
-
-.official-badge {
-  background: var(--amber-light);
-  color: var(--amber-dark);
-  font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 10.5px;
-  font-weight: 800;
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-  border: 1px solid #FCD34D;
-  white-space: nowrap;
 }
 
 /* Section Cards & Bento Grid */
 .section-card {
   background: var(--surface-card);
   border-radius: var(--radius-lg);
-  padding: 18px;
+  padding: 20px 18px;
   margin-bottom: 16px;
   border: 1.5px solid var(--border-light);
   box-shadow: var(--shadow-soft);
+  transition: all 0.3s ease;
 }
 
 .section-title {
   font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
   color: var(--primary-navy);
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   display: flex;
   align-items: center;
   gap: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 .title-icon {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   background: var(--amber-light);
   color: var(--secondary-amber);
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Barra Compacta del Tratamiento Seleccionado */
+/* Barra Compacta del Tratamiento Seleccionado con Botón Cambiar Alta Visibilidad */
 .service-collapsed-bar {
   display: none;
   background: var(--primary-navy);
   color: #FFFFFF;
   border-radius: var(--radius-md);
-  padding: 12px 16px;
+  padding: 14px 18px;
   margin-bottom: 16px;
   justify-content: space-between;
   align-items: center;
-  box-shadow: var(--shadow-soft);
-  cursor: pointer;
+  box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.2);
+  animation: slideDownFade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .service-collapsed-bar.active {
   display: flex;
-  animation: fadeIn 0.3s ease;
 }
 
 .collapsed-service-name {
   font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 800;
+  color: #FFFFFF;
 }
 
+/* Botón Cambiar Tratamiento Ultra-Visible */
 .collapsed-change-btn {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--secondary-amber);
-  background: rgba(255, 255, 255, 0.1);
-  padding: 4px 10px;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #FFFFFF;
+  background: var(--secondary-amber);
+  border: none;
+  padding: 8px 14px;
   border-radius: var(--radius-pill);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-/* Service Grid (2 Columnas Bento - Ámbar y Titanio) */
+.collapsed-change-btn:hover,
+.collapsed-change-btn:active {
+  transform: scale(1.06);
+  background: #B45309;
+}
+
+/* Service Grid (2 Columnas Bento) */
 .service-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -232,41 +231,43 @@ h1, h2, h3, h4, .font-display {
   border-radius: var(--radius-md);
   padding: 14px;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 110px;
+  min-height: 115px;
   position: relative;
 }
 
 .service-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--primary-navy);
+  transform: translateY(-3px) scale(1.02);
+  border-color: var(--secondary-amber);
 }
 
 .service-card.active {
   background: #FFFFFF;
   border-color: var(--secondary-amber);
-  box-shadow: 0 8px 20px -4px rgba(217, 119, 6, 0.25);
+  box-shadow: 0 10px 24px -4px rgba(217, 119, 6, 0.3);
   transform: scale(1.02);
+  animation: pulseCard 0.4s ease;
 }
 
 .service-card.active::before {
   content: '✓';
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 20px;
-  height: 20px;
+  top: 10px;
+  right: 10px;
+  width: 22px;
+  height: 22px;
   background: var(--secondary-amber);
   color: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: bold;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.4);
 }
 
 .service-name {
@@ -279,47 +280,80 @@ h1, h2, h3, h4, .font-display {
 }
 
 .service-duration {
-  font-size: 11px;
+  font-size: 11.5px;
   color: var(--text-muted);
   font-weight: 600;
 }
 
 .service-price {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--secondary-amber);
   margin-top: 10px;
 }
 
-/* Tarjeta del Calendario de Días Superpuestos */
+/* Tarjeta del Calendario & Navegación de Mes Intuitiva */
 .calendar-card {
   background: var(--surface-card);
   border-radius: var(--radius-lg);
-  padding: 18px;
+  padding: 20px 18px;
   margin-bottom: 16px;
   border: 1.5px solid var(--border-light);
   box-shadow: var(--shadow-soft);
 }
 
-.calendar-header {
+.calendar-header-nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  font-family: 'Hanken Grotesk', sans-serif;
-  font-weight: 800;
-  font-size: 15px;
-  color: var(--primary-navy);
+  margin-bottom: 16px;
+  background: var(--surface-subtle);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
 }
 
-/* Stacked Overlapping Day Cards Deck (Tarjetas superpuestas sin scroll) */
+.month-title {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--primary-navy);
+  text-transform: capitalize;
+}
+
+.month-nav-btn {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-light);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--primary-navy);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.month-nav-btn:hover,
+.month-nav-btn:active {
+  background: var(--secondary-amber);
+  color: #FFFFFF;
+  border-color: var(--secondary-amber);
+  transform: scale(1.1);
+}
+
+/* Stacked Overlapping Day Cards Deck */
 .date-scroll {
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: relative;
-  padding: 8px 2px 10px 2px;
+  padding: 8px 2px 12px 2px;
   overflow: visible;
 }
 
@@ -330,12 +364,12 @@ h1, h2, h3, h4, .font-display {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 12px 2px;
+  padding: 14px 2px;
   background: #FFFFFF;
   border: 1.5px solid var(--border-light);
-  border-radius: 14px;
+  border-radius: 16px;
   cursor: pointer;
-  box-shadow: -4px 0 10px rgba(15, 23, 42, 0.06);
+  box-shadow: -4px 0 12px rgba(15, 23, 42, 0.06);
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   z-index: 1;
@@ -356,8 +390,9 @@ h1, h2, h3, h4, .font-display {
   border-color: var(--primary-navy);
   color: #FFFFFF !important;
   z-index: 20;
-  transform: translateY(-5px) scale(1.1);
-  box-shadow: 0 10px 20px -4px rgba(15, 23, 42, 0.35);
+  transform: translateY(-6px) scale(1.12);
+  box-shadow: 0 12px 24px -4px rgba(15, 23, 42, 0.35);
+  animation: pulsePill 0.35s ease;
 }
 
 .date-pill.active .date-day,
@@ -366,54 +401,57 @@ h1, h2, h3, h4, .font-display {
 }
 
 .date-day {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 10.5px;
+  font-weight: 800;
   text-transform: uppercase;
   color: var(--text-muted);
 }
 
 .date-num {
   font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
   color: var(--primary-navy);
   margin-top: 2px;
 }
 
-/* Time Slots Grid */
+/* Time Slots Grid Ultra-Visible */
 .time-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: 16px;
+  gap: 12px;
+  margin-top: 18px;
+  animation: fadeIn 0.4s ease;
 }
 
 .slot-pill {
-  padding: 12px 6px;
+  padding: 14px 8px;
   text-align: center;
   background: #FFFFFF;
-  border: 1.5px solid var(--border-light);
+  border: 2px solid var(--border-light);
   border-radius: var(--radius-md);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--primary-navy);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
 }
 
 .slot-pill:hover:not(.disabled) {
   border-color: var(--secondary-amber);
   color: var(--secondary-amber);
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.03);
 }
 
 .slot-pill.selected {
   background: var(--secondary-amber);
   border-color: var(--secondary-amber);
   color: #FFFFFF !important;
-  box-shadow: 0 6px 16px rgba(217, 119, 6, 0.35);
-  transform: scale(1.03);
+  box-shadow: 0 8px 20px rgba(217, 119, 6, 0.4);
+  transform: scale(1.05);
+  animation: pulseSlot 0.3s ease;
 }
 
 .slot-pill.disabled {
@@ -422,23 +460,36 @@ h1, h2, h3, h4, .font-display {
   color: #94A3B8;
   text-decoration: line-through;
   cursor: not-allowed;
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
-/* Animación Transición Fluida */
-.animate-slide-up {
-  animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+/* Keyframes & Animations */
+@keyframes slideDownFade {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideUpFade {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseCard {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+  100% { transform: scale(1.02); }
+}
+
+@keyframes pulsePill {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1.12); }
+}
+
+@keyframes pulseSlot {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1.05); }
 }
 
 /* Sticky Action Button at Bottom */
@@ -447,17 +498,17 @@ h1, h2, h3, h4, .font-display {
   bottom: 16px;
   z-index: 50;
   width: 100%;
-  min-height: 52px;
-  padding: 14px 22px;
+  min-height: 54px;
+  padding: 16px 24px;
   background: var(--primary-navy);
   color: #FFFFFF;
   border: none;
   border-radius: var(--radius-md);
   font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 14.5px;
+  font-size: 15px;
   font-weight: 800;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: var(--shadow-elevated);
   display: flex;
   align-items: center;
@@ -475,8 +526,8 @@ h1, h2, h3, h4, .font-display {
 .btn-primary-sticky:not(:disabled):hover,
 .btn-primary-sticky:not(:disabled):active {
   background: #1E293B;
-  transform: translateY(-2px);
-  box-shadow: 0 14px 28px -5px rgba(15, 23, 42, 0.4);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 16px 32px -5px rgba(15, 23, 42, 0.45);
 }
 
 /* Modal Overlay & Drawer */
