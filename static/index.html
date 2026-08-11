@@ -18,13 +18,12 @@
     <header class="brand-header-sticky">
       <div class="sticky-top-bar">
         
-        <!-- Logo Oficial TuTurno Transparente & Resaltado -->
+        <!-- Logo Oficial TuTurno 100% Transparente (Sin fondo) -->
         <div class="tuturno-logo-box">
-          <div class="tuturno-emblem-transparent">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="11" fill="#0F172A"/>
-              <path d="M6 7.5H18M12 7.5V17.5" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
-              <path d="M8.5 13.5L12 17L19.5 8" stroke="#D97706" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <div class="tuturno-emblem-pure">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 6H21M12 6V20" stroke="#0F172A" stroke-width="3.5" stroke-linecap="round"/>
+              <path d="M8 13L12 17L22 6" stroke="#D97706" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
           <div class="tuturno-brand-text">
@@ -46,12 +45,11 @@
     <!-- Barra Compacta del Tratamiento Seleccionado -->
     <div class="service-collapsed-bar" id="service-collapsed-bar">
       <div>
-        <div style="font-size: 10.5px; text-transform: uppercase; color: #94A3B8; font-weight: 700; letter-spacing: 0.05em;">Tratamiento Elegido</div>
+        <div style="font-size: 10px; text-transform: uppercase; color: #94A3B8; font-weight: 700; letter-spacing: 0.05em;">Tratamiento Elegido</div>
         <div class="collapsed-service-name" id="collapsed-service-name">Ortodoncia / Control</div>
       </div>
       <button type="button" class="collapsed-change-btn" id="btn-change-service">
-        <span>✏️</span>
-        <span>Cambiar Tratamiento</span>
+        <span>Cambiar ▾</span>
       </button>
     </div>
 
@@ -65,12 +63,12 @@
       </h2>
 
       <div class="service-grid" id="services-container">
-        <!-- Renderizado dinámico de los 6 tratamientos -->
+        <!-- Renderizado dinámico de tratamientos -->
       </div>
     </section>
 
-    <!-- 2. Elige Fecha y Horario (Calendario & Navegación de Mes Intuitiva) -->
-    <section class="calendar-card animate-slide-up" id="calendar-section">
+    <!-- 2. Elige Fecha y Horario (Calendario sin días pasados) -->
+    <section class="calendar-card" id="calendar-section">
       <h2 class="section-title">
         <span class="title-icon">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -85,12 +83,12 @@
         <button type="button" class="month-nav-btn" id="btn-next-week" title="Semana siguiente">►</button>
       </div>
 
-      <!-- Píldoras de fechas encuadradas superpuestas -->
+      <!-- Píldoras de fechas libres encuadradas -->
       <div class="date-scroll" id="date-scroll-container">
-        <!-- Píldoras semanales dinámicas -->
+        <!-- Solo días disponibles futuros -->
       </div>
 
-      <!-- Grilla de Horarios Ultra-Visible -->
+      <!-- Grilla de Horarios Renderizada al Instante -->
       <div class="time-grid" id="slots-container">
         <!-- Horarios dinámicos libres / ocupados -->
       </div>
@@ -104,12 +102,31 @@
 
   </div>
 
-  <!-- Modal/Drawer de Confirmación de Datos del Paciente -->
+  <!-- Modal/Drawer de Confirmación con Resumen Claro del Turno Elegido -->
   <div class="modal-overlay" id="booking-modal">
     <div class="modal-card">
-      <h3 style="font-family: 'Hanken Grotesk', sans-serif; font-size: 19px; font-weight: 800; color: #0F172A; margin-bottom: 6px;">Datos para Confirmar la Reserva</h3>
-      <p style="color: #64748B; font-size: 13px; margin-bottom: 18px;">Te enviaremos el recordatorio automático a tu WhatsApp antes de tu cita.</p>
+      <h3 style="font-family: 'Hanken Grotesk', sans-serif; font-size: 19px; font-weight: 800; color: #0F172A; margin-bottom: 4px;">Confirmar Reserva de Turno</h3>
+      <p style="color: #64748B; font-size: 12.5px; margin-bottom: 16px;">Por favor, revisa el detalle de tu cita antes de completar tus datos.</p>
       
+      <!-- Banner Resumen Claro de la Especialidad, Fecha y Hora Elegida -->
+      <div class="booking-summary-card">
+        <div class="summary-row">
+          <span class="summary-label">Tratamiento</span>
+          <span class="summary-value" id="summary-service-name">Ortodoncia / Control</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Fecha y Horario</span>
+          <span class="summary-value" id="summary-date-time">Martes 11 de Agosto — 10:00 hs</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Duración y Valor</span>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span style="font-size: 11px; color: #CBD5E1;" id="summary-service-duration">⏱ 120 min</span>
+            <span class="summary-value-price" id="summary-service-price">$15.000 ARS</span>
+          </div>
+        </div>
+      </div>
+
       <form id="booking-form">
         <div class="form-group">
           <label class="form-label">Nombre Completo</label>
@@ -121,10 +138,10 @@
           <input type="tel" id="patient-phone" class="form-input" placeholder="(+54) 2302 20875" required autocomplete="off">
         </div>
 
-        <button type="submit" class="btn-primary-sticky" style="position: static; margin-top: 16px; background: #0F172A; color: white;">
+        <button type="submit" class="btn-primary-sticky" style="position: static; margin-top: 14px; background: #0F172A; color: white;">
           Finalizar Reserva de Turno ✔
         </button>
-        <button type="button" id="btn-close-modal" style="width: 100%; background: none; border: none; padding: 12px; margin-top: 6px; color: #64748B; font-weight: 600; cursor: pointer; font-size: 14px;">
+        <button type="button" id="btn-close-modal" style="width: 100%; background: none; border: none; padding: 12px; margin-top: 4px; color: #64748B; font-weight: 600; cursor: pointer; font-size: 14px;">
           Cancelar
         </button>
       </form>

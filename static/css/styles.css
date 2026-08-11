@@ -70,27 +70,21 @@ h1, h2, h3, h4, .font-display {
   margin-bottom: 12px;
 }
 
-/* Logo Oficial TuTurno Transparente & Resaltado */
+/* Logo Oficial TuTurno 100% Transparente (Sin fondo) */
 .tuturno-logo-box {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   background: transparent;
-  padding: 4px 0;
+  padding: 0;
 }
 
-.tuturno-emblem-transparent {
-  width: 32px;
-  height: 32px;
+.tuturno-emblem-pure {
+  width: 26px;
+  height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 3px 6px rgba(217, 119, 6, 0.3));
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.tuturno-logo-box:hover .tuturno-emblem-transparent {
-  transform: scale(1.1) rotate(-4deg);
 }
 
 .tuturno-brand-text {
@@ -169,18 +163,18 @@ h1, h2, h3, h4, .font-display {
   justify-content: center;
 }
 
-/* Barra Compacta del Tratamiento Seleccionado con Botón Cambiar Alta Visibilidad */
+/* Barra Compacta del Tratamiento Seleccionado */
 .service-collapsed-bar {
   display: none;
   background: var(--primary-navy);
   color: #FFFFFF;
   border-radius: var(--radius-md);
-  padding: 14px 18px;
+  padding: 12px 16px;
   margin-bottom: 16px;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.2);
-  animation: slideDownFade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.15);
+  animation: slideDownFade 0.3s ease forwards;
 }
 
 .service-collapsed-bar.active {
@@ -189,33 +183,29 @@ h1, h2, h3, h4, .font-display {
 
 .collapsed-service-name {
   font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 800;
   color: #FFFFFF;
 }
 
-/* Botón Cambiar Tratamiento Ultra-Visible */
+/* Botón Cambiar Discreto y Elegante */
 .collapsed-change-btn {
   font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 12.5px;
-  font-weight: 800;
-  color: #FFFFFF;
-  background: var(--secondary-amber);
-  border: none;
-  padding: 8px 14px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--secondary-amber);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  padding: 5px 12px;
   border-radius: var(--radius-pill);
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4);
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  transition: all 0.2s ease;
 }
 
 .collapsed-change-btn:hover,
 .collapsed-change-btn:active {
-  transform: scale(1.06);
-  background: #B45309;
+  background: var(--secondary-amber);
+  color: #FFFFFF;
 }
 
 /* Service Grid (2 Columnas Bento) */
@@ -231,7 +221,7 @@ h1, h2, h3, h4, .font-display {
   border-radius: var(--radius-md);
   padding: 14px;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -240,16 +230,15 @@ h1, h2, h3, h4, .font-display {
 }
 
 .service-card:hover {
-  transform: translateY(-3px) scale(1.02);
+  transform: translateY(-2px);
   border-color: var(--secondary-amber);
 }
 
 .service-card.active {
   background: #FFFFFF;
   border-color: var(--secondary-amber);
-  box-shadow: 0 10px 24px -4px rgba(217, 119, 6, 0.3);
-  transform: scale(1.02);
-  animation: pulseCard 0.4s ease;
+  box-shadow: 0 8px 20px -4px rgba(217, 119, 6, 0.25);
+  transform: scale(1.01);
 }
 
 .service-card.active::before {
@@ -257,17 +246,16 @@ h1, h2, h3, h4, .font-display {
   position: absolute;
   top: 10px;
   right: 10px;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   background: var(--secondary-amber);
   color: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: bold;
-  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.4);
 }
 
 .service-name {
@@ -293,7 +281,7 @@ h1, h2, h3, h4, .font-display {
   margin-top: 10px;
 }
 
-/* Tarjeta del Calendario & Navegación de Mes Intuitiva */
+/* Tarjeta del Calendario */
 .calendar-card {
   background: var(--surface-card);
   border-radius: var(--radius-lg);
@@ -316,7 +304,7 @@ h1, h2, h3, h4, .font-display {
 
 .month-title {
   font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 16px;
+  font-size: 15.5px;
   font-weight: 800;
   color: var(--primary-navy);
   text-transform: capitalize;
@@ -331,12 +319,11 @@ h1, h2, h3, h4, .font-display {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   color: var(--primary-navy);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
 }
 
 .month-nav-btn:hover,
@@ -344,7 +331,6 @@ h1, h2, h3, h4, .font-display {
   background: var(--secondary-amber);
   color: #FFFFFF;
   border-color: var(--secondary-amber);
-  transform: scale(1.1);
 }
 
 /* Stacked Overlapping Day Cards Deck */
@@ -370,7 +356,7 @@ h1, h2, h3, h4, .font-display {
   border-radius: 16px;
   cursor: pointer;
   box-shadow: -4px 0 12px rgba(15, 23, 42, 0.06);
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.2s ease;
   position: relative;
   z-index: 1;
 }
@@ -381,7 +367,7 @@ h1, h2, h3, h4, .font-display {
 
 .date-pill:hover {
   z-index: 10;
-  transform: translateY(-4px) scale(1.05);
+  transform: translateY(-3px);
   border-color: var(--secondary-amber);
 }
 
@@ -390,9 +376,8 @@ h1, h2, h3, h4, .font-display {
   border-color: var(--primary-navy);
   color: #FFFFFF !important;
   z-index: 20;
-  transform: translateY(-6px) scale(1.12);
-  box-shadow: 0 12px 24px -4px rgba(15, 23, 42, 0.35);
-  animation: pulsePill 0.35s ease;
+  transform: translateY(-5px) scale(1.08);
+  box-shadow: 0 10px 22px -4px rgba(15, 23, 42, 0.35);
 }
 
 .date-pill.active .date-day,
@@ -415,43 +400,40 @@ h1, h2, h3, h4, .font-display {
   margin-top: 2px;
 }
 
-/* Time Slots Grid Ultra-Visible */
+/* Time Slots Grid (Instant rendering) */
 .time-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-top: 18px;
-  animation: fadeIn 0.4s ease;
 }
 
 .slot-pill {
-  padding: 14px 8px;
+  padding: 13px 6px;
   text-align: center;
   background: #FFFFFF;
-  border: 2px solid var(--border-light);
+  border: 1.5px solid var(--border-light);
   border-radius: var(--radius-md);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 700;
   color: var(--primary-navy);
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  transition: all 0.15s ease;
 }
 
 .slot-pill:hover:not(.disabled) {
   border-color: var(--secondary-amber);
   color: var(--secondary-amber);
-  transform: translateY(-2px) scale(1.03);
+  transform: translateY(-1px);
 }
 
 .slot-pill.selected {
   background: var(--secondary-amber);
   border-color: var(--secondary-amber);
   color: #FFFFFF !important;
-  box-shadow: 0 8px 20px rgba(217, 119, 6, 0.4);
-  transform: scale(1.05);
-  animation: pulseSlot 0.3s ease;
+  box-shadow: 0 6px 18px rgba(217, 119, 6, 0.35);
+  transform: scale(1.03);
 }
 
 .slot-pill.disabled {
@@ -463,52 +445,23 @@ h1, h2, h3, h4, .font-display {
   opacity: 0.5;
 }
 
-/* Keyframes & Animations */
-@keyframes slideDownFade {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideUpFade {
-  from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pulseCard {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.04); }
-  100% { transform: scale(1.02); }
-}
-
-@keyframes pulsePill {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-  100% { transform: scale(1.12); }
-}
-
-@keyframes pulseSlot {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-  100% { transform: scale(1.05); }
-}
-
 /* Sticky Action Button at Bottom */
 .btn-primary-sticky {
   position: sticky;
   bottom: 16px;
   z-index: 50;
   width: 100%;
-  min-height: 54px;
-  padding: 16px 24px;
+  min-height: 52px;
+  padding: 15px 22px;
   background: var(--primary-navy);
   color: #FFFFFF;
   border: none;
   border-radius: var(--radius-md);
   font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 800;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.25s ease;
   box-shadow: var(--shadow-elevated);
   display: flex;
   align-items: center;
@@ -526,8 +479,53 @@ h1, h2, h3, h4, .font-display {
 .btn-primary-sticky:not(:disabled):hover,
 .btn-primary-sticky:not(:disabled):active {
   background: #1E293B;
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 16px 32px -5px rgba(15, 23, 42, 0.45);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -5px rgba(15, 23, 42, 0.4);
+}
+
+/* Banner de Resumen Claro en el Modal de Confirmación */
+.booking-summary-card {
+  background: var(--primary-navy);
+  color: #FFFFFF;
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  border-left: 4px solid var(--secondary-amber);
+  box-shadow: var(--shadow-soft);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.summary-row:last-child {
+  margin-bottom: 0;
+}
+
+.summary-label {
+  color: #94A3B8;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.summary-value {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-weight: 800;
+  color: #FFFFFF;
+  font-size: 13.5px;
+}
+
+.summary-value-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  color: var(--secondary-amber);
+  font-size: 14px;
 }
 
 /* Modal Overlay & Drawer */
@@ -602,42 +600,8 @@ h1, h2, h3, h4, .font-display {
   box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.12);
 }
 
-/* Modal Action Buttons */
-.btn-modal-action {
-  width: 100%;
-  min-height: 50px;
-  padding: 14px 18px;
-  border-radius: var(--radius-md);
-  font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 14px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-reschedule {
-  background-color: var(--primary-navy);
-  color: #FFFFFF !important;
-  border: 1px solid var(--primary-navy);
-}
-
-.btn-reschedule:hover, .btn-reschedule:active {
-  background-color: #1E293B;
-  transform: translateY(-1px);
-}
-
-.btn-cancel-appt {
-  background-color: #FFF1F2;
-  color: #E11D48 !important;
-  border: 1.5px solid #FDA4AF;
-}
-
-.btn-cancel-appt:hover, .btn-cancel-appt:active {
-  background-color: #FFE4E6;
-  border-color: #F43F5E;
-  transform: translateY(-1px);
+/* Animations */
+@keyframes slideDownFade {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }

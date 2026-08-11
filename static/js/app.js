@@ -166,21 +166,35 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${year}-${month}-${day}`;
   }
 
-  // 2. Renderizar fechas semanales encuadradas con navegación de mes
+  // 2. Renderizar fechas semanales encuadradas (Ocultando días pasados o agotados)
   function renderDatePills() {
     const daysName = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
     const monthsName = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     
     let html = '';
-    const baseDate = new Date();
-    baseDate.setDate(baseDate.getDate() + startDateOffset);
+    const now = new Date();
+    // Si la hora actual es >= 18:00 (fuera de horario comercial), el día de hoy ya no es elegible
+    const startDayIndex = (now.getHours() >= 18) ? 1 : 0;
+    
+    const baseDate = new Date(now);
+    baseDate.setDate(now.getDate() + startDayIndex + startDateOffset);
     
     currentMonthYear.innerText = `${monthsName[baseDate.getMonth()]} ${baseDate.getFullYear()}`;
+
+    let firstValidDate = null;
 
     for (let i = 0; i < 7; i++) {
       const d = new Date(baseDate);
       d.setDate(baseDate.getDate() + i);
-      const isSelected = d.toDateString() === selectedDate.toDateString();
+
+      // Si por offset cayera un día anterior a hoy, omitirlo
+      const todayDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const testDateOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      if (testDateOnly < todayDateOnly) continue;
+
+      if (!firstValidDate) firstValidDate = d;
+
+      const isSelected = selectedDate && (d.toDateString() === selectedDate.toDateString());
       const dateIsoStr = formatLocalDate(d);
 
       html += `
@@ -191,7 +205,19 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }
 
+    if (!selectedDate && firstValidDate) {
+      selectedDate = firstValidDate;
+    }
+
     dateScrollContainer.innerHTML = html;
+
+    // Si la fecha seleccionada anteriormente ya no es visible, seleccionar la primera válida
+    const activePill = dateScrollContainer.querySelector('.date-pill.active');
+    if (!activePill && firstValidDate) {
+      selectedDate = firstValidDate;
+      const firstPill = dateScrollContainer.querySelector('.date-pill');
+      if (firstPill) firstPill.classList.add('active');
+    }
 
     document.querySelectorAll('.date-pill').forEach(pill => {
       pill.addEventListener('click', () => {
@@ -200,12 +226,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const [y, m, dayNum] = pill.getAttribute('data-date').split('-').map(Number);
         selectedDate = new Date(y, m - 1, dayNum);
         
-        if (slotsContainer) {
-          slotsContainer.classList.remove('animate-slide-up');
-          void slotsContainer.offsetWidth;
-          slotsContainer.classList.add('animate-slide-up');
-        }
-
+        // ⚡ RENDERIZADO INSTANTÁNEO EN 0ms
+        renderSlotsInstant();
         fetchAvailability();
       });
     });
@@ -213,41 +235,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const defaultMockSlotsTimes = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"];
 
-  // 3. Cargar disponibilidad desde la API con no-store y fallback garantizado
-  async function fetchAvailability() {
-    if (!selectedServiceId) return;
+  // ⚡ Renderizado síncrono instantáneo de horarios (0ms de latencia para el paciente)
+  function renderSlotsInstant() {
+    if (!selectedDate) return;
+    const targetDateIso = formatLocalDate(selectedDate);
+    const todayIso = formatLocalDate(new Date());
+    const nowHours = new Date().getHours();
 
-    const dateStr = formatLocalDate(selectedDate);
-    let slots = [];
-    
-    try {
-      const res = await fetch(`/api/v1/booking/availability?service_id=${selectedServiceId}&target_date_str=${dateStr}`, { cache: 'no-store' });
-      if (res.ok) {
-        const data = await res.json();
-        if (data && data.slots && data.slots.length > 0) {
-          slots = data.slots;
-        }
-      }
-    } catch (e) {
-      console.warn('Error al cargar disponibilidad, usando horarios de reserva:', e);
-    }
-
-    if (!slots || slots.length === 0) {
-      const targetDateIso = dateStr;
-      const todayIso = formatLocalDate(new Date());
-      const nowHours = new Date().getHours();
-
-      slots = defaultMockSlotsTimes.map(t => {
-        const [h, m] = t.split(':').map(Number);
-        const isPast = (targetDateIso < todayIso) || (targetDateIso === todayIso && h <= nowHours);
-        return {
-          time_str: t,
-          start_iso: `${targetDateIso}T${t}:00`,
-          end_iso: `${targetDateIso}T${t}:30`,
-          is_available: !isPast
-        };
-      });
-    }
+    const slots = defaultMockSlotsTimes.map(t => {
+      const [h, m] = t.split(':').map(Number);
+      const isPast = (targetDateIso < todayIso) || (targetDateIso === todayIso && h <= nowHours);
+      return {
+        time_str: t,
+        start_iso: `${targetDateIso}T${t}:00`,
+        end_iso: `${targetDateIso}T${t}:30`,
+        is_available: !isPast
+      };
+    });
 
     slotsContainer.innerHTML = slots.map(slot => {
       if (slot.is_available) {
@@ -261,6 +265,38 @@ document.addEventListener('DOMContentLoaded', () => {
     attachSlotClickEvents();
   }
 
+  // 3. Cargar disponibilidad desde la API con no-store
+  async function fetchAvailability() {
+    if (!selectedServiceId) return;
+    const dateStr = formatLocalDate(selectedDate);
+
+    // Primer renderizado instantáneo
+    if (slotsContainer.children.length === 0) {
+      renderSlotsInstant();
+    }
+    
+    try {
+      const res = await fetch(`/api/v1/booking/availability?service_id=${selectedServiceId}&target_date_str=${dateStr}`, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.slots && data.slots.length > 0) {
+          slotsContainer.innerHTML = data.slots.map(slot => {
+            if (slot.is_available) {
+              const isSelectedClass = (selectedTimeSlot === slot.start_iso) ? 'selected' : '';
+              return `<div class="slot-pill available ${isSelectedClass}" data-iso="${slot.start_iso}">${slot.time_str}</div>`;
+            } else {
+              return `<div class="slot-pill disabled">${slot.time_str}</div>`;
+            }
+          }).join('');
+
+          attachSlotClickEvents();
+        }
+      }
+    } catch (e) {
+      console.warn('Error al sincronizar horarios desde servidor:', e);
+    }
+  }
+
   function attachSlotClickEvents() {
     document.querySelectorAll('.slot-pill.available').forEach(pill => {
       pill.addEventListener('click', () => {
@@ -268,7 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
         pill.classList.add('selected');
         selectedTimeSlot = pill.getAttribute('data-iso');
         btnOpenModal.removeAttribute('disabled');
-        btnOpenModal.style.background = '#0F172A';
       });
     });
   }
@@ -283,12 +318,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 4000);
   }
 
-  // 5. Modal de Confirmación de Datos
+  // 5. Modal de Confirmación con Resumen Claro y Transparente
   btnOpenModal.addEventListener('click', () => {
     if (!selectedTimeSlot) {
       alert('Por favor, selecciona un horario disponible primero.');
       return;
     }
+
+    // Formatear resumen para el cliente antes de confirmar
+    const timeStr = selectedTimeSlot.split('T')[1].substring(0, 5);
+    const monthsName = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const daysName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    
+    const formattedDateText = `${daysName[selectedDate.getDay()]} ${selectedDate.getDate()} de ${monthsName[selectedDate.getMonth()]} — ${timeStr} hs`;
+    
+    const summaryServiceName = document.getElementById('summary-service-name');
+    const summaryDateTime = document.getElementById('summary-date-time');
+    const summaryDuration = document.getElementById('summary-service-duration');
+    const summaryPrice = document.getElementById('summary-service-price');
+
+    const activeCard = document.querySelector('.service-card.active');
+    let servicePriceText = '$15.000 ARS';
+    let serviceDurationText = '⏱ 120 min';
+
+    if (activeCard) {
+      const priceElem = activeCard.querySelector('.service-price');
+      const durElem = activeCard.querySelector('.service-duration');
+      if (priceElem) servicePriceText = priceElem.innerText;
+      if (durElem) serviceDurationText = durElem.innerText;
+    }
+
+    if (summaryServiceName) summaryServiceName.innerText = selectedServiceName || 'Ortodoncia / Control';
+    if (summaryDateTime) summaryDateTime.innerText = formattedDateText;
+    if (summaryDuration) summaryDuration.innerText = serviceDurationText;
+    if (summaryPrice) summaryPrice.innerText = servicePriceText;
+
     // Limpiar campos del formulario para la privacidad entre pacientes
     document.getElementById('patient-name').value = '';
     document.getElementById('patient-phone').value = '';
