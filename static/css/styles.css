@@ -555,7 +555,7 @@ h1, h2, h3, h4, .font-display {
   font-size: 14px;
 }
 
-/* Modal Overlay & Drawer */
+/* Modal Overlay & Drawer (z-index superior a la barra inferior) */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -568,7 +568,7 @@ h1, h2, h3, h4, .font-display {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  z-index: 100;
+  z-index: 10000 !important;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
