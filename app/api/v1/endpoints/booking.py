@@ -50,13 +50,10 @@ class RescheduleRequest(BaseModel):
 
 @router.get("/tenant-info", response_model=TenantOut)
 def get_tenant_info(request: Request, db: Session = Depends(get_db)):
-    subdomain = getattr(request.state, "subdomain", "demo")
-    tenant = db.query(Tenant).filter(Tenant.subdomain == subdomain).first()
-    
-    # Si no existe en demo, creamos un tenant ficticio por defecto para desarrollo
+    tenant = db.query(Tenant).first()
     if not tenant:
         tenant = Tenant(
-            subdomain=subdomain,
+            subdomain="demo",
             business_name="Consultorio Odontológico Dr. Pérez",
             owner_name="Dr. Alejandro Pérez",
             category="Odontología",
@@ -66,15 +63,17 @@ def get_tenant_info(request: Request, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(tenant)
 
-        # Agregar servicios semilla (6 servicios para probar la PWA con oferta amplia)
-        s1 = Service(tenant_id=tenant.id, name="Ortodoncia / Control", duration_minutes=120, price=15000)
-        s2 = Service(tenant_id=tenant.id, name="Limpieza & Blanqueamiento", duration_minutes=45, price=8000)
-        s3 = Service(tenant_id=tenant.id, name="Implante Dental & Cirugía", duration_minutes=90, price=45000)
-        s4 = Service(tenant_id=tenant.id, name="Endodoncia / Conducto", duration_minutes=60, price=22000)
-        s5 = Service(tenant_id=tenant.id, name="Extracción Muela de Juicio", duration_minutes=60, price=18000)
-        s6 = Service(tenant_id=tenant.id, name="Consulta & Diagnóstico", duration_minutes=30, price=5000)
+        # Agregar servicios semilla
+        s1 = Service(id=str(uuid.uuid4()), tenant_id=tenant.id, name="Ortodoncia / Control", duration_minutes=120, price=15000)
+        s2 = Service(id=str(uuid.uuid4()), tenant_id=tenant.id, name="Limpieza & Blanqueamiento", duration_minutes=45, price=8000)
+        s3 = Service(id=str(uuid.uuid4()), tenant_id=tenant.id, name="Implante Dental & Cirugía", duration_minutes=90, price=45000)
+        s4 = Service(id=str(uuid.uuid4()), tenant_id=tenant.id, name="Endodoncia / Conducto", duration_minutes=60, price=22000)
+        s5 = Service(id=str(uuid.uuid4()), tenant_id=tenant.id, name="Extracción Muela de Juicio", duration_minutes=60, price=18000)
+        s6 = Service(id=str(uuid.uuid4()), tenant_id=tenant.id, name="Consulta & Diagnóstico", duration_minutes=30, price=5000)
         db.add_all([s1, s2, s3, s4, s5, s6])
         db.commit()
+
+    return tenant
 
 DEFAULT_MOCK_SERVICES = [
     {"id": "s1", "name": "Ortodoncia / Control", "duration_minutes": 120, "price": 15000},
@@ -277,12 +276,7 @@ def get_appointments(request: Request, db: Session = Depends(get_db)):
     """
     Retorna la lista de turnos agendados para el Dashboard de la secretaria.
     """
-    subdomain = getattr(request.state, "subdomain", "demo")
-    tenant = db.query(Tenant).filter(Tenant.subdomain == subdomain).first()
-    if not tenant:
-        return []
-
-    appts = db.query(Appointment).filter(Appointment.tenant_id == tenant.id).order_by(Appointment.start_time.asc()).all()
+    appts = db.query(Appointment).order_by(Appointment.start_time.asc()).all()
     
     result = []
     for a in appts:

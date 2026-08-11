@@ -457,39 +457,43 @@ h1, h2, h3, h4, .font-display {
 
 /* 100% Fixed Bottom Bar Wrapper (Zero Movement on Scroll) */
 .fixed-bottom-bar-wrapper {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  padding: 12px 16px 16px 16px;
-  background: rgba(248, 250, 252, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1.5px solid rgba(226, 232, 240, 0.8);
-  display: flex;
-  justify-content: center;
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: auto !important;
+  z-index: 9999 !important;
+  padding: 12px 16px 16px 16px !important;
+  background: rgba(248, 250, 252, 0.92) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-top: 1.5px solid rgba(226, 232, 240, 0.8) !important;
+  display: flex !important;
+  justify-content: center !important;
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08) !important;
 }
 
 .btn-primary-sticky {
-  width: 100%;
-  max-width: 488px;
-  min-height: 52px;
-  padding: 15px 22px;
-  background: var(--primary-navy);
-  color: #FFFFFF;
-  border: none;
-  border-radius: var(--radius-md);
-  font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 14.5px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: var(--shadow-elevated);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+  position: relative !important;
+  bottom: auto !important;
+  width: 100% !important;
+  max-width: 488px !important;
+  min-height: 52px !important;
+  padding: 15px 22px !important;
+  background: var(--primary-navy) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: var(--radius-md) !important;
+  font-family: 'Hanken Grotesk', sans-serif !important;
+  font-size: 14.5px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+  box-shadow: var(--shadow-elevated) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
 }
 
 .btn-primary-sticky:disabled {
