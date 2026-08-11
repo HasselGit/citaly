@@ -128,14 +128,16 @@ h1, h2, h3, h4, .font-display {
   font-weight: 500;
 }
 
-/* Section Cards & Bento Grid */
+/* Section Cards & Bento Grid (Efecto Vidrio / Glassmorphism) */
 .section-card {
-  background: var(--surface-card);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-radius: var(--radius-lg);
   padding: 20px 18px;
   margin-bottom: 16px;
-  border: 1.5px solid var(--border-light);
-  box-shadow: var(--shadow-soft);
+  border: 1.5px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.06);
   transition: all 0.3s ease;
 }
 
@@ -208,7 +210,7 @@ h1, h2, h3, h4, .font-display {
   color: #FFFFFF;
 }
 
-/* Service Grid (2 Columnas Bento) */
+/* Service Grid (2 Columnas Bento - Efecto Vidrio Translúcido) */
 .service-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -216,28 +218,34 @@ h1, h2, h3, h4, .font-display {
 }
 
 .service-card {
-  background: var(--surface-subtle);
-  border: 2px solid var(--border-light);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(226, 232, 240, 0.9);
   border-radius: var(--radius-md);
   padding: 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   min-height: 115px;
   position: relative;
+  box-shadow: 0 4px 16px 0 rgba(15, 23, 42, 0.04);
 }
 
 .service-card:hover {
   transform: translateY(-2px);
   border-color: var(--secondary-amber);
+  background: rgba(255, 255, 255, 0.85);
 }
 
 .service-card.active {
-  background: #FFFFFF;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-color: var(--secondary-amber);
-  box-shadow: 0 8px 20px -4px rgba(217, 119, 6, 0.25);
+  box-shadow: 0 10px 28px -4px rgba(217, 119, 6, 0.3);
   transform: scale(1.01);
 }
 
@@ -281,14 +289,16 @@ h1, h2, h3, h4, .font-display {
   margin-top: 10px;
 }
 
-/* Tarjeta del Calendario */
+/* Tarjeta del Calendario (Efecto Vidrio Translúcido) */
 .calendar-card {
-  background: var(--surface-card);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-radius: var(--radius-lg);
   padding: 20px 18px;
-  margin-bottom: 16px;
-  border: 1.5px solid var(--border-light);
-  box-shadow: var(--shadow-soft);
+  margin-bottom: 80px;
+  border: 1.5px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.06);
 }
 
 .calendar-header-nav {
@@ -296,7 +306,7 @@ h1, h2, h3, h4, .font-display {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
-  background: var(--surface-subtle);
+  background: rgba(241, 245, 249, 0.7);
   padding: 10px 14px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-light);
@@ -445,12 +455,25 @@ h1, h2, h3, h4, .font-display {
   opacity: 0.5;
 }
 
-/* Sticky Action Button at Bottom */
-.btn-primary-sticky {
-  position: sticky;
-  bottom: 16px;
+/* 100% Fixed Bottom Bar Wrapper (Zero Movement on Scroll) */
+.fixed-bottom-bar-wrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 50;
+  padding: 12px 16px 16px 16px;
+  background: rgba(248, 250, 252, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1.5px solid rgba(226, 232, 240, 0.8);
+  display: flex;
+  justify-content: center;
+}
+
+.btn-primary-sticky {
   width: 100%;
+  max-width: 488px;
   min-height: 52px;
   padding: 15px 22px;
   background: var(--primary-navy);
