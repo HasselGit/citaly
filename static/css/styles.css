@@ -1,25 +1,25 @@
-/* TuTurno Precision System CSS - Executive Luxury Design */
+/* TuTurno Pro - Executive Precision Design System CSS */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Work+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@600;700;800&display=swap');
 
 :root {
   --primary-navy: #0F172A;
-  --primary-indigo: #3E4EB8;
-  --indigo-light: #EEF2FF;
+  --primary-container: #1E293B;
   --secondary-amber: #D97706;
-  --bg-neutral: #F8FAFC;
+  --amber-dark: #92400E;
+  --amber-light: #FEF3C7;
+  --bg-neutral: #F9FAFB;
   --surface-card: #FFFFFF;
-  --surface-subtle: #F1F5F9;
-  --text-primary: #0F172A;
+  --surface-subtle: #F8FAFC;
+  --text-dark: #0F172A;
   --text-muted: #64748B;
   --border-light: #E2E8F0;
-  --border-strong: #CBD5E1;
   --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
   --radius-pill: 9999px;
   --shadow-soft: 0 4px 14px -2px rgba(15, 23, 42, 0.05);
-  --shadow-elevated: 0 12px 28px -6px rgba(15, 23, 42, 0.12);
+  --shadow-elevated: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
 }
 
 * {
@@ -30,15 +30,15 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Work Sans', sans-serif;
   background-color: var(--bg-neutral);
-  color: var(--text-primary);
+  color: var(--text-dark);
   line-height: 1.5;
   min-height: 100vh;
 }
 
 h1, h2, h3, h4, .font-display {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Hanken Grotesk', sans-serif;
 }
 
 /* App Main Container */
@@ -49,51 +49,106 @@ h1, h2, h3, h4, .font-display {
   position: relative;
 }
 
-/* Sticky Header - Jerarquía Dr. Alejandro Pérez */
+/* Sticky Header Corporativo Fijo */
 .brand-header-sticky {
   position: sticky;
   top: 0;
   z-index: 60;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   padding: 16px 18px 14px 18px;
   margin: 0 -16px 16px -16px;
   border-bottom: 1.5px solid var(--border-light);
   box-shadow: var(--shadow-soft);
-  transition: all 0.3s ease;
 }
 
 .sticky-top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
-.doctor-brand-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 22px;
+/* Logo Oficial TuTurno */
+.tuturno-logo-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-subtle);
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-light);
+}
+
+.tuturno-emblem {
+  width: 24px;
+  height: 24px;
+  background: var(--primary-navy);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tuturno-brand-text {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 13px;
   font-weight: 800;
   color: var(--primary-navy);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
+}
+
+.tuturno-brand-text span {
+  color: var(--secondary-amber);
+}
+
+.dev-by-tag {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Encabezado Principal del Negocio Cliente (Dr. Alejandro Pérez) */
+.client-business-header {
+  background: var(--primary-navy);
+  color: #FFFFFF;
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+}
+
+.client-doctor-name {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.02em;
   line-height: 1.2;
 }
 
-.sub-tuturno-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--primary-indigo);
-  background: var(--indigo-light);
+.client-doctor-sub {
+  font-size: 11px;
+  color: #94A3B8;
+  font-weight: 500;
+}
+
+.official-badge {
+  background: var(--amber-light);
+  color: var(--amber-dark);
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 10.5px;
+  font-weight: 800;
   padding: 4px 10px;
   border-radius: var(--radius-pill);
-  border: 1px solid #C7D2FE;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  border: 1px solid #FCD34D;
+  white-space: nowrap;
 }
 
 /* Section Cards & Bento Grid */
@@ -104,11 +159,10 @@ h1, h2, h3, h4, .font-display {
   margin-bottom: 16px;
   border: 1.5px solid var(--border-light);
   box-shadow: var(--shadow-soft);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .section-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Hanken Grotesk', sans-serif;
   font-size: 13px;
   font-weight: 800;
   color: var(--primary-navy);
@@ -123,15 +177,15 @@ h1, h2, h3, h4, .font-display {
 .title-icon {
   width: 28px;
   height: 28px;
-  background: var(--indigo-light);
-  color: var(--primary-indigo);
+  background: var(--amber-light);
+  color: var(--secondary-amber);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Barra Compacta del Tratamiento Seleccionado (Al colapsar libera 100% de pantalla) */
+/* Barra Compacta del Tratamiento Seleccionado */
 .service-collapsed-bar {
   display: none;
   background: var(--primary-navy);
@@ -151,7 +205,7 @@ h1, h2, h3, h4, .font-display {
 }
 
 .collapsed-service-name {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Hanken Grotesk', sans-serif;
   font-size: 14px;
   font-weight: 700;
 }
@@ -159,13 +213,13 @@ h1, h2, h3, h4, .font-display {
 .collapsed-change-btn {
   font-size: 11px;
   font-weight: 700;
-  color: #93C5FD;
+  color: var(--secondary-amber);
   background: rgba(255, 255, 255, 0.1);
   padding: 4px 10px;
   border-radius: var(--radius-pill);
 }
 
-/* Service Grid (No requiere scroll lateral, 2 Columnas Bento) */
+/* Service Grid (2 Columnas Bento - Ámbar y Titanio) */
 .service-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -193,8 +247,8 @@ h1, h2, h3, h4, .font-display {
 
 .service-card.active {
   background: #FFFFFF;
-  border-color: var(--primary-indigo);
-  box-shadow: 0 8px 20px -4px rgba(62, 78, 184, 0.2);
+  border-color: var(--secondary-amber);
+  box-shadow: 0 8px 20px -4px rgba(217, 119, 6, 0.25);
   transform: scale(1.02);
 }
 
@@ -205,7 +259,7 @@ h1, h2, h3, h4, .font-display {
   right: 8px;
   width: 20px;
   height: 20px;
-  background: var(--primary-indigo);
+  background: var(--secondary-amber);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -216,9 +270,9 @@ h1, h2, h3, h4, .font-display {
 }
 
 .service-name {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Hanken Grotesk', sans-serif;
   font-size: 13.5px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--primary-navy);
   margin-bottom: 4px;
   line-height: 1.3;
@@ -253,7 +307,7 @@ h1, h2, h3, h4, .font-display {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Hanken Grotesk', sans-serif;
   font-weight: 800;
   font-size: 15px;
   color: var(--primary-navy);
@@ -294,7 +348,7 @@ h1, h2, h3, h4, .font-display {
 .date-pill:hover {
   z-index: 10;
   transform: translateY(-4px) scale(1.05);
-  border-color: var(--primary-indigo);
+  border-color: var(--secondary-amber);
 }
 
 .date-pill.active {
@@ -319,7 +373,7 @@ h1, h2, h3, h4, .font-display {
 }
 
 .date-num {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Hanken Grotesk', sans-serif;
   font-size: 16px;
   font-weight: 800;
   color: var(--primary-navy);
@@ -349,16 +403,16 @@ h1, h2, h3, h4, .font-display {
 }
 
 .slot-pill:hover:not(.disabled) {
-  border-color: var(--primary-indigo);
-  color: var(--primary-indigo);
+  border-color: var(--secondary-amber);
+  color: var(--secondary-amber);
   transform: translateY(-1px);
 }
 
 .slot-pill.selected {
-  background: var(--primary-indigo);
-  border-color: var(--primary-indigo);
+  background: var(--secondary-amber);
+  border-color: var(--secondary-amber);
   color: #FFFFFF !important;
-  box-shadow: 0 6px 16px rgba(62, 78, 184, 0.35);
+  box-shadow: 0 6px 16px rgba(217, 119, 6, 0.35);
   transform: scale(1.03);
 }
 
@@ -399,7 +453,7 @@ h1, h2, h3, h4, .font-display {
   color: #FFFFFF;
   border: none;
   border-radius: var(--radius-md);
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Hanken Grotesk', sans-serif;
   font-size: 14.5px;
   font-weight: 800;
   cursor: pointer;
@@ -420,9 +474,9 @@ h1, h2, h3, h4, .font-display {
 
 .btn-primary-sticky:not(:disabled):hover,
 .btn-primary-sticky:not(:disabled):active {
-  background: var(--primary-indigo);
+  background: #1E293B;
   transform: translateY(-2px);
-  box-shadow: 0 14px 28px -5px rgba(62, 78, 184, 0.4);
+  box-shadow: 0 14px 28px -5px rgba(15, 23, 42, 0.4);
 }
 
 /* Modal Overlay & Drawer */
@@ -473,7 +527,7 @@ h1, h2, h3, h4, .font-display {
   display: block;
   font-size: 11.5px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text-dark);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 6px;
@@ -484,7 +538,7 @@ h1, h2, h3, h4, .font-display {
   padding: 14px 16px;
   border-radius: var(--radius-md);
   border: 1.5px solid var(--border-light);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Work Sans', sans-serif;
   font-size: 14.5px;
   background: var(--bg-neutral);
   transition: all 0.2s ease;
@@ -492,9 +546,9 @@ h1, h2, h3, h4, .font-display {
 
 .form-input:focus {
   outline: none;
-  border-color: var(--primary-indigo);
+  border-color: var(--primary-navy);
   background: #FFFFFF;
-  box-shadow: 0 0 0 3px rgba(62, 78, 184, 0.15);
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.12);
 }
 
 /* Modal Action Buttons */
@@ -503,7 +557,7 @@ h1, h2, h3, h4, .font-display {
   min-height: 50px;
   padding: 14px 18px;
   border-radius: var(--radius-md);
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Hanken Grotesk', sans-serif;
   font-size: 14px;
   font-weight: 800;
   display: flex;
@@ -521,7 +575,7 @@ h1, h2, h3, h4, .font-display {
 }
 
 .btn-reschedule:hover, .btn-reschedule:active {
-  background-color: var(--primary-indigo);
+  background-color: #1E293B;
   transform: translateY(-1px);
 }
 

@@ -43,10 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
       const tabTarget = btn.getAttribute('data-tab');
       if (tabTarget === activeTab) {
-        btn.classList.add('text-indigo-600', 'font-bold');
+        btn.classList.add('text-secondary', 'font-bold');
         btn.classList.remove('text-slate-500');
       } else {
-        btn.classList.remove('text-indigo-600', 'font-bold');
+        btn.classList.remove('text-secondary', 'font-bold');
         btn.classList.add('text-slate-500');
       }
     });
