@@ -6,15 +6,12 @@ from fastapi.responses import JSONResponse, HTMLResponse
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.db.session import engine, Base, get_db, init_db
+from app.db.session import engine, Base, get_db
 from app.middleware.tenant import SubdomainTenantMiddleware
 from app.models import Tenant, Service, Patient, Appointment, WhatsAppLog
 from app.api.v1.endpoints.booking import router as booking_router
 from app.api.v1.endpoints.cron import router as cron_router
 from app.api.v1.endpoints.webhook import router as webhook_router
-
-# Inicializar tablas en Supabase en arranque
-init_db()
 
 app = FastAPI(
     title=settings.APP_NAME,
