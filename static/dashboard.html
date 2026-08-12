@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-  <title>TuTurno Pro - Panel Ejecutivo | Dr. Alejandro Pérez</title>
+  <title>Citaly Pro — Panel Ejecutivo | Dr. Alejandro Pérez</title>
   <link rel="manifest" href="/static/manifest.json">
   <meta name="theme-color" content="#0F172A">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,9 +12,8 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   
-  <!-- Fonts: Hanken Grotesk, Work Sans, JetBrains Mono & Material Symbols -->
+  <!-- Fonts: Hanken Grotesk, Work Sans, JetBrains Mono -->
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Work+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
   <script id="tailwind-config">
     tailwind.config = {
@@ -43,81 +42,117 @@
   </script>
 
   <style>
-    body { font-family: 'Work Sans', sans-serif; background-color: #F8FAFC; color: #0F172A; }
+    body {
+      font-family: 'Work Sans', sans-serif;
+      background-color: #F8FAFC;
+      color: #0F172A;
+      -webkit-tap-highlight-color: transparent;
+    }
     h1, h2, h3, h4, .font-display { font-family: 'Hanken Grotesk', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
     
     .glass-card {
-      background: rgba(255, 255, 255, 0.88);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1.5px solid rgba(226, 232, 240, 0.9);
-      box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.05);
+      box-shadow: 0 8px 30px 0 rgba(15, 23, 42, 0.05);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .elevation-2 { box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06); }
-    .elevation-3 { box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.14); }
+    .glass-card:hover {
+      box-shadow: 0 12px 36px 0 rgba(15, 23, 42, 0.08);
+    }
+    
+    .glass-modal {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .elevation-1 { box-shadow: 0 2px 10px 0 rgba(15, 23, 42, 0.04); }
+    .elevation-2 { box-shadow: 0 8px 24px -2px rgba(15, 23, 42, 0.07); }
+    .elevation-3 { box-shadow: 0 16px 40px -4px rgba(15, 23, 42, 0.12); }
     
     .tab-content-anim {
-      animation: fadeInTab 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: fadeInTab 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     @keyframes fadeInTab {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    .badge-glow-emerald {
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+    }
+    .badge-glow-amber {
+      box-shadow: 0 0 12px rgba(217, 119, 6, 0.25);
+    }
+    
+    /* Scrollbar estilizada */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F1F5F9; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
   </style>
 </head>
 <body class="bg-background flex h-screen overflow-hidden">
 
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
   <!-- SideNavBar (Desktop) -->
   <aside class="hidden md:flex flex-col fixed left-0 top-0 h-full w-64 bg-white p-5 border-r border-outline-variant shadow-sm z-40">
     
-    <!-- Logo Corporativo TuTurno Vectorial (Monograma T+Check Transparente) -->
-    <div class="flex items-center gap-3 mb-8 px-1">
-      <div class="w-8 h-8 flex items-center justify-center flex-shrink-0">
+    <!-- Logo Corporativo TuTurno Vectorial -->
+    <div class="flex items-center gap-3 mb-6 px-1">
+      <div class="w-9 h-9 flex items-center justify-center flex-shrink-0">
         <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M 22 34 L 52 34 M 42 34 L 42 86" stroke="#0F172A" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M 42 46 L 58 64 L 88 26" stroke="#D97706" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
       <div>
-        <h1 class="text-xl font-extrabold text-primary tracking-tight font-display">Tu<span class="text-amber-600">Turno</span></h1>
-        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Panel Ejecutivo</span>
+        <h1 class="text-xl font-extrabold text-primary tracking-tight font-display">Citaly<span class="text-amber-600">Pro</span></h1>
+        <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider font-mono">Panel Ejecutivo SaaS</span>
       </div>
     </div>
 
-    <!-- Selector de Sucursal / Protagonista -->
+    <!-- Tarjeta del Profesional / Consultorio -->
     <div class="mb-6">
-      <div class="flex items-center justify-between bg-slate-900 text-white p-3.5 rounded-xl shadow-sm border border-slate-800">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500 to-amber-700 text-white flex items-center justify-center font-extrabold text-xs font-display shadow-sm">AP</div>
-          <div class="flex flex-col">
-            <span class="text-[9px] text-amber-400 uppercase font-bold tracking-wider font-mono">Consultorio</span>
-            <span class="text-xs text-white font-extrabold font-display">Dr. Alejandro Pérez</span>
-          </div>
+      <div class="flex items-center gap-3 bg-slate-900 text-white p-3.5 rounded-2xl shadow-md border border-slate-800">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 text-white flex items-center justify-center font-extrabold text-xs font-display shadow-sm flex-shrink-0">
+          AP
+        </div>
+        <div class="flex flex-col overflow-hidden">
+          <span class="text-[9px] text-amber-400 uppercase font-extrabold tracking-wider font-mono truncate">Consultorio</span>
+          <span class="text-xs text-white font-extrabold font-display truncate">Dr. Alejandro Pérez</span>
         </div>
       </div>
     </div>
 
     <!-- Navegación Desktop -->
-    <nav class="flex-1 space-y-2" id="desktop-nav-container">
-      <a href="#" data-tab="panel" class="nav-tab-btn flex items-center gap-3 bg-slate-900 text-white rounded-xl px-4 py-3 font-bold text-sm transition-all shadow-sm">
+    <nav class="flex-1 space-y-1.5" id="desktop-nav-container">
+      <button data-tab="panel" class="nav-tab-btn w-full flex items-center gap-3 bg-slate-900 text-white rounded-xl px-4 py-3 font-bold text-sm transition-all shadow-sm">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
         <span>Panel General</span>
-      </a>
-      <a href="#" data-tab="reservas" class="nav-tab-btn flex items-center gap-3 text-slate-600 hover:bg-slate-100 hover:translate-x-1 transition-all duration-200 rounded-xl px-4 py-3 font-semibold text-sm">
+      </button>
+      <button data-tab="reservas" class="nav-tab-btn w-full flex items-center gap-3 text-slate-600 hover:bg-slate-100 hover:translate-x-1 transition-all duration-200 rounded-xl px-4 py-3 font-semibold text-sm">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
         <span>Desglose de Turnos</span>
-      </a>
-      <a href="#" data-tab="whatsapp" class="nav-tab-btn flex items-center gap-3 text-slate-600 hover:bg-slate-100 hover:translate-x-1 transition-all duration-200 rounded-xl px-4 py-3 font-semibold text-sm">
+      </button>
+      <button data-tab="whatsapp" class="nav-tab-btn w-full flex items-center gap-3 text-slate-600 hover:bg-slate-100 hover:translate-x-1 transition-all duration-200 rounded-xl px-4 py-3 font-semibold text-sm">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
         <span>WhatsApp Monitor</span>
-      </a>
+      </button>
     </nav>
 
+    <!-- Estado Conexión WhatsApp Meta Cloud -->
     <div class="mt-auto p-3.5 bg-slate-50 rounded-xl border border-outline-variant">
-      <div class="flex items-center gap-2 text-xs font-bold text-emerald-600 font-mono">
-        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+      <div class="flex items-center gap-2.5 text-xs font-bold text-emerald-600 font-mono">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse badge-glow-emerald"></span>
         <span>Meta Cloud API Activa</span>
       </div>
+      <span class="text-[10px] text-slate-400 font-mono mt-0.5 block">Supabase PostgreSQL 200 OK</span>
     </div>
   </aside>
 
@@ -129,7 +164,7 @@
       
       <!-- Mobile Header -->
       <div class="md:hidden flex items-center gap-3">
-        <div class="w-7 h-7 flex items-center justify-center">
+        <div class="w-8 h-8 flex items-center justify-center flex-shrink-0">
           <svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M 22 34 L 52 34 M 42 34 L 42 86" stroke="#0F172A" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M 42 46 L 58 64 L 88 26" stroke="#D97706" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
@@ -141,12 +176,20 @@
         </div>
       </div>
       
-      <div class="hidden md:flex items-center gap-2">
-        <h2 class="text-base font-bold text-slate-800 font-display">Dr. Alejandro Pérez — Gestión Administrativa de Turnos</h2>
+      <!-- Desktop Header Info -->
+      <div class="hidden md:flex items-center gap-3">
+        <h2 class="text-base font-extrabold text-slate-800 font-display">Dr. Alejandro Pérez</h2>
+        <span class="px-2.5 py-0.5 bg-slate-100 text-slate-600 text-[11px] font-bold rounded-full font-mono">Gestión Administrativa de Turnos</span>
       </div>
 
-      <div class="flex items-center gap-3">
-        <button onclick="copyLink()" class="px-4 py-2 bg-secondary text-white rounded-xl font-bold text-xs flex items-center gap-2 hover:bg-amber-700 transition-all shadow-sm">
+      <!-- Acciones de Encabezado -->
+      <div class="flex items-center gap-2">
+        <button id="btn-manual-sync" title="Sincronizar en vivo" class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-all font-mono text-xs flex items-center gap-1.5 border border-slate-200">
+          <svg id="sync-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
+          <span class="hidden sm:inline font-bold">Sincronizar</span>
+        </button>
+
+        <button id="btn-copy-patient-link" class="px-4 py-2.5 bg-secondary hover:bg-amber-700 text-white rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-sm">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
           <span class="hidden sm:inline">Copiar Link Pacientes</span>
         </button>
@@ -159,18 +202,24 @@
       <!-- ================= PESTAÑA 1: PANEL GENERAL ================= -->
       <div id="view-panel" class="tab-content-anim" style="display: block;">
         
-        <div class="mb-6">
-          <h2 class="text-2xl md:text-3xl font-extrabold text-primary tracking-tight mb-1 font-display">Panel de Control General</h2>
-          <p class="text-xs md:text-sm text-slate-500">Resumen ejecutivo de turnos agendados y notificaciones en tiempo real.</p>
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-primary tracking-tight mb-1 font-display">Panel de Control General</h2>
+            <p class="text-xs md:text-sm text-slate-500">Resumen ejecutivo de turnos agendados y notificaciones en tiempo real.</p>
+          </div>
+          <div class="self-start sm:self-auto flex items-center gap-2 bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-xl border border-emerald-200 text-xs font-bold font-mono">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="live-status-text">Actualizado en vivo</span>
+          </div>
         </div>
 
         <!-- Tarjetas de Métricas Reales Estilo Bento Premium -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 mb-6">
           
-          <div class="glass-card rounded-2xl p-5 elevation-2">
+          <div class="glass-card rounded-2xl p-5 elevation-2 border-l-4 border-l-slate-900">
             <div class="flex justify-between items-start mb-3">
-              <div class="p-3 bg-primary text-white rounded-xl shadow-sm">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <div class="p-2.5 bg-slate-900 text-white rounded-xl shadow-sm">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
               </div>
               <span class="px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-full font-mono">Total</span>
             </div>
@@ -178,10 +227,10 @@
             <div id="metric-total-turnos" class="text-3xl font-extrabold text-primary tracking-tight font-display">0</div>
           </div>
 
-          <div class="glass-card rounded-2xl p-5 elevation-2">
+          <div class="glass-card rounded-2xl p-5 elevation-2 border-l-4 border-l-emerald-500">
             <div class="flex justify-between items-start mb-3">
-              <div class="p-3 bg-emerald-100 text-emerald-700 rounded-xl">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              <div class="p-2.5 bg-emerald-100 text-emerald-800 rounded-xl">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
               </div>
               <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full font-mono">Confirmados</span>
             </div>
@@ -189,10 +238,10 @@
             <div id="metric-confirmados" class="text-3xl font-extrabold text-emerald-600 tracking-tight font-display">0</div>
           </div>
 
-          <div class="glass-card rounded-2xl p-5 elevation-2">
+          <div class="glass-card rounded-2xl p-5 elevation-2 border-l-4 border-l-amber-500">
             <div class="flex justify-between items-start mb-3">
-              <div class="p-3 bg-amber-100 text-amber-700 rounded-xl">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <div class="p-2.5 bg-amber-100 text-amber-800 rounded-xl">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
               </div>
               <span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full font-mono">En Proceso</span>
             </div>
@@ -200,20 +249,34 @@
             <div id="metric-pendientes" class="text-3xl font-extrabold text-amber-600 tracking-tight font-display">0</div>
           </div>
 
+          <div class="glass-card rounded-2xl p-5 elevation-2 border-l-4 border-l-indigo-500">
+            <div class="flex justify-between items-start mb-3">
+              <div class="p-2.5 bg-indigo-100 text-indigo-800 rounded-xl">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4338CA" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
+              </div>
+              <span class="px-2.5 py-1 bg-indigo-100 text-indigo-800 text-xs font-bold rounded-full font-mono">Ocupación</span>
+            </div>
+            <h3 class="text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider font-mono">Eficiencia de Agenda</h3>
+            <div id="metric-ocupacion" class="text-3xl font-extrabold text-indigo-600 tracking-tight font-display">100%</div>
+          </div>
+
         </div>
 
         <!-- Tarjeta QR & Link para Pacientes -->
         <div class="glass-card rounded-2xl p-6 elevation-2 flex flex-col md:flex-row items-center gap-6 border-t-4 border-t-secondary">
           <div class="flex-1 text-center md:text-left">
-            <h3 class="text-lg font-bold text-primary mb-2 font-display">Comparte la Web de Reservas del Dr. Alejandro Pérez</h3>
-            <p class="text-xs text-slate-500 leading-relaxed mb-4">Tus pacientes podrán ver los tratamientos, días y horarios libres sin interrumpir la atención presencial.</p>
-            <button onclick="copyLink()" class="w-full md:w-auto px-6 py-3 bg-primary hover:bg-slate-800 text-white rounded-xl font-bold text-xs inline-flex items-center justify-center gap-2 transition-all shadow-md">
+            <div class="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-900 rounded-full text-xs font-bold font-mono mb-2">
+              <span>💡 Link Público del Consultorio</span>
+            </div>
+            <h3 class="text-xl font-bold text-primary mb-2 font-display">Comparte la Web de Reservas del Dr. Alejandro Pérez</h3>
+            <p class="text-xs text-slate-500 leading-relaxed mb-4">Tus pacientes podrán ver los tratamientos, días y horarios libres en tiempo real sin interrumpir tu atención presencial.</p>
+            <button id="btn-copy-card-link" class="w-full md:w-auto px-6 py-3 bg-primary hover:bg-slate-800 text-white rounded-xl font-bold text-xs inline-flex items-center justify-center gap-2 transition-all shadow-md">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
               <span>Copiar Enlace de Reserva</span>
             </button>
           </div>
-          <div class="flex flex-col items-center p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300">
-            <img class="w-28 h-28 object-contain mb-2 bg-white p-2 rounded-lg shadow-sm" alt="Código QR TuTurno" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://citaly-six.vercel.app/"/>
+          <div class="flex flex-col items-center p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-300 flex-shrink-0">
+            <img class="w-28 h-28 object-contain mb-2 bg-white p-2 rounded-xl shadow-sm" alt="Código QR Citaly" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://citaly-six.vercel.app/"/>
             <span class="text-[11px] font-bold text-slate-600 font-mono">Escanea para reservar</span>
           </div>
         </div>
@@ -226,14 +289,15 @@
         <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 class="text-2xl md:text-3xl font-extrabold text-primary tracking-tight mb-1 font-display">Desglose Detallado de Turnos</h2>
-            <p class="text-xs md:text-sm text-slate-500">Revisa qué turnos están ocupados, qué tratamiento solicitó cada paciente y el estado de su cita.</p>
+            <p class="text-xs md:text-sm text-slate-500">Revisa qué turnos están ocupados, qué tratamiento solicitó cada paciente y gestiona la liberación de horarios.</p>
           </div>
 
-          <!-- Filtros Día / Semana / Mes -->
-          <div class="flex items-center gap-1.5 bg-slate-200/70 p-1.5 rounded-xl border border-slate-300 self-start">
-            <button id="filter-day" class="px-3.5 py-1.5 bg-primary text-white text-xs font-bold rounded-lg transition-all shadow-sm">Día</button>
-            <button id="filter-week" class="px-3.5 py-1.5 bg-white text-slate-700 hover:bg-slate-100 text-xs font-bold rounded-lg transition-all">Semana</button>
-            <button id="filter-month" class="px-3.5 py-1.5 bg-white text-slate-700 hover:bg-slate-100 text-xs font-bold rounded-lg transition-all">Mes</button>
+          <!-- Filtros Día / Semana / Mes / Todos -->
+          <div class="flex items-center gap-1.5 bg-slate-200/80 p-1.5 rounded-xl border border-slate-300 self-start">
+            <button id="filter-all" class="filter-time-btn px-3.5 py-1.5 bg-primary text-white text-xs font-bold rounded-lg transition-all shadow-sm">Todos</button>
+            <button id="filter-day" class="filter-time-btn px-3.5 py-1.5 bg-white text-slate-700 hover:bg-slate-100 text-xs font-bold rounded-lg transition-all">Hoy</button>
+            <button id="filter-week" class="filter-time-btn px-3.5 py-1.5 bg-white text-slate-700 hover:bg-slate-100 text-xs font-bold rounded-lg transition-all">Esta Semana</button>
+            <button id="filter-month" class="filter-time-btn px-3.5 py-1.5 bg-white text-slate-700 hover:bg-slate-100 text-xs font-bold rounded-lg transition-all">Este Mes</button>
           </div>
         </div>
 
@@ -241,16 +305,19 @@
         <div class="glass-card rounded-2xl p-4 mb-4">
           <div class="relative">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3.5 top-3.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input type="text" id="search-patient-input" placeholder="Buscar por nombre de paciente o celular..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-primary focus:outline-none focus:border-primary">
+            <input type="text" id="search-patient-input" placeholder="Buscar por nombre de paciente o celular..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-primary focus:outline-none focus:border-primary focus:ring-2 focus:ring-slate-900/10">
           </div>
         </div>
 
-        <!-- Filtro por Especialidad Dinámico (Los 6 Tratamientos) -->
+        <!-- Filtro por Especialidad Dinámico -->
         <div class="glass-card rounded-2xl p-4 mb-6">
           <span class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-mono">Filtrar por Tratamiento / Especialidad:</span>
-          <div class="flex items-center gap-2 overflow-x-auto pb-1" id="specialty-pills-container">
+          <div class="flex items-center gap-2 overflow-x-auto pb-1.5" id="specialty-pills-container">
             <button data-specialty="all" class="specialty-pill-btn px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl transition-all shadow-sm whitespace-nowrap">
-              Ver Todos los Tratamientos
+              Ver Todos
+            </button>
+            <button data-specialty="Consulta General" class="specialty-pill-btn px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-all whitespace-nowrap">
+              Consulta General (30 min)
             </button>
             <button data-specialty="Ortodoncia / Control" class="specialty-pill-btn px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-all whitespace-nowrap">
               Ortodoncia / Control (2 hs)
@@ -272,7 +339,7 @@
           <div id="agenda-timeline-container" class="space-y-3">
             <div class="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2 animate-spin"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
-              <p class="text-xs font-semibold text-slate-600">Sincronizando turnos en vivo...</p>
+              <p class="text-xs font-semibold text-slate-600">Sincronizando turnos en vivo con Supabase...</p>
             </div>
           </div>
         </div>
@@ -282,9 +349,14 @@
       <!-- ================= PESTAÑA 3: WHATSAPP MONITOR ================= -->
       <div id="view-whatsapp" class="tab-content-anim" style="display: none;">
         
-        <div class="mb-6">
-          <h2 class="text-2xl md:text-3xl font-extrabold text-primary tracking-tight mb-1 font-display">Monitor de WhatsApp Automatizado</h2>
-          <p class="text-xs md:text-sm text-slate-500">Trazabilidad en tiempo real de notificaciones enviadas vía Meta Cloud API.</p>
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-primary tracking-tight mb-1 font-display">Monitor de WhatsApp Automatizado</h2>
+            <p class="text-xs md:text-sm text-slate-500">Trazabilidad en tiempo real de notificaciones y recordatorios enviados vía Meta Cloud API.</p>
+          </div>
+          <span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-xl font-mono self-start sm:self-auto">
+            Meta Cloud API Status 200 OK
+          </span>
         </div>
 
         <div class="glass-card rounded-2xl p-6 elevation-2">
@@ -304,19 +376,39 @@
   <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2.5 bg-white border-t border-outline-variant shadow-lg" id="mobile-nav-container">
     <button data-tab="panel" class="nav-tab-btn flex flex-col items-center p-1 text-amber-600 font-bold">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-      <span class="text-[10px] mt-0.5">Panel</span>
+      <span class="text-[10px] mt-0.5 font-mono">Panel</span>
     </button>
 
     <button data-tab="reservas" class="nav-tab-btn flex flex-col items-center p-1 text-slate-500">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-      <span class="text-[10px] mt-0.5">Reservas</span>
+      <span class="text-[10px] mt-0.5 font-mono">Reservas</span>
     </button>
 
     <button data-tab="whatsapp" class="nav-tab-btn flex flex-col items-center p-1 text-slate-500">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-      <span class="text-[10px] mt-0.5">WhatsApp</span>
+      <span class="text-[10px] mt-0.5 font-mono">WhatsApp</span>
     </button>
   </nav>
+
+  <!-- Confirm Cancellation Modal -->
+  <div id="cancel-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 glass-modal hidden">
+    <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-200">
+      <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mb-4 mx-auto">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+      </div>
+      <h3 class="text-lg font-extrabold text-primary text-center font-display mb-1">¿Liberar Horario?</h3>
+      <p id="cancel-modal-text" class="text-xs text-slate-500 text-center mb-6 leading-relaxed">Esta acción cancelará el turno del paciente y dejará el horario disponible inmediatamente en la web pública.</p>
+      
+      <div class="flex items-center gap-3">
+        <button id="btn-modal-close" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition-all">
+          Volver
+        </button>
+        <button id="btn-modal-confirm-cancel" class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs transition-all shadow-sm">
+          Sí, Liberar
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script src="/static/js/dashboard.js"></script>
   <script>
@@ -326,12 +418,6 @@
           .then(reg => console.log('[PWA] Service Worker registrado:', reg.scope))
           .catch(err => console.error('[PWA] Error SW:', err));
       });
-    }
-
-    function copyLink() {
-      const url = window.location.origin + '/';
-      navigator.clipboard.writeText(url);
-      alert('¡Enlace del consultorio del Dr. Alejandro Pérez copiado al portapapeles!\n' + url);
     }
   </script>
 </body>
