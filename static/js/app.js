@@ -293,11 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedTimeSlot = pill.getAttribute('data-iso');
         if (btnOpenModal) btnOpenModal.disabled = false;
 
-        // Auto-colapsar servicios
-        if (servicesSection) servicesSection.style.display = 'none';
-        if (serviceCollapsedBar) serviceCollapsedBar.classList.add('active');
-
-        // Scroll al botón de confirmación
+        // Scroll suave al botón de confirmación
         btnOpenModal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       });
     });

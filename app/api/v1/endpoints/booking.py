@@ -158,15 +158,27 @@ def create_appointment(
     ).first()
 
     if not service:
-        # Fallback por nombre o primer servicio activo
-        service = db.query(Service).filter(Service.tenant_id == tenant.id, Service.is_active == True).first()
+        service = db.query(Service).filter(Service.tenant_id == tenant.id).first()
+
+    if not service:
+        service = Service(
+            id=str(uuid.uuid4()),
+            tenant_id=tenant.id,
+            name="Ortodoncia / Control",
+            duration_minutes=120,
+            price=15000,
+            is_active=True
+        )
+        db.add(service)
+        db.commit()
+        db.refresh(service)
 
     try:
         start_dt = datetime.fromisoformat(payload.start_time)
     except ValueError:
         raise HTTPException(status_code=400, detail="Formato de hora de inicio inválido")
 
-    end_dt = start_dt + timedelta(minutes=service.duration_minutes if service else 30)
+    end_dt = start_dt + timedelta(minutes=service.duration_minutes)
 
     # 2. Registrar o vincular al paciente
     target_digits = clean_phone_digits(payload.patient_whatsapp)
@@ -193,7 +205,7 @@ def create_appointment(
     appointment = Appointment(
         id=str(uuid.uuid4()),
         tenant_id=tenant.id,
-        service_id=service.id if service else "s1",
+        service_id=service.id,
         patient_id=patient.id,
         start_time=start_dt,
         end_time=end_dt,
