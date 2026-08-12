@@ -49,25 +49,22 @@ h1, h2, h3, h4, .font-display {
   position: relative;
 }
 
-/* Sticky Header Corporativo Fijo */
+/* Sticky Header Corporativo Fijo (Fondo idéntico al cuerpo #F8FAFC) */
 .brand-header-sticky {
   position: sticky;
   top: 0;
   z-index: 60;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  padding: 16px 18px 14px 18px;
-  margin: 0 -16px 16px -16px;
-  border-bottom: 1.5px solid var(--border-light);
-  box-shadow: var(--shadow-soft);
+  background: #F8FAFC;
+  padding: 14px 16px 12px 16px;
+  margin: 0 -16px 12px -16px;
+  border-bottom: none;
 }
 
 .sticky-top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 /* Logo Oficial TuTurno 100% Transparente (Sin fondo) */
@@ -100,32 +97,31 @@ h1, h2, h3, h4, .font-display {
   color: var(--secondary-amber);
 }
 
-/* Encabezado Principal del Negocio Cliente (Dr. Alejandro Pérez) */
+/* Encabezado Principal del Negocio Cliente (Dr. Alejandro Pérez - Fondo #F8FAFC) */
 .client-business-header {
-  background: var(--primary-navy);
-  color: #FFFFFF;
+  background: #F8FAFC;
+  color: var(--primary-navy);
   border-radius: var(--radius-md);
-  padding: 14px 18px;
-  margin-top: 4px;
+  padding: 10px 4px 4px 4px;
+  margin-top: 2px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
 }
 
 .client-doctor-name {
   font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 18px;
+  font-size: 21px;
   font-weight: 800;
-  color: #FFFFFF;
+  color: var(--primary-navy);
   letter-spacing: -0.02em;
   line-height: 1.2;
 }
 
 .client-doctor-sub {
-  font-size: 11.5px;
-  color: #94A3B8;
-  font-weight: 500;
+  font-size: 12px;
+  color: #64748B;
+  font-weight: 600;
 }
 
 /* Section Cards & Bento Grid (Efecto Vidrio / Glassmorphism) */
@@ -455,7 +451,7 @@ h1, h2, h3, h4, .font-display {
   opacity: 0.5;
 }
 
-/* 100% Fixed Bottom Bar Wrapper (Zero Movement on Scroll) */
+/* 100% Fixed Bottom Bar Wrapper (Fondo idéntico al cuerpo #F8FAFC, Sin líneas de corte) */
 .fixed-bottom-bar-wrapper {
   position: fixed !important;
   bottom: 0 !important;
@@ -464,13 +460,13 @@ h1, h2, h3, h4, .font-display {
   top: auto !important;
   z-index: 9999 !important;
   padding: 12px 16px 16px 16px !important;
-  background: rgba(248, 250, 252, 0.92) !important;
+  background: rgba(248, 250, 252, 0.95) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
-  border-top: 1.5px solid rgba(226, 232, 240, 0.8) !important;
+  border-top: none !important;
   display: flex !important;
   justify-content: center !important;
-  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 -10px 24px rgba(15, 23, 42, 0.03) !important;
 }
 
 .btn-primary-sticky {

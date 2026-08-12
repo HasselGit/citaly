@@ -1,15 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
   function getInitialBookingDate() {
     const d = new Date();
-    // Si ya pasaron las 18:00 hs de hoy, seleccionar el día siguiente por defecto.
     if (d.getHours() >= 18) {
       d.setDate(d.getDate() + 1);
     }
     return d;
   }
 
-  let selectedServiceId = null;
-  let selectedServiceName = '';
+  let selectedServiceId = "s1";
+  let selectedServiceName = "Ortodoncia / Control";
   let selectedDate = getInitialBookingDate();
   let selectedTimeSlot = null;
   let activePatientAppt = null;
@@ -29,13 +28,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCloseModal = document.getElementById('btn-close-modal');
   const bookingForm = document.getElementById('booking-form');
 
+  const successModal = document.getElementById('success-modal');
+  const btnCloseSuccessModal = document.getElementById('btn-close-success-modal');
+
   const existingModal = document.getElementById('existing-appointment-modal');
   const existingApptInfo = document.getElementById('existing-appt-info');
   const btnRescheduleExisting = document.getElementById('btn-reschedule-existing');
   const btnCancelExisting = document.getElementById('btn-cancel-existing');
   const btnCloseExistingModal = document.getElementById('btn-close-existing-modal');
 
-  // Auto-refrescar cuando el usuario vuelve a abrir la app o desbloquea el celular
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       fetchAvailability();
@@ -55,23 +56,9 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: "s6", name: "Consulta & Diagnóstico", duration_minutes: 30, price: 5000 }
   ];
 
-  // 1. Cargar servicios
-  async function fetchServices() {
-    let services = [];
-    try {
-      const res = await fetch('/api/v1/booking/services', { cache: 'no-store' });
-      if (res.ok) {
-        services = await res.json();
-      }
-    } catch (e) {
-      console.warn('Usando servicios de respaldo:', e);
-    }
-
-    if (!services || services.length === 0) {
-      services = fallbackServices;
-    }
-
-    servicesContainer.innerHTML = services.map((s, idx) => `
+  // Renderizado instantáneo de servicios iniciales (0ms latency)
+  function renderInitialServices(servicesList) {
+    servicesContainer.innerHTML = servicesList.map((s, idx) => `
       <div class="service-card ${idx === 0 ? 'active' : ''}" data-service-id="${s.id}" data-service-name="${s.name}" data-duration="${s.duration_minutes}">
         <div>
           <div class="service-name">${s.name}</div>
@@ -81,12 +68,31 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `).join('');
 
-    selectedServiceId = services[0].id;
-    selectedServiceName = services[0].name;
+    selectedServiceId = servicesList[0].id;
+    selectedServiceName = servicesList[0].name;
     if (collapsedServiceName) collapsedServiceName.innerText = selectedServiceName;
 
     attachServiceClickEvents();
+  }
+
+  // 1. Cargar servicios desde API
+  async function fetchServices() {
+    renderInitialServices(fallbackServices);
     renderDatePills();
+    renderSlotsInstant();
+
+    try {
+      const res = await fetch('/api/v1/booking/services', { cache: 'no-store' });
+      if (res.ok) {
+        const liveServices = await res.json();
+        if (liveServices && liveServices.length > 0) {
+          renderInitialServices(liveServices);
+        }
+      }
+    } catch (e) {
+      console.warn('Usando servicios predeterminados:', e);
+    }
+
     fetchAvailability();
     startAutoSync();
   }
@@ -98,153 +104,139 @@ document.addEventListener('DOMContentLoaded', () => {
         card.classList.add('active');
         selectedServiceId = card.getAttribute('data-service-id');
         selectedServiceName = card.getAttribute('data-service-name');
-        
+
         if (collapsedServiceName) collapsedServiceName.innerText = selectedServiceName;
-
-        // Si hay más de 2 servicios o el usuario selecciona uno, colapsar suavemente para liberar pantalla
-        collapseServiceSection();
-
-        // Animación de transición al revelar el calendario
-        const calSec = document.getElementById('calendar-section');
-        if (calSec) {
-          calSec.classList.remove('animate-slide-up');
-          void calSec.offsetWidth;
-          calSec.classList.add('animate-slide-up');
-        }
         
-        fetchAvailability();
-      });
-    });
-  }
+        selectedTimeSlot = null;
+        if (btnOpenModal) btnOpenModal.disabled = true;
 
-  function collapseServiceSection() {
-    if (servicesSection && serviceCollapsedBar) {
-      servicesSection.style.display = 'none';
-      serviceCollapsedBar.classList.add('active');
-    }
-  }
-
-  function expandServiceSection() {
-    if (servicesSection && serviceCollapsedBar) {
-      servicesSection.style.display = 'block';
-      serviceCollapsedBar.classList.remove('active');
-    }
-  }
-
-  if (btnChangeService) {
-    btnChangeService.addEventListener('click', expandServiceSection);
-  }
-
-  let startDateOffset = 0;
-  const btnPrevWeek = document.getElementById('btn-prev-week');
-  const btnNextWeek = document.getElementById('btn-next-week');
-
-  if (btnPrevWeek) {
-    btnPrevWeek.addEventListener('click', () => {
-      if (startDateOffset >= 7) {
-        startDateOffset -= 7;
-      } else {
-        startDateOffset = 0;
-      }
-      renderDatePills();
-      fetchAvailability();
-    });
-  }
-
-  if (btnNextWeek) {
-    btnNextWeek.addEventListener('click', () => {
-      startDateOffset += 7;
-      renderDatePills();
-      fetchAvailability();
-    });
-  }
-
-  function formatLocalDate(d) {
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  // 2. Renderizar fechas semanales encuadradas (Ocultando días pasados o agotados)
-  function renderDatePills() {
-    const daysName = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-    const monthsName = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    
-    let html = '';
-    const now = new Date();
-    // Si la hora actual es >= 18:00 (fuera de horario comercial), el día de hoy ya no es elegible
-    const startDayIndex = (now.getHours() >= 18) ? 1 : 0;
-    
-    const baseDate = new Date(now);
-    baseDate.setDate(now.getDate() + startDayIndex + startDateOffset);
-    
-    currentMonthYear.innerText = `${monthsName[baseDate.getMonth()]} ${baseDate.getFullYear()}`;
-
-    let firstValidDate = null;
-
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(baseDate);
-      d.setDate(baseDate.getDate() + i);
-
-      // Si por offset cayera un día anterior a hoy, omitirlo
-      const todayDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const testDateOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-      if (testDateOnly < todayDateOnly) continue;
-
-      if (!firstValidDate) firstValidDate = d;
-
-      const isSelected = selectedDate && (d.toDateString() === selectedDate.toDateString());
-      const dateIsoStr = formatLocalDate(d);
-
-      html += `
-        <div class="date-pill ${isSelected ? 'active' : ''}" data-date="${dateIsoStr}">
-          <span class="date-day">${daysName[d.getDay()]}</span>
-          <span class="date-num">${d.getDate()}</span>
-        </div>
-      `;
-    }
-
-    if (!selectedDate && firstValidDate) {
-      selectedDate = firstValidDate;
-    }
-
-    dateScrollContainer.innerHTML = html;
-
-    // Si la fecha seleccionada anteriormente ya no es visible, seleccionar la primera válida
-    const activePill = dateScrollContainer.querySelector('.date-pill.active');
-    if (!activePill && firstValidDate) {
-      selectedDate = firstValidDate;
-      const firstPill = dateScrollContainer.querySelector('.date-pill');
-      if (firstPill) firstPill.classList.add('active');
-    }
-
-    document.querySelectorAll('.date-pill').forEach(pill => {
-      pill.addEventListener('click', () => {
-        document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
-        const [y, m, dayNum] = pill.getAttribute('data-date').split('-').map(Number);
-        selectedDate = new Date(y, m - 1, dayNum);
-        
-        // ⚡ RENDERIZADO INSTANTÁNEO EN 0ms
         renderSlotsInstant();
         fetchAvailability();
       });
     });
   }
 
+  if (btnChangeService) {
+    btnChangeService.addEventListener('click', () => {
+      if (servicesSection) servicesSection.style.display = 'block';
+      if (serviceCollapsedBar) serviceCollapsedBar.classList.remove('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  function formatLocalDate(dateObj) {
+    const yyyy = dateObj.getFullYear();
+    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const dd = String(dateObj.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  const daysShortName = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+  const monthsName = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+  function renderDatePills() {
+    dateScrollContainer.innerHTML = '';
+    const now = new Date();
+    const todayStr = formatLocalDate(now);
+    const nowHour = now.getHours();
+
+    let startDateCandidate = new Date(selectedDate);
+    
+    // Si la fecha seleccionada es hoy pero ya son las 18:00 hs o más, avanzar a mañana
+    if (formatLocalDate(startDateCandidate) === todayStr && nowHour >= 18) {
+      startDateCandidate.setDate(startDateCandidate.getDate() + 1);
+      selectedDate = new Date(startDateCandidate);
+    }
+
+    currentMonthYear.innerText = `${monthsName[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
+
+    let datesToRender = [];
+    let tempDate = new Date(selectedDate);
+
+    for (let i = 0; i < 7; i++) {
+      const dStr = formatLocalDate(tempDate);
+      // Omitir hoy si ya pasaron las 18:00 hs
+      if (dStr === todayStr && nowHour >= 18) {
+        tempDate.setDate(tempDate.getDate() + 1);
+        continue;
+      }
+      datesToRender.push(new Date(tempDate));
+      tempDate.setDate(tempDate.getDate() + 1);
+    }
+
+    datesToRender.slice(0, 7).forEach((d, idx) => {
+      const dayName = daysShortName[d.getDay()];
+      const dayNum = d.getDate();
+      const dateIso = formatLocalDate(d);
+      const isSelected = dateIso === formatLocalDate(selectedDate);
+
+      const pill = document.createElement('div');
+      pill.className = `date-pill ${isSelected ? 'active' : ''}`;
+      pill.setAttribute('data-date', dateIso);
+      pill.innerHTML = `
+        <span class="date-day">${dayName}</span>
+        <span class="date-num">${dayNum}</span>
+      `;
+
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        selectedDate = new Date(d);
+        selectedTimeSlot = null;
+        if (btnOpenModal) btnOpenModal.disabled = true;
+
+        currentMonthYear.innerText = `${monthsName[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
+        renderSlotsInstant();
+        fetchAvailability();
+      });
+
+      dateScrollContainer.appendChild(pill);
+    });
+  }
+
+  const btnPrevWeek = document.getElementById('btn-prev-week');
+  const btnNextWeek = document.getElementById('btn-next-week');
+
+  if (btnPrevWeek) {
+    btnPrevWeek.addEventListener('click', () => {
+      const prevDate = new Date(selectedDate);
+      prevDate.setDate(prevDate.getDate() - 7);
+      const today = new Date();
+      if (prevDate >= new Date(today.getFullYear(), today.getMonth(), today.getDate())) {
+        selectedDate = prevDate;
+        renderDatePills();
+        renderSlotsInstant();
+        fetchAvailability();
+      }
+    });
+  }
+
+  if (btnNextWeek) {
+    btnNextWeek.addEventListener('click', () => {
+      const nextDate = new Date(selectedDate);
+      nextDate.setDate(nextDate.getDate() + 7);
+      selectedDate = nextDate;
+      renderDatePills();
+      renderSlotsInstant();
+      fetchAvailability();
+    });
+  }
+
   const defaultMockSlotsTimes = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"];
 
-  // ⚡ Renderizado síncrono instantáneo de horarios (0ms de latencia para el paciente)
   function renderSlotsInstant() {
-    if (!selectedDate) return;
     const targetDateIso = formatLocalDate(selectedDate);
-    const todayIso = formatLocalDate(new Date());
-    const nowHours = new Date().getHours();
+    const now = new Date();
+    const isToday = (targetDateIso === formatLocalDate(now));
+    const currentHour = now.getHours();
+    const currentMin = now.getMinutes();
 
     const slots = defaultMockSlotsTimes.map(t => {
-      const [h, m] = t.split(':').map(Number);
-      const isPast = (targetDateIso < todayIso) || (targetDateIso === todayIso && h <= nowHours);
+      const [hStr, mStr] = t.split(':');
+      const h = parseInt(hStr, 10);
+      const m = parseInt(mStr, 10);
+      
+      const isPast = isToday && (h < currentHour || (h === currentHour && m <= currentMin));
       return {
         time_str: t,
         start_iso: `${targetDateIso}T${t}:00`,
@@ -270,11 +262,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!selectedServiceId) return;
     const dateStr = formatLocalDate(selectedDate);
 
-    // Primer renderizado instantáneo
-    if (slotsContainer.children.length === 0) {
-      renderSlotsInstant();
-    }
-    
     try {
       const res = await fetch(`/api/v1/booking/availability?service_id=${selectedServiceId}&target_date_str=${dateStr}`, { cache: 'no-store' });
       if (res.ok) {
@@ -302,8 +289,16 @@ document.addEventListener('DOMContentLoaded', () => {
       pill.addEventListener('click', () => {
         document.querySelectorAll('.slot-pill').forEach(p => p.classList.remove('selected'));
         pill.classList.add('selected');
+
         selectedTimeSlot = pill.getAttribute('data-iso');
-        btnOpenModal.removeAttribute('disabled');
+        if (btnOpenModal) btnOpenModal.disabled = false;
+
+        // Auto-colapsar servicios
+        if (servicesSection) servicesSection.style.display = 'none';
+        if (serviceCollapsedBar) serviceCollapsedBar.classList.add('active');
+
+        // Scroll al botón de confirmación
+        btnOpenModal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       });
     });
   }
@@ -325,35 +320,27 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Formatear resumen para el cliente antes de confirmar
     const timeStr = selectedTimeSlot.split('T')[1].substring(0, 5);
-    const monthsName = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    const daysName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const dayNum = selectedDate.getDate();
+    const monthName = monthsName[selectedDate.getMonth()];
+    const dayOfWeekName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][selectedDate.getDay()];
     
-    const formattedDateText = `${daysName[selectedDate.getDay()]} ${selectedDate.getDate()} de ${monthsName[selectedDate.getMonth()]} — ${timeStr} hs`;
-    
+    const formattedDateText = `${dayOfWeekName} ${dayNum} de ${monthName} — ${timeStr} hs`;
+
     const summaryServiceName = document.getElementById('summary-service-name');
     const summaryDateTime = document.getElementById('summary-date-time');
     const summaryDuration = document.getElementById('summary-service-duration');
     const summaryPrice = document.getElementById('summary-service-price');
 
     const activeCard = document.querySelector('.service-card.active');
-    let servicePriceText = '$15.000 ARS';
-    let serviceDurationText = '⏱ 120 min';
-
-    if (activeCard) {
-      const priceElem = activeCard.querySelector('.service-price');
-      const durElem = activeCard.querySelector('.service-duration');
-      if (priceElem) servicePriceText = priceElem.innerText;
-      if (durElem) serviceDurationText = durElem.innerText;
-    }
+    const serviceDurationText = activeCard ? activeCard.querySelector('.service-duration').innerText : '⏱ 60 min';
+    const servicePriceText = activeCard ? activeCard.querySelector('.service-price').innerText : '$15.000 ARS';
 
     if (summaryServiceName) summaryServiceName.innerText = selectedServiceName || 'Ortodoncia / Control';
     if (summaryDateTime) summaryDateTime.innerText = formattedDateText;
     if (summaryDuration) summaryDuration.innerText = serviceDurationText;
     if (summaryPrice) summaryPrice.innerText = servicePriceText;
 
-    // Limpiar campos del formulario para la privacidad entre pacientes
     document.getElementById('patient-name').value = '';
     document.getElementById('patient-phone').value = '';
 
@@ -362,14 +349,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnCloseModal) btnCloseModal.addEventListener('click', () => modalOverlay.classList.remove('active'));
   if (btnCloseExistingModal) btnCloseExistingModal.addEventListener('click', () => existingModal.classList.remove('active'));
+  if (btnCloseSuccessModal) btnCloseSuccessModal.addEventListener('click', () => {
+    if (successModal) successModal.classList.remove('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
 
-  // 6. Finalizar Reserva con comprobación Anti-Duplicados
+  // 6. Finalizar Reserva
   bookingForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const name = document.getElementById('patient-name').value;
-    const phone = document.getElementById('patient-phone').value;
-    const submitBtn = bookingForm.querySelector('button[type="submit"]');
+    const name = document.getElementById('patient-name').value.trim();
+    const phone = document.getElementById('patient-phone').value.trim();
+    const submitBtn = document.getElementById('btn-submit-modal');
+
+    if (!name || !phone) {
+      alert('Por favor completa tu Nombre y Celular.');
+      return;
+    }
+
+    if (!selectedTimeSlot) {
+      alert('Por favor selecciona un horario de la lista.');
+      return;
+    }
 
     if (submitBtn) {
       submitBtn.classList.add('loading');
@@ -412,28 +413,32 @@ document.addEventListener('DOMContentLoaded', () => {
         })
       });
 
-      let result = null;
-      try {
-        result = await res.json();
-      } catch (e) {}
+      const result = await res.json();
 
       if (res.ok && result && result.success) {
-        alert('🎉 ¡Reserva confirmada exitosamente! Te enviamos la confirmación a tu WhatsApp.');
+        const timeStr = selectedTimeSlot.split('T')[1].substring(0, 5);
+        const dayNum = selectedDate.getDate();
+        const monthName = monthsName[selectedDate.getMonth()];
+        const dayOfWeekName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][selectedDate.getDay()];
+        const formattedDateText = `${dayOfWeekName} ${dayNum} de ${monthName} a las ${timeStr} hs`;
+
+        document.getElementById('success-service-name').innerText = selectedServiceName || 'Ortodoncia / Control';
+        document.getElementById('success-date-time').innerText = formattedDateText;
+        document.getElementById('success-doctor-name').innerText = 'Dr. Alejandro Pérez';
+
         modalOverlay.classList.remove('active');
-        fetchAvailability();
-      } else if (result && result.detail) {
-        alert('🎉 ¡Reserva confirmada exitosamente! Te enviamos la confirmación a tu WhatsApp.');
-        modalOverlay.classList.remove('active');
+        if (successModal) successModal.classList.add('active');
+
+        selectedTimeSlot = null;
+        if (btnOpenModal) btnOpenModal.disabled = true;
+
         fetchAvailability();
       } else {
-        alert('🎉 ¡Reserva confirmada exitosamente! Te enviamos la confirmación a tu WhatsApp.');
-        modalOverlay.classList.remove('active');
-        fetchAvailability();
+        alert('No se pudo confirmar la reserva: ' + (result.detail || 'Por favor intenta nuevamente.'));
       }
     } catch (err) {
-      alert('🎉 ¡Reserva confirmada exitosamente! Te enviamos la confirmación a tu WhatsApp.');
-      modalOverlay.classList.remove('active');
-      fetchAvailability();
+      console.error('Error al crear reserva:', err);
+      alert('Ocurrió un error al procesar tu turno. Intenta nuevamente.');
     } finally {
       if (submitBtn) {
         submitBtn.classList.remove('loading');
@@ -448,7 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!activePatientAppt || !selectedTimeSlot) return;
 
       try {
-        btnRescheduleExisting.innerText = 'Reprogramando ⌛...';
+        btnRescheduleExisting.innerText = 'Reprogramando...';
         btnRescheduleExisting.disabled = true;
 
         const res = await fetch('/api/v1/booking/reschedule', {
@@ -482,7 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!activePatientAppt) return;
 
       try {
-        btnCancelExisting.innerText = 'Cancelando ⌛...';
+        btnCancelExisting.innerText = 'Cancelando...';
         btnCancelExisting.disabled = true;
 
         const res = await fetch(`/api/v1/booking/cancel/${activePatientAppt.token_cancellation}`, {

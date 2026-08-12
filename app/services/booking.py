@@ -15,16 +15,16 @@ def calculate_available_slots(
     Calcula los slots del día diferenciando entre DISPONIBLE y OCUPADO
     según la duración exacta del tratamiento.
     """
-    # 1. Obtener el servicio para saber su duración
+    # 1. Obtener el servicio para saber su duración (con fallback robusto)
     service = db.query(Service).filter(
-        Service.id == service_id,
-        Service.tenant_id == tenant_id
+        Service.tenant_id == tenant_id,
+        Service.id == service_id
     ).first()
-    
-    if not service:
-        return []
 
-    duration_minutes = service.duration_minutes
+    if not service:
+        service = db.query(Service).filter(Service.tenant_id == tenant_id).first()
+
+    duration_minutes = service.duration_minutes if service else 30
 
     # 2. Obtener todas las citas existentes agendadas para el día (no canceladas)
     start_of_day = datetime.combine(target_date, time(0, 0, 0))
