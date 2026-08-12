@@ -1,6 +1,6 @@
 # CITALY - Plataforma SaaS Universal de Agendas Inteligentes & Reducción de Ausentismo por WhatsApp
 
-> 🤖 **Directrices para Agentes de IA:** Consulta el archivo [PROJECT_STATE.md](file:///c:/Users/Usuario/Desktop/Citaly/PROJECT_STATE.md) para ver el estado exacto del desarrollo y las instrucciones de continuación.
+> 🤖 **Directrices para Agentes de IA:** Consulta el archivo [AGENTS.md](file:///c:/Users/Usuario/Desktop/Citaly/AGENTS.md) para ver la arquitectura técnica, esquema de DB y reglas de desarrollo, y [PROJECT_STATE.md](file:///c:/Users/Usuario/Desktop/Citaly/PROJECT_STATE.md) para el estado del proyecto.
 
 ---
 
@@ -10,16 +10,14 @@ Citaly es un sistema de agenda inteligente mobile-first diseñado para automatiz
 
 ## 🛠️ Stack Tecnológico
 * **Backend:** Python (FastAPI 0.109+)
-* **Base de Datos:** PostgreSQL en **Supabase** (Multi-tenant via SQLAlchemy 2.0 ORM)
+* **Base de Datos:** PostgreSQL en **Supabase** (Multi-tenant via SQLAlchemy 2.0 ORM con Session Pooler IPv4)
 * **Infraestructura & Hosting:** **Vercel (Hobby Free Tier)** + Vercel Cron Jobs
 * **Notificaciones:** Meta Cloud API (WhatsApp Business API Directa)
-* **Frontend:** PWA Mobile-First (HTML5, CSS3 Light Mode, JavaScript)
+* **Frontend:** PWA Mobile-First (HTML5, Glassmorphism CSS, JavaScript)
 
 ---
 
 ## 🚀 Guía de Instalación y Ejecución Local (Paso a Paso)
-
- CUALQUIER AGENTE DE IA O DESARROLLADOR PUEDE REPRODUCIR EL PROYECTO CON ESTOS PASOS:
 
 ### 1. Clonar el Repositorio
 ```bash
@@ -39,16 +37,15 @@ pip install -r requirements.txt
 ```
 
 ### 3. Configurar Variables de Entorno (`.env`)
-Copia el archivo de plantilla `.env.example` a `.env`:
+Copia el archivo de plantilla `.env.example` a `.env` y completa las variables de Supabase:
 ```bash
 cp .env.example .env
 ```
-Completa las variables con las credenciales de tu base de datos de Supabase y Meta Cloud API.
 
 ### 4. Iniciar el Servidor de Desarrollo
 ```bash
 python main.py
-# O usando uvicorn directamente:
+# O usando uvicorn:
 uvicorn main:app --reload --port 8000
 ```
 
@@ -68,11 +65,10 @@ citaly/
 │   ├── models/          # Modelos relacionales ORM (Tenant, Service, Patient, Appointment, WhatsAppLog)
 │   └── services/        # Lógica de reservas atómicas, WhatsApp API y schedulers
 ├── static/              # Archivos estáticos del Frontend PWA
-├── .env.example         # Plantilla de variables de entorno requeridas
-├── .gitignore           # Exclusión de archivos sensibles de Git
-├── main.py              # Punto de entrada principal de FastAPI
-├── requirements.txt     # Dependencias de Python
-└── vercel.json          # Configuración de despliegue en Vercel & Cron Jobs
+├── AGENTS.md            # Directrices técnicas y arquitectura para Agentes de IA
+├── PROJECT_STATE.md     # Estado detallado de avance del proyecto
+├── vercel.json          # Configuración de despliegue en Vercel & Cron Jobs
+└── main.py              # Punto de entrada principal de FastAPI
 ```
 
 ---
