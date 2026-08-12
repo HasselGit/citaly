@@ -56,6 +56,7 @@ def get_or_create_primary_tenant(db: Session) -> Tenant:
     tenant = db.query(Tenant).first()
     if not tenant:
         tenant = Tenant(
+            id=str(uuid.uuid4()),
             subdomain="dr-alejandro-perez",
             business_name="Consultorio Odontológico Dr. Pérez",
             owner_name="Dr. Alejandro Pérez",
@@ -149,93 +150,98 @@ def create_appointment(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    tenant = get_or_create_primary_tenant(db)
-
-    # 1. Resolver el servicio solicitado
-    service = db.query(Service).filter(
-        Service.tenant_id == tenant.id,
-        Service.id == payload.service_id
-    ).first()
-
-    if not service:
-        service = db.query(Service).filter(Service.tenant_id == tenant.id).first()
-
-    if not service:
-        service = Service(
-            id=str(uuid.uuid4()),
-            tenant_id=tenant.id,
-            name="Ortodoncia / Control",
-            duration_minutes=120,
-            price=15000,
-            is_active=True
-        )
-        db.add(service)
-        db.commit()
-        db.refresh(service)
-
     try:
-        start_dt = datetime.fromisoformat(payload.start_time)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Formato de hora de inicio inválido")
+        tenant = get_or_create_primary_tenant(db)
 
-    end_dt = start_dt + timedelta(minutes=service.duration_minutes)
+        # 1. Resolver el servicio solicitado
+        service = db.query(Service).filter(
+            Service.tenant_id == tenant.id,
+            Service.id == payload.service_id
+        ).first()
 
-    # 2. Registrar o vincular al paciente
-    target_digits = clean_phone_digits(payload.patient_whatsapp)
-    patients = db.query(Patient).filter(Patient.tenant_id == tenant.id).all()
-    patient = None
-    for p in patients:
-        if clean_phone_digits(p.whatsapp_phone) == target_digits:
-            patient = p
-            break
+        if not service:
+            service = db.query(Service).filter(Service.tenant_id == tenant.id).first()
 
-    if not patient:
-        patient = Patient(
+        if not service:
+            service = Service(
+                id=str(uuid.uuid4()),
+                tenant_id=tenant.id,
+                name="Ortodoncia / Control",
+                duration_minutes=120,
+                price=15000,
+                is_active=True
+            )
+            db.add(service)
+            db.commit()
+            db.refresh(service)
+
+        try:
+            start_dt = datetime.fromisoformat(payload.start_time)
+        except ValueError:
+            return JSONResponse(status_code=400, content={"success": False, "detail": "Formato de hora de inicio inválido"})
+
+        end_dt = start_dt + timedelta(minutes=service.duration_minutes)
+
+        # 2. Registrar o vincular al paciente
+        target_digits = clean_phone_digits(payload.patient_whatsapp)
+        patients = db.query(Patient).filter(Patient.tenant_id == tenant.id).all()
+        patient = None
+        for p in patients:
+            if clean_phone_digits(p.whatsapp_phone) == target_digits:
+                patient = p
+                break
+
+        if not patient:
+            patient = Patient(
+                id=str(uuid.uuid4()),
+                tenant_id=tenant.id,
+                full_name=payload.patient_full_name,
+                whatsapp_phone=payload.patient_whatsapp
+            )
+            db.add(patient)
+            db.commit()
+            db.refresh(patient)
+
+        # 3. Crear la reserva
+        token_cancel = str(uuid.uuid4())
+        appointment = Appointment(
             id=str(uuid.uuid4()),
             tenant_id=tenant.id,
-            full_name=payload.patient_full_name,
-            whatsapp_phone=payload.patient_whatsapp
+            service_id=service.id,
+            patient_id=patient.id,
+            start_time=start_dt,
+            end_time=end_dt,
+            status="SCHEDULED",
+            token_cancellation=token_cancel
         )
-        db.add(patient)
+        db.add(appointment)
         db.commit()
-        db.refresh(patient)
+        db.refresh(appointment)
 
-    # 3. Crear la reserva
-    token_cancel = str(uuid.uuid4())
-    appointment = Appointment(
-        id=str(uuid.uuid4()),
-        tenant_id=tenant.id,
-        service_id=service.id,
-        patient_id=patient.id,
-        start_time=start_dt,
-        end_time=end_dt,
-        status="SCHEDULED",
-        token_cancellation=token_cancel
-    )
-    db.add(appointment)
-    db.commit()
-    db.refresh(appointment)
+        # 4. Registrar log de WhatsApp inicial
+        wa_log = WhatsAppLog(
+            id=str(uuid.uuid4()),
+            appointment_id=appointment.id,
+            message_type="CONFIRMATION",
+            status="SENT"
+        )
+        db.add(wa_log)
+        db.commit()
 
-    # 4. Registrar log de WhatsApp inicial
-    wa_log = WhatsAppLog(
-        id=str(uuid.uuid4()),
-        appointment_id=appointment.id,
-        message_type="CONFIRMATION",
-        status="SENT"
-    )
-    db.add(wa_log)
-    db.commit()
-
-    return {
-        "success": True,
-        "appointment_id": appointment.id,
-        "business_name": tenant.business_name,
-        "service_name": service.name if service else "Consulta",
-        "patient_name": patient.full_name,
-        "start_time": appointment.start_time.isoformat(),
-        "cancellation_token": token_cancel,
-        "whatsapp_preview": f"✅ Tu cita con {tenant.business_name} para {service.name if service else 'Consulta'} está confirmada para el {appointment.start_time.strftime('%d/%m a las %H:%M hs')}."
-    }
+        return {
+            "success": True,
+            "appointment_id": appointment.id,
+            "business_name": tenant.business_name,
+            "service_name": service.name if service else "Consulta",
+            "patient_name": patient.full_name,
+            "start_time": appointment.start_time.isoformat(),
+            "cancellation_token": token_cancel,
+            "whatsapp_preview": f"✅ Tu cita con {tenant.business_name} para {service.name if service else 'Consulta'} está confirmada para el {appointment.start_time.strftime('%d/%m a las %H:%M hs')}."
+        }
+    except Exception as e:
+        db.rollback()
+        print(f"[ERROR APPOINTMENT]: {e}")
+        return JSONResponse(status_code=400, content={"success": False, "detail": f"No se pudo guardar la cita: {str(e)}"})
 
 @router.get("/appointments")
 def get_appointments(request: Request, db: Session = Depends(get_db)):

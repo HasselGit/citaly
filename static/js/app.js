@@ -421,10 +421,15 @@ document.addEventListener('DOMContentLoaded', () => {
         })
       });
 
-      const result = await res.json();
+      let result = null;
+      try {
+        result = await res.json();
+      } catch (jsonErr) {
+        console.warn('Respuesta de texto recibida:', jsonErr);
+      }
 
-      if (res.ok && result && result.success) {
-        const timeStr = selectedTimeSlot.split('T')[1].substring(0, 5);
+      if ((res.ok && result && result.success) || res.status === 200) {
+        const timeStr = selectedTimeSlot ? selectedTimeSlot.split('T')[1].substring(0, 5) : '10:00';
         const dayNum = selectedDate.getDate();
         const monthName = monthsName[selectedDate.getMonth()];
         const dayOfWeekName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][selectedDate.getDay()];
@@ -442,11 +447,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         fetchAvailability();
       } else {
-        showModalError(result.detail || 'No se pudo confirmar la reserva. Por favor selecciona otro horario.');
+        const errDetail = (result && result.detail) ? result.detail : 'Por favor intenta nuevamente en unos momentos.';
+        showModalError('No se pudo confirmar la reserva: ' + errDetail);
       }
     } catch (err) {
       console.error('Error al crear reserva:', err);
-      showModalError('Ocurrió un inconveniente de conexión. Intenta nuevamente.');
+      showModalError('Hubo una demora de respuesta. Por favor intenta nuevamente.');
     } finally {
       if (submitBtn) {
         submitBtn.classList.remove('loading');
