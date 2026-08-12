@@ -1,4 +1,11 @@
 from datetime import datetime, date, time, timedelta, timezone
+from typing import List, Dict, Any
+
+from sqlalchemy.orm import Session
+
+from app.models.service import Service
+from app.models.appointment import Appointment
+
 
 # Horario comercial por defecto: 09:00 a 18:00
 DEFAULT_START_HOUR = 9
