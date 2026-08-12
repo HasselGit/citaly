@@ -43,6 +43,17 @@
       </div>
     </header>
 
+    <!-- Indicador Compacto del Tratamiento Seleccionado -->
+    <div class="service-collapsed-bar" id="service-collapsed-bar">
+      <div>
+        <div style="font-size: 10px; text-transform: uppercase; color: #64748B; font-weight: 700; letter-spacing: 0.05em;">Tratamiento Elegido</div>
+        <div class="collapsed-service-name" id="collapsed-service-name">Ortodoncia / Control</div>
+      </div>
+      <button type="button" class="collapsed-change-btn" id="btn-change-service">
+        <span>Cambiar ▾</span>
+      </button>
+    </div>
+
     <!-- 1. Selecciona un Servicio (Grid Bento de 2 Columnas) -->
     <section class="section-card" id="services-section">
       <h2 class="section-title">
@@ -116,6 +127,14 @@
             <span style="font-size: 11px; color: #64748B;" id="summary-service-duration">⏱ 120 min</span>
             <span class="summary-value-price" id="summary-service-price">$15.000 ARS</span>
           </div>
+        </div>
+      </div>
+
+      <!-- Banner de Notificación de Error Ejecutivo -->
+      <div id="modal-error-banner" style="display: none; background: #FEF2F2; border: 1.5px solid #FCA5A5; border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; color: #991B1B; font-size: 13px; font-weight: 600;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 16px;">⚠️</span>
+          <span id="modal-error-text">No se pudo procesar la reserva.</span>
         </div>
       </div>
 

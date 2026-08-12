@@ -28,6 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCloseModal = document.getElementById('btn-close-modal');
   const bookingForm = document.getElementById('booking-form');
 
+  const modalErrorBanner = document.getElementById('modal-error-banner');
+  const modalErrorText = document.getElementById('modal-error-text');
+
   const successModal = document.getElementById('success-modal');
   const btnCloseSuccessModal = document.getElementById('btn-close-success-modal');
 
@@ -56,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: "s6", name: "Consulta & Diagnóstico", duration_minutes: 30, price: 5000 }
   ];
 
-  // Renderizado instantáneo de servicios iniciales (0ms latency)
+  // Renderizado instantáneo de servicios iniciales
   function renderInitialServices(servicesList) {
     servicesContainer.innerHTML = servicesList.map((s, idx) => `
       <div class="service-card ${idx === 0 ? 'active' : ''}" data-service-id="${s.id}" data-service-name="${s.name}" data-duration="${s.duration_minutes}">
@@ -106,7 +109,9 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedServiceName = card.getAttribute('data-service-name');
 
         if (collapsedServiceName) collapsedServiceName.innerText = selectedServiceName;
-        
+        if (serviceCollapsedBar) serviceCollapsedBar.classList.add('active');
+        if (servicesSection) servicesSection.style.display = 'none';
+
         selectedTimeSlot = null;
         if (btnOpenModal) btnOpenModal.disabled = true;
 
@@ -142,7 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let startDateCandidate = new Date(selectedDate);
     
-    // Si la fecha seleccionada es hoy pero ya son las 18:00 hs o más, avanzar a mañana
     if (formatLocalDate(startDateCandidate) === todayStr && nowHour >= 18) {
       startDateCandidate.setDate(startDateCandidate.getDate() + 1);
       selectedDate = new Date(startDateCandidate);
@@ -155,7 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     for (let i = 0; i < 7; i++) {
       const dStr = formatLocalDate(tempDate);
-      // Omitir hoy si ya pasaron las 18:00 hs
       if (dStr === todayStr && nowHour >= 18) {
         tempDate.setDate(tempDate.getDate() + 1);
         continue;
@@ -293,7 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedTimeSlot = pill.getAttribute('data-iso');
         if (btnOpenModal) btnOpenModal.disabled = false;
 
-        // Scroll suave al botón de confirmación
         btnOpenModal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       });
     });
@@ -309,12 +311,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 2500);
   }
 
-  // 5. Modal de Confirmación con Resumen Claro y Transparente
+  // 5. Modal de Confirmación
   btnOpenModal.addEventListener('click', () => {
     if (!selectedTimeSlot) {
-      alert('Por favor, selecciona un horario disponible primero.');
       return;
     }
+
+    if (modalErrorBanner) modalErrorBanner.style.display = 'none';
 
     const timeStr = selectedTimeSlot.split('T')[1].substring(0, 5);
     const dayNum = selectedDate.getDate();
@@ -354,17 +357,19 @@ document.addEventListener('DOMContentLoaded', () => {
   bookingForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    if (modalErrorBanner) modalErrorBanner.style.display = 'none';
+
     const name = document.getElementById('patient-name').value.trim();
     const phone = document.getElementById('patient-phone').value.trim();
     const submitBtn = document.getElementById('btn-submit-modal');
 
     if (!name || !phone) {
-      alert('Por favor completa tu Nombre y Celular.');
+      showModalError('Por favor completa tu Nombre y Celular.');
       return;
     }
 
     if (!selectedTimeSlot) {
-      alert('Por favor selecciona un horario de la lista.');
+      showModalError('Por favor selecciona un horario de la lista.');
       return;
     }
 
@@ -395,6 +400,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     createAppointmentCall(name, phone, submitBtn);
   });
+
+  function showModalError(msg) {
+    if (modalErrorBanner && modalErrorText) {
+      modalErrorText.innerText = msg;
+      modalErrorBanner.style.display = 'block';
+    }
+  }
 
   async function createAppointmentCall(name, phone, submitBtn) {
     try {
@@ -430,11 +442,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         fetchAvailability();
       } else {
-        alert('No se pudo confirmar la reserva: ' + (result.detail || 'Por favor intenta nuevamente.'));
+        showModalError(result.detail || 'No se pudo confirmar la reserva. Por favor selecciona otro horario.');
       }
     } catch (err) {
       console.error('Error al crear reserva:', err);
-      alert('Ocurrió un error al procesar tu turno. Intenta nuevamente.');
+      showModalError('Ocurrió un inconveniente de conexión. Intenta nuevamente.');
     } finally {
       if (submitBtn) {
         submitBtn.classList.remove('loading');
@@ -463,7 +475,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const result = await res.json();
         if (result.success) {
-          alert('🔄 ¡Tu cita fue reprogramada con éxito para la nueva fecha!');
           existingModal.classList.remove('active');
           fetchAvailability();
         } else {
@@ -492,7 +503,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const result = await res.json();
         if (result.success) {
-          alert('❌ Tu cita anterior fue cancelada y el horario quedó libre.');
           existingModal.classList.remove('active');
           fetchAvailability();
         } else {

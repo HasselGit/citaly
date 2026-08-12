@@ -38,6 +38,17 @@ except Exception as e:
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+def init_db():
+    try:
+        from app.models import models
+        Base.metadata.create_all(bind=engine)
+        print("[DB] Tablas verificadas/creadas con éxito.")
+    except Exception as e:
+        print(f"[DB] Error al inicializar tablas: {e}")
+
+# Asegurar tablas en arranque
+init_db()
+
 def get_db():
     db = SessionLocal()
     try:
