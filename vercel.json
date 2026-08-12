@@ -1,7 +1,7 @@
 {
   "version": 2,
   "env": {
-    "DATABASE_URL": "postgresql://postgres:ykDPIL5oyii2RT2w@db.edkmkcxdtzygjjgvxgcq.supabase.co:5432/postgres",
+    "DATABASE_URL": "postgresql://postgres.edkmkcxdtzygjjgvxgcq:ykDPIL5oyii2RT2w@aws-0-us-west-2.pooler.supabase.com:5432/postgres",
     "SUPABASE_PROJECT_ID": "edkmkcxdtzygjjgvxgcq",
     "SUPABASE_URL": "https://edkmkcxdtzygjjgvxgcq.supabase.co",
     "ENVIRONMENT": "production"
