@@ -1,47 +1,47 @@
-﻿{
-    "version":  2,
-    "env":  {
-                "DATABASE_URL":  "postgresql://postgres.edkmkcxdtzygjjgvxgcq:ykDPIL5oyii2RT2w@aws-0-us-west-2.pooler.supabase.com:6543/postgres",
-                "SUPABASE_PROJECT_ID":  "edkmkcxdtzygjjgvxgcq",
-                "SUPABASE_URL":  "https://edkmkcxdtzygjjgvxgcq.supabase.co",
-                "ENVIRONMENT":  "production"
-            },
-    "builds":  [
-                   {
-                       "src":  "main.py",
-                       "use":  "@vercel/python"
-                   },
-                   {
-                       "src":  "static/**",
-                       "use":  "@vercel/static"
-                   }
-               ],
-    "routes":  [
-                   {
-                       "src":  "/",
-                       "dest":  "/static/index.html"
-                   },
-                   {
-                       "src":  "/dashboard",
-                       "dest":  "/static/dashboard.html"
-                   },
-                   {
-                       "src":  "/r/(.*)",
-                       "dest":  "/static/cancel.html?token=$1"
-                   },
-                   {
-                       "src":  "/static/(.*)",
-                       "dest":  "/static/$1"
-                   },
-                   {
-                       "src":  "/api/(.*)",
-                       "dest":  "main.py"
-                   }
-               ],
-    "crons":  [
-                  {
-                      "path":  "/api/v1/cron/send-reminders",
-                      "schedule":  "0 9 * * *"
-                  }
-              ]
+{
+  "version": 2,
+  "env": {
+    "DATABASE_URL": "postgresql://postgres.edkmkcxdtzygjjgvxgcq:ykDPIL5oyii2RT2w@aws-0-us-west-2.pooler.supabase.com:6543/postgres",
+    "SUPABASE_PROJECT_ID": "edkmkcxdtzygjjgvxgcq",
+    "SUPABASE_URL": "https://edkmkcxdtzygjjgvxgcq.supabase.co",
+    "ENVIRONMENT": "production"
+  },
+  "builds": [
+    {
+      "src": "main.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "static/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/static/index.html"
+    },
+    {
+      "src": "/dashboard",
+      "dest": "/static/dashboard.html"
+    },
+    {
+      "src": "/r/(.*)",
+      "dest": "/static/cancel.html?token=$1"
+    },
+    {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "main.py"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/v1/cron/send-reminders",
+      "schedule": "0 9 * * *"
+    }
+  ]
 }
