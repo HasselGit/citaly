@@ -68,29 +68,42 @@ def get_or_create_primary_tenant(db: Session) -> Tenant:
         db.commit()
         db.refresh(tenant)
 
-    # Asegurar que existan los 6 servicios requeridos
-    existing_services = db.query(Service).filter(Service.tenant_id == tenant.id).all()
-    if not existing_services or len(existing_services) < 6:
-        names = [s.name for s in existing_services]
-        seed_data = [
-            ("Ortodoncia / Control", 120, 15000),
-            ("Limpieza & Blanqueamiento", 45, 8000),
-            ("Implante Dental & Cirugía", 90, 45000),
-            ("Endodoncia / Conducto", 60, 22000),
-            ("Extracción Muela de Juicio", 60, 18000),
-            ("Consulta & Diagnóstico", 30, 5000)
-        ]
-        for s_name, duration, price in seed_data:
-            if s_name not in names:
-                db.add(Service(
-                    id=str(uuid.uuid4()),
-                    tenant_id=tenant.id,
-                    name=s_name,
-                    duration_minutes=duration,
-                    price=price,
-                    is_active=True
-                ))
-        db.commit()
+    # Asegurar que existan únicamente los 6 servicios oficiales
+    seed_services = [
+        ("Ortodoncia / Control", 120, 15000.0),
+        ("Limpieza & Blanqueamiento", 45, 8000.0),
+        ("Implante Dental & Cirugía", 90, 45000.0),
+        ("Endodoncia / Conducto", 60, 22000.0),
+        ("Extracción Muela de Juicio", 60, 18000.0),
+        ("Consulta & Diagnóstico", 30, 5000.0)
+    ]
+
+    # Eliminar o desactivar viejos servicios de prueba (ej. svc-001, svc-002)
+    old_test_services = db.query(Service).filter(
+        Service.tenant_id == tenant.id,
+        Service.id.in_(["svc-001", "svc-002", "svc-003"])
+    ).all()
+    for old_s in old_test_services:
+        old_s.is_active = False
+    db.commit()
+
+    existing_services = db.query(Service).filter(
+        Service.tenant_id == tenant.id,
+        Service.is_active == True
+    ).all()
+    existing_names = [s.name for s in existing_services]
+
+    for name, duration, price in seed_services:
+        if name not in existing_names:
+            db.add(Service(
+                id=str(uuid.uuid4()),
+                tenant_id=tenant.id,
+                name=name,
+                duration_minutes=duration,
+                price=price,
+                is_active=True
+            ))
+    db.commit()
 
     return tenant
 

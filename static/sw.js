@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v5-fix-collapse-calendar';
+const CACHE_NAME = 'citaly-v6-dashboard-and-service-fix';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

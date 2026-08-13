@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const filterDayBtn = document.getElementById('filter-day');
   const filterWeekBtn = document.getElementById('filter-week');
   const filterMonthBtn = document.getElementById('filter-month');
-  const specialtyPills = document.querySelectorAll('.specialty-pill-btn');
 
   const btnCopyPatientLink = document.getElementById('btn-copy-patient-link');
   const btnCopyCardLink = document.getElementById('btn-copy-card-link');
@@ -82,6 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tabWhatsapp) tabWhatsapp.style.display = tabName === 'whatsapp' ? 'block' : 'none';
 
     updateNavStyles(tabName);
+    renderAgenda();
+    renderWhatsAppLogs();
   }
 
   function updateNavStyles(activeTab) {
@@ -124,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (res.ok) {
         const data = await res.json();
         allAppointments = data || [];
+        renderSpecialtyPills();
         renderAgenda();
         renderWhatsAppLogs();
         updateMetrics();
@@ -156,7 +158,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 4000);
   }
 
-  // 7. Filtrar Lista por Tiempo (Hoy, Semana, Mes, Todos)
+  // 7. Renderizar Botones de Especialidad Dinámicos
+  function renderSpecialtyPills() {
+    const specialtyContainer = document.getElementById('specialty-pills-container');
+    if (!specialtyContainer) return;
+
+    const specialties = ['all'];
+    allAppointments.forEach(a => {
+      if (a.service_name && !specialties.includes(a.service_name)) {
+        specialties.push(a.service_name);
+      }
+    });
+
+    specialtyContainer.innerHTML = specialties.map(s => {
+      const isSelected = selectedSpecialty === s;
+      const label = s === 'all' ? 'Ver Todos' : s;
+      const bgClass = isSelected ? 'bg-primary text-white shadow-sm font-bold' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold';
+      return `<button data-specialty="${s}" class="specialty-pill-btn px-4 py-2 ${bgClass} text-xs rounded-xl transition-all whitespace-nowrap">${label}</button>`;
+    }).join('');
+
+    specialtyContainer.querySelectorAll('.specialty-pill-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedSpecialty = btn.getAttribute('data-specialty');
+        renderSpecialtyPills();
+        renderAgenda();
+      });
+    });
+  }
+
+  // 8. Filtrar Lista por Tiempo (Hoy, Semana, Mes, Todos)
   function filterByTime(items) {
     if (currentFilter === 'all') return items;
 
@@ -172,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (currentFilter === 'week') {
       const startOfWeek = new Date(now);
-      const dayOfWeek = now.getDay() || 7; // Lunes = 1, Domingo = 7
+      const dayOfWeek = now.getDay() || 7;
       startOfWeek.setDate(now.getDate() - dayOfWeek + 1);
       startOfWeek.setHours(0, 0, 0, 0);
 
@@ -200,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return items;
   }
 
-  // 8. Renderizar Desglose de Turnos (Vista Reservas)
+  // 9. Renderizar Desglose de Turnos (Vista Reservas)
   function renderAgenda() {
     if (!agendaContainer) return;
 
@@ -268,26 +298,27 @@ document.addEventListener('DOMContentLoaded', () => {
               ${initials}
             </div>
             <div>
-              <h4 class="font-bold text-sm text-slate-900 font-display">${a.patient_name}</h4>
-              <p class="text-xs text-slate-500 font-mono">📱 ${a.patient_whatsapp || 'Sin celular'}</p>
+              <div class="flex items-center gap-2">
+                <span class="font-extrabold text-slate-900 text-sm font-display">${a.patient_name || 'Paciente'}</span>
+                <span class="text-xs font-semibold text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-md font-mono">${a.service_name || 'Especialidad'}</span>
+              </div>
+              <div class="flex items-center gap-3 text-xs text-slate-500 mt-1 font-mono">
+                <span>📱 ${a.patient_whatsapp || 'Sin Celular'}</span>
+                <span>⏱ ${a.duration_minutes || 30} min</span>
+              </div>
             </div>
-          </div>
-          
-          <div class="flex-1 sm:text-center">
-            <span class="inline-block px-3 py-1 bg-slate-100 text-slate-800 text-xs font-bold rounded-lg font-mono">
-              🏥 ${a.service_name} (${a.duration_minutes} min)
-            </span>
           </div>
 
-          <div class="flex items-center gap-2 justify-between sm:justify-end">
+          <div class="sm:ml-auto flex items-center gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
             <div class="text-right">
-              <span class="font-mono text-xs font-bold text-slate-500 block">${formattedDate}</span>
-              <span class="font-mono text-sm font-extrabold text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded-md inline-block">${a.time_str || '09:00'} hs</span>
+              <div class="text-xs font-extrabold text-slate-900 font-mono">📅 ${formattedDate} — ⏰ ${a.time_str || '10:00'} hs</div>
+              <div class="mt-1">${statusBadge}</div>
             </div>
-            ${statusBadge}
+
             ${showCancelBtn ? `
-              <button type="button" data-cancel-token="${a.token_cancellation}" class="btn-open-cancel-modal p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all" title="Liberar horario">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+              <button data-token="${a.token_cancellation}" data-patient="${a.patient_name || 'Paciente'}" data-date="${formattedDate} a las ${a.time_str || '10:00'} hs" class="btn-trigger-cancel px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1">
+                <span>❌</span>
+                <span>Liberar</span>
               </button>
             ` : ''}
           </div>
@@ -295,16 +326,23 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }).join('');
 
-    // Agregar listeners a botones de cancelación
-    document.querySelectorAll('.btn-open-cancel-modal').forEach(btn => {
+    // Listener para cancelar cita desde dashboard
+    document.querySelectorAll('.btn-trigger-cancel').forEach(btn => {
       btn.addEventListener('click', () => {
-        activeCancelToken = btn.getAttribute('data-cancel-token');
+        activeCancelToken = btn.getAttribute('data-token');
+        const pName = btn.getAttribute('data-patient');
+        const pDate = btn.getAttribute('data-date');
+
+        const infoEl = document.getElementById('cancel-modal-info');
+        if (infoEl) {
+          infoEl.innerText = `¿Confirma la cancelación del turno de ${pName} para el ${pDate}? El horario quedará libre de inmediato en la web de reservas.`;
+        }
         if (cancelModal) cancelModal.classList.remove('hidden');
       });
     });
   }
 
-  // 9. Confirmación de Cancelación / Liberación
+  // 10. Confirmación de Cancelación desde Modal
   if (btnModalClose) {
     btnModalClose.addEventListener('click', () => {
       if (cancelModal) cancelModal.classList.add('hidden');
@@ -317,62 +355,84 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!activeCancelToken) return;
 
       try {
-        btnModalConfirmCancel.innerText = 'Liberando...';
-        const res = await fetch(`/api/v1/booking/cancel/${activeCancelToken}`, { method: 'POST' });
-        const data = await res.json();
+        btnModalConfirmCancel.innerText = 'Liberando horario...';
+        btnModalConfirmCancel.disabled = true;
 
-        if (res.ok && data.success) {
-          showToast('Turno liberado con éxito. El horario está libre en la web.');
+        const res = await fetch(`/api/v1/booking/cancel/${activeCancelToken}`, { method: 'POST' });
+        const result = await res.json();
+
+        if (result.success) {
+          showToast('Turno cancelado y horario liberado exitosamente');
+          if (cancelModal) cancelModal.classList.add('hidden');
+          activeCancelToken = null;
           fetchDashboardAppointments();
         } else {
-          showToast(data.detail || 'Error al liberar el turno', 'error');
+          showToast(result.detail || 'Error al cancelar la cita', 'error');
         }
       } catch (e) {
-        showToast('Error de conexión', 'error');
+        showToast('Error al conectar con el servidor', 'error');
       } finally {
-        btnModalConfirmCancel.innerText = 'Sí, Liberar';
-        if (cancelModal) cancelModal.classList.add('hidden');
-        activeCancelToken = null;
+        btnModalConfirmCancel.innerText = 'Sí, Cancelar y Liberar Horario';
+        btnModalConfirmCancel.disabled = false;
       }
     });
   }
 
-  // 10. Renderizar Trazabilidad de WhatsApp (Vista WhatsApp Hub)
+  // 11. Renderizar Logs de WhatsApp
   function renderWhatsAppLogs() {
     if (!whatsappLogContainer) return;
 
-    const activeAppts = allAppointments.filter(a => a.status !== 'CANCELLED');
+    const logs = [];
+    allAppointments.forEach(a => {
+      if (a.status === 'SCHEDULED' || a.status === 'CONFIRMED' || a.status === 'REMINDER_SENT') {
+        let datePart = a.start_time ? a.start_time.split('T')[0] : '';
+        if (datePart) {
+          const p = datePart.split('-');
+          if (p.length === 3) datePart = `${p[2]}/${p[1]}`;
+        }
 
-    if (activeAppts.length === 0) {
+        logs.push({
+          patient_name: a.patient_name,
+          phone: a.patient_whatsapp,
+          type: a.status === 'REMINDER_SENT' ? 'RECORDATORIO 24H' : 'CONFIRMACIÓN INMEDIATA',
+          status: 'ENTREGADO ✔',
+          time: `${datePart} a las ${a.time_str || '10:00'} hs`
+        });
+      }
+    });
+
+    if (logs.length === 0) {
       whatsappLogContainer.innerHTML = `
         <div class="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-          <p class="text-sm font-semibold text-slate-600">No hay notificaciones de WhatsApp enviadas aún.</p>
+          <p class="text-xs font-semibold text-slate-600">No hay notificaciones enviadas aún.</p>
         </div>
       `;
       return;
     }
 
-    whatsappLogContainer.innerHTML = activeAppts.map(a => `
-      <div class="flex items-center gap-3 p-3.5 rounded-xl bg-white border border-slate-200 text-xs shadow-sm">
-        <div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm badge-glow-emerald">
-          ✓
+    whatsappLogContainer.innerHTML = logs.map(l => `
+      <div class="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm font-mono">
+            💬
+          </div>
+          <div>
+            <div class="text-xs font-bold text-slate-900 font-mono">${l.type} — ${l.patient_name}</div>
+            <div class="text-[11px] text-slate-500 font-mono">📱 ${l.phone}</div>
+          </div>
         </div>
-        <div class="flex-1">
-          <div class="font-bold text-slate-900 font-display">Confirmación Enviada a ${a.patient_name}</div>
-          <div class="text-slate-500 font-mono">📱 ${a.patient_whatsapp || 'Sin WhatsApp'} • Tratamiento: ${a.service_name} (${a.time_str} hs)</div>
+        <div class="text-right font-mono">
+          <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 text-[11px] font-bold rounded-md block mb-0.5">${l.status}</span>
+          <span class="text-[10px] text-slate-400">${l.time}</span>
         </div>
-        <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 font-bold rounded-lg flex items-center gap-1 font-mono">
-          🟢 Meta Cloud 200 OK
-        </span>
       </div>
     `).join('');
   }
 
-  // 11. Actualizar Métricas Reales
+  // 12. Actualizar KPIs del Dashboard
   function updateMetrics() {
     const total = allAppointments.length;
-    const confirmados = allAppointments.filter(a => a.status === 'SCHEDULED' || a.status === 'CONFIRMED').length;
+    const confirmados = allAppointments.filter(a => a.status === 'SCHEDULED' || a.status === 'CONFIRMED' || a.status === 'REMINDER_SENT').length;
     const cancelados = allAppointments.filter(a => a.status === 'CANCELLED').length;
     const activos = total - cancelados;
 
@@ -386,22 +446,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 12. Listeners de Filtros
+  // 13. Listeners de Filtros
   if (searchInput) searchInput.addEventListener('input', renderAgenda);
-
-  specialtyPills.forEach(pill => {
-    pill.addEventListener('click', () => {
-      specialtyPills.forEach(p => {
-        p.classList.remove('bg-primary', 'text-white');
-        p.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
-      });
-      pill.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
-      pill.classList.add('bg-primary', 'text-white');
-
-      selectedSpecialty = pill.getAttribute('data-specialty');
-      renderAgenda();
-    });
-  });
 
   const timeFilterBtns = [
     { btn: filterAllBtn, key: 'all' },
