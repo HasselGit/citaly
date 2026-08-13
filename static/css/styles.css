@@ -137,6 +137,10 @@ h1, h2, h3, h4, .font-display {
   transition: all 0.3s ease;
 }
 
+.section-card.collapsed {
+  display: none !important;
+}
+
 .section-title {
   font-family: 'Hanken Grotesk', sans-serif;
   font-size: 14px;
@@ -339,41 +343,35 @@ h1, h2, h3, h4, .font-display {
   border-color: var(--secondary-amber);
 }
 
-/* Stacked Overlapping Day Cards Deck */
+/* Stacked Day Cards Deck - Fixed No-Shift Layout */
 .date-scroll {
   display: flex;
+  gap: 6px;
   justify-content: space-between;
   align-items: center;
   position: relative;
-  padding: 8px 2px 12px 2px;
-  overflow: visible;
+  padding: 8px 0 12px 0;
+  overflow-x: auto;
 }
 
 .date-pill {
   flex: 1;
-  margin-left: -8px;
+  min-width: 42px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 14px 2px;
+  padding: 12px 2px;
   background: #FFFFFF;
   border: 1.5px solid var(--border-light);
-  border-radius: 16px;
+  border-radius: 14px;
   cursor: pointer;
-  box-shadow: -4px 0 12px rgba(15, 23, 42, 0.06);
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   position: relative;
-  z-index: 1;
-}
-
-.date-pill:first-child {
-  margin-left: 0;
 }
 
 .date-pill:hover {
-  z-index: 10;
-  transform: translateY(-3px);
   border-color: var(--secondary-amber);
 }
 
@@ -381,9 +379,7 @@ h1, h2, h3, h4, .font-display {
   background: var(--primary-navy);
   border-color: var(--primary-navy);
   color: #FFFFFF !important;
-  z-index: 20;
-  transform: translateY(-5px) scale(1.08);
-  box-shadow: 0 10px 22px -4px rgba(15, 23, 42, 0.35);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
 }
 
 .date-pill.active .date-day,

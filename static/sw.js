@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v4-full-revert';
+const CACHE_NAME = 'citaly-v5-fix-collapse-calendar';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
