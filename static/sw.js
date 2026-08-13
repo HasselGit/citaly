@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v3-network-first';
+const CACHE_NAME = 'citaly-v4-full-revert';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
