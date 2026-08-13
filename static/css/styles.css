@@ -405,12 +405,14 @@ h1, h2, h3, h4, .font-display {
   margin-top: 2px;
 }
 
-/* Time Slots Grid (Instant rendering) */
+/* Time Slots Grid (Instant rendering & Fixed Height for zero shift) */
 .time-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-top: 18px;
+  min-height: 210px;
+  align-content: start;
 }
 
 .slot-pill {
