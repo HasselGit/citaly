@@ -590,3 +590,149 @@ document.addEventListener('DOMContentLoaded', () => {
   // Inicializar
   fetchServices();
 });
+
+// ─── Módulo: Consultar mi turno por celular ───────────────────────────────────
+(function () {
+  const phoneLookupSection = document.getElementById('phone-lookup-section');
+  const phoneInput         = document.getElementById('phone-lookup-input');
+  const btnLookup          = document.getElementById('btn-phone-lookup');
+  const lookupError        = document.getElementById('phone-lookup-error');
+  const activeApptSection  = document.getElementById('active-appt-section');
+
+  const elPatientName      = document.getElementById('active-appt-patient-name');
+  const elService          = document.getElementById('active-appt-service');
+  const elDate             = document.getElementById('active-appt-date');
+  const elTime             = document.getElementById('active-appt-time');
+  const btnCancel          = document.getElementById('btn-appt-cancel');
+  const btnReschedule      = document.getElementById('btn-appt-reschedule');
+  const cancelConfirm      = document.getElementById('appt-cancel-confirm');
+
+  if (!btnLookup) return;
+
+  // Estado actual de la cita encontrada
+  let currentAppt = null;
+
+  // Mostrar error
+  function showError(msg) {
+    lookupError.textContent = msg;
+    lookupError.style.display = 'block';
+  }
+
+  function hideError() {
+    lookupError.style.display = 'none';
+  }
+
+  // Mostrar tarjeta de cita activa
+  function showActiveAppt(appt) {
+    currentAppt = appt;
+    elPatientName.textContent = appt.patient_name;
+    elService.textContent     = appt.service_name;
+    elDate.textContent        = appt.date_formatted;
+    elTime.textContent        = appt.time_formatted;
+    cancelConfirm.style.display = 'none';
+    btnCancel.style.display = '';
+    btnReschedule.style.display = '';
+    btnCancel.disabled = false;
+    activeApptSection.style.display = 'block';
+  }
+
+  // Ocultar tarjeta de cita activa
+  function hideActiveAppt() {
+    activeApptSection.style.display = 'none';
+    currentAppt = null;
+  }
+
+  // Consultar turno por celular
+  async function lookupAppointment() {
+    hideError();
+    const phone = (phoneInput.value || '').trim();
+    if (!phone || phone.replace(/\D/g, '').length < 6) {
+      showError('Ingresá un número de celular válido.');
+      return;
+    }
+
+    btnLookup.textContent = '...';
+    btnLookup.disabled = true;
+
+    try {
+      const res = await fetch(`/api/v1/booking/my-appointment?phone=${encodeURIComponent(phone)}`, { cache: 'no-store' });
+      if (!res.ok) throw new Error('Error del servidor');
+      const data = await res.json();
+
+      if (data.has_active_appointment) {
+        showActiveAppt(data.appointment);
+        hideError();
+      } else {
+        hideActiveAppt();
+        showError('No encontramos una cita activa para ese número. Si querés reservar un turno, elegí un tratamiento abajo.');
+      }
+    } catch (e) {
+      showError('No pudimos conectar con el servidor. Intentá de nuevo.');
+    } finally {
+      btnLookup.textContent = 'Consultar';
+      btnLookup.disabled = false;
+    }
+  }
+
+  // Enter en el input
+  phoneInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') lookupAppointment();
+  });
+
+  btnLookup.addEventListener('click', lookupAppointment);
+
+  // ── Cancelar turno ──
+  btnCancel.addEventListener('click', async () => {
+    if (!currentAppt) return;
+    btnCancel.disabled = true;
+    btnCancel.textContent = 'Cancelando...';
+
+    try {
+      const res = await fetch(`/api/v1/booking/cancel/${currentAppt.token_cancellation}`, { method: 'POST' });
+      if (res.ok) {
+        btnCancel.style.display = 'none';
+        btnReschedule.style.display = 'none';
+        cancelConfirm.style.display = 'block';
+        currentAppt = null;
+      } else {
+        btnCancel.textContent = 'Cancelar turno';
+        btnCancel.disabled = false;
+        showError('No se pudo cancelar. Intentá de nuevo.');
+      }
+    } catch (e) {
+      btnCancel.textContent = 'Cancelar turno';
+      btnCancel.disabled = false;
+      showError('Error de conexión al cancelar.');
+    }
+  });
+
+  // ── Reprogramar turno ──
+  btnReschedule.addEventListener('click', () => {
+    if (!currentAppt) return;
+
+    // Ocultar sección de consulta y tarjeta de cita activa
+    phoneLookupSection.style.display = 'none';
+    hideActiveAppt();
+
+    // Pre-seleccionar el mismo servicio en la grilla (si existe)
+    const serviceId = currentAppt.service_id;
+    const serviceCard = document.querySelector(`.service-card[data-service-id="${serviceId}"]`);
+    if (serviceCard) {
+      // Simular click en la tarjeta del servicio correspondiente
+      serviceCard.click();
+    }
+
+    // Asegurar que la sección de booking sea visible
+    const servicesSection = document.getElementById('services-section');
+    const calendarSection = document.getElementById('calendar-section');
+    if (servicesSection) servicesSection.style.display = '';
+    if (calendarSection) calendarSection.style.display = '';
+
+    // Guardar token para usarlo al confirmar la reprogramación
+    window._rescheduleApptId = currentAppt.id;
+    window._rescheduleToken  = currentAppt.token_cancellation;
+
+    // Scroll suave al inicio del formulario
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();

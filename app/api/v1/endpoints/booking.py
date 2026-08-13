@@ -282,18 +282,22 @@ def get_appointments(request: Request, db: Session = Depends(get_db)):
 
     return result
 
-@router.get("/check-patient")
-def check_patient_existing_appointment(
+@router.get("/my-appointment")
+def get_my_appointment(
     phone: str,
-    service_id: str,
     request: Request,
     db: Session = Depends(get_db)
 ):
+    """
+    Busca la cita activa más próxima de un paciente por número de celular.
+    No requiere service_id — devuelve cualquier cita SCHEDULED o CONFIRMED futura.
+    """
     tenant = get_or_create_primary_tenant(db)
     target_digits = clean_phone_digits(phone)
-    if not target_digits:
+    if not target_digits or len(target_digits) < 6:
         return {"has_active_appointment": False}
 
+    # Buscar paciente por teléfono normalizado
     patients = db.query(Patient).filter(Patient.tenant_id == tenant.id).all()
     matched_patient = None
     for p in patients:
@@ -304,28 +308,36 @@ def check_patient_existing_appointment(
     if not matched_patient:
         return {"has_active_appointment": False}
 
+    # Buscar la cita activa más próxima (futura)
+    now = datetime.utcnow()
     appt = db.query(Appointment).filter(
         Appointment.tenant_id == tenant.id,
         Appointment.patient_id == matched_patient.id,
-        Appointment.service_id == service_id,
-        Appointment.status.in_(["SCHEDULED", "CONFIRMED"])
-    ).first()
+        Appointment.status.in_(["SCHEDULED", "CONFIRMED"]),
+        Appointment.start_time >= now
+    ).order_by(Appointment.start_time.asc()).first()
 
-    if appt:
-        service = db.query(Service).filter(Service.id == appt.service_id).first()
-        return {
-            "has_active_appointment": True,
-            "appointment": {
-                "id": appt.id,
-                "patient_name": matched_patient.full_name,
-                "service_name": service.name if service else "Especialidad",
-                "start_time_iso": appt.start_time.isoformat(),
-                "start_time_formatted": appt.start_time.strftime("%d/%m/%Y a las %H:%M hs"),
-                "token_cancellation": appt.token_cancellation
-            }
+    if not appt:
+        return {"has_active_appointment": False}
+
+    service = db.query(Service).filter(Service.id == appt.service_id).first()
+
+    return {
+        "has_active_appointment": True,
+        "appointment": {
+            "id": appt.id,
+            "patient_name": matched_patient.full_name,
+            "service_id": service.id if service else "",
+            "service_name": service.name if service else "Especialidad",
+            "duration_minutes": service.duration_minutes if service else 30,
+            "start_time_iso": appt.start_time.isoformat(),
+            "date_formatted": appt.start_time.strftime("%A %d/%m/%Y"),
+            "time_formatted": appt.start_time.strftime("%H:%M hs"),
+            "status": appt.status,
+            "token_cancellation": appt.token_cancellation
         }
+    }
 
-    return {"has_active_appointment": False}
 
 @router.post("/reschedule")
 def reschedule_appointment(
