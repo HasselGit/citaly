@@ -166,8 +166,9 @@
     }
 
     function reprogramAppointment() {
-      if (appointmentData && appointmentData.patient_whatsapp) {
-        window.location.href = `/?phone=${encodeURIComponent(appointmentData.patient_whatsapp)}&reprogram=1`;
+      if (appointmentData && token) {
+        const phone = appointmentData.patient_whatsapp || '';
+        window.location.href = `/?phone=${encodeURIComponent(phone)}&reschedule_token=${encodeURIComponent(token)}`;
       } else {
         window.location.href = '/';
       }

@@ -43,6 +43,8 @@ class AppointmentCreateRequest(BaseModel):
     start_time: str # ISO string: YYYY-MM-DDTHH:MM:SS
     patient_full_name: str
     patient_whatsapp: str
+    reschedule_from_token: Optional[str] = None
+    reschedule_from_id: Optional[str] = None
 
 class RescheduleRequest(BaseModel):
     appointment_id: str
@@ -216,7 +218,21 @@ def create_appointment(
             db.commit()
             db.refresh(patient)
 
-        # 3. Crear la reserva
+        # 3. Si es una reprogramación, cancelar el turno anterior para LIBERAR su horario en la base de datos
+        was_rescheduled = False
+        old_appt = None
+        if payload.reschedule_from_token:
+            old_appt = db.query(Appointment).filter(Appointment.token_cancellation == payload.reschedule_from_token).first()
+        elif payload.reschedule_from_id:
+            old_appt = db.query(Appointment).filter(Appointment.id == payload.reschedule_from_id).first()
+
+        if old_appt:
+            old_appt.status = "CANCELLED"
+            db.commit()
+            was_rescheduled = True
+            print(f"[REPROGRAMACION]: Turno anterior {old_appt.id} del {old_appt.start_time} marcado como CANCELLED. Horario liberado.")
+
+        # 4. Crear la reserva del nuevo turno
         token_cancel = str(uuid.uuid4())
         appointment = Appointment(
             id=str(uuid.uuid4()),
@@ -232,15 +248,18 @@ def create_appointment(
         db.commit()
         db.refresh(appointment)
 
-        # 4. Registrar log de WhatsApp inicial
+        # 5. Registrar log de WhatsApp inicial
         wa_log = WhatsAppLog(
             id=str(uuid.uuid4()),
             appointment_id=appointment.id,
-            message_type="CONFIRMATION",
+            message_type="RESCHEDULE_CONFIRM" if was_rescheduled else "CONFIRMATION",
             status="SENT"
         )
         db.add(wa_log)
         db.commit()
+
+        msg_title = "¡Turno Reprogramado con Éxito!" if was_rescheduled else "¡Turno Agendado con Éxito!"
+        msg_body = f"Tu nuevo turno para {service.name} fue registrado para el {appointment.start_time.strftime('%d/%m a las %H:%M hs')}." if was_rescheduled else f"Tu turno para {service.name} fue registrado para el {appointment.start_time.strftime('%d/%m a las %H:%M hs')}."
 
         return {
             "success": True,
@@ -250,7 +269,10 @@ def create_appointment(
             "patient_name": patient.full_name,
             "start_time": appointment.start_time.isoformat(),
             "cancellation_token": token_cancel,
-            "whatsapp_preview": f"✅ Tu cita con {tenant.business_name} para {service.name if service else 'Consulta'} está confirmada para el {appointment.start_time.strftime('%d/%m a las %H:%M hs')}."
+            "was_rescheduled": was_rescheduled,
+            "message_title": msg_title,
+            "message_body": msg_body,
+            "whatsapp_preview": f"✅ {msg_title} - {tenant.business_name} para {service.name if service else 'Consulta'}: {appointment.start_time.strftime('%d/%m a las %H:%M hs')}."
         }
     except Exception as e:
         db.rollback()

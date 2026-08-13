@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v14-multi-appointment-support';
+const CACHE_NAME = 'citaly-v15-reschedule-slot-fix';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

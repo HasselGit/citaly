@@ -467,16 +467,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function createAppointmentCall(name, phone, submitBtn) {
     try {
+      const payload = {
+        tenant_id: 'demo-tenant-citaly-001',
+        service_id: selectedServiceId,
+        start_time: selectedTimeSlot,
+        patient_full_name: name,
+        patient_whatsapp: phone,
+        reschedule_from_token: window._rescheduleToken || null,
+        reschedule_from_id: window._rescheduleApptId || null
+      };
+
       const res = await fetch('/api/v1/booking/appointments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tenant_id: 'demo-tenant-citaly-001',
-          service_id: selectedServiceId,
-          start_time: selectedTimeSlot,
-          patient_full_name: name,
-          patient_whatsapp: phone
-        })
+        body: JSON.stringify(payload)
       });
 
       let result = null;
@@ -493,6 +497,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const dayOfWeekName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][selectedDate.getDay()];
         const formattedDateText = `${dayOfWeekName} ${dayNum} de ${monthName} a las ${timeStr} hs`;
 
+        const titleEl = document.getElementById('success-modal-title');
+        const descEl = document.getElementById('success-modal-desc');
+
+        if (result && result.was_rescheduled) {
+          if (titleEl) titleEl.innerText = '¡Turno Reprogramado con Éxito!';
+          if (descEl) descEl.innerText = `El cambio de tu cita fue realizado de forma satisfactoria. Tu nuevo turno para ${selectedServiceName || 'Tratamiento'} es el ${formattedDateText}.`;
+        } else {
+          if (titleEl) titleEl.innerText = '¡Turno Agendado con Éxito!';
+          if (descEl) descEl.innerText = `Tu turno para ${selectedServiceName || 'Tratamiento'} fue agendado exitosamente para el ${formattedDateText}.`;
+        }
+
         document.getElementById('success-service-name').innerText = selectedServiceName || 'Ortodoncia / Control';
         document.getElementById('success-date-time').innerText = formattedDateText;
         document.getElementById('success-doctor-name').innerText = 'Dr. Alejandro Pérez';
@@ -500,9 +515,13 @@ document.addEventListener('DOMContentLoaded', () => {
         modalOverlay.classList.remove('active');
         if (successModal) successModal.classList.add('active');
 
+        // Limpiar estado de reprogramación y horario seleccionado
+        window._rescheduleToken = null;
+        window._rescheduleApptId = null;
         selectedTimeSlot = null;
         if (btnOpenModal) btnOpenModal.disabled = true;
 
+        // Actualizar disponibilidad inmediatamente en vivo
         fetchAvailability();
       } else {
         const errDetail = (result && result.detail) ? result.detail : 'Por favor intenta nuevamente en unos momentos.';
@@ -585,6 +604,25 @@ document.addEventListener('DOMContentLoaded', () => {
         btnCancelExisting.disabled = false;
       }
     });
+  }
+
+  // Detectar parámetros de URL (ej. ?phone=...&reschedule_token=...)
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramPhone = urlParams.get('phone');
+  const paramRescheduleToken = urlParams.get('reschedule_token') || urlParams.get('token');
+
+  if (paramRescheduleToken) {
+    window._rescheduleToken = paramRescheduleToken;
+  }
+  if (paramPhone) {
+    const phoneInput = document.getElementById('phone-lookup-input');
+    if (phoneInput) {
+      phoneInput.value = paramPhone;
+      setTimeout(() => {
+        const btnLookup = document.getElementById('btn-phone-lookup');
+        if (btnLookup) btnLookup.click();
+      }, 400);
+    }
   }
 
   // Inicializar
