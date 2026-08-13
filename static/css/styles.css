@@ -299,6 +299,9 @@ h1, h2, h3, h4, .font-display {
   margin-bottom: 80px;
   border: 1.5px solid rgba(226, 232, 240, 0.8);
   box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.06);
+  /* Aislar layout para que clicks en date-pill no propaguen reflow fuera de la tarjeta */
+  contain: layout;
+  overflow-anchor: none;
 }
 
 .calendar-header-nav {
@@ -354,6 +357,9 @@ h1, h2, h3, h4, .font-display {
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
+  /* Altura fija para que el row de dias nunca cambie su alto */
+  min-height: 80px;
+  overflow-anchor: none;
 }
 
 .date-pill {

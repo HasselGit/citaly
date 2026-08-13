@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v9-stable-dom';
+const CACHE_NAME = 'citaly-v10-no-scroll-jump';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

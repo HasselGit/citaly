@@ -192,7 +192,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="date-num">${dayNum}</span>
       `;
 
-      pill.addEventListener('click', () => {
+      pill.addEventListener('click', (e) => {
+        e.preventDefault();
         document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
         pill.classList.add('active');
         selectedDate = new Date(d);
