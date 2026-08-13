@@ -622,24 +622,106 @@ document.addEventListener('DOMContentLoaded', () => {
     lookupError.style.display = 'none';
   }
 
-  // Mostrar tarjeta de cita activa
-  function showActiveAppt(appt) {
-    currentAppt = appt;
-    elPatientName.textContent = appt.patient_name;
-    elService.textContent     = appt.service_name;
-    elDate.textContent        = appt.date_formatted;
-    elTime.textContent        = appt.time_formatted;
-    cancelConfirm.style.display = 'none';
-    btnCancel.style.display = '';
-    btnReschedule.style.display = '';
-    btnCancel.disabled = false;
+  // Renderizar tarjetas de turnos activos (Soporte Multiturno)
+  function showActiveAppts(apptsList) {
+    activeApptSection.innerHTML = '';
     activeApptSection.style.display = 'block';
+
+    apptsList.forEach((appt, idx) => {
+      let dateShort = appt.date_formatted || '';
+      let timeShort = appt.time_formatted || '';
+      if (appt.start_time_iso) {
+        const dt = new Date(appt.start_time_iso);
+        const dd = String(dt.getDate()).padStart(2, '0');
+        const mm = String(dt.getMonth() + 1).padStart(2, '0');
+        const hh = String(dt.getHours()).padStart(2, '0');
+        const min = String(dt.getMinutes()).padStart(2, '0');
+        dateShort = `${dd}/${mm}`;
+        timeShort = `${hh}:${min}`;
+      }
+
+      const card = document.createElement('div');
+      card.className = 'active-appt-card';
+      card.style.marginBottom = idx === apptsList.length - 1 ? '0px' : '16px';
+      card.innerHTML = `
+        <div class="active-appt-header">
+          <div class="active-appt-badge">● Turno Agendado ${apptsList.length > 1 ? `#${idx + 1}` : ''}</div>
+          <div class="active-appt-patient-name">${appt.patient_name}</div>
+        </div>
+        <div class="active-appt-body">
+          <div class="active-appt-row">
+            <span class="active-appt-label">Tratamiento</span>
+            <span class="active-appt-value">${appt.service_name}</span>
+          </div>
+          <div class="active-appt-row">
+            <span class="active-appt-label">Fecha</span>
+            <span class="active-appt-value">${appt.date_formatted}</span>
+          </div>
+          <div class="active-appt-row">
+            <span class="active-appt-label">Horario</span>
+            <span class="active-appt-value">${appt.time_formatted}</span>
+          </div>
+        </div>
+        <div class="active-appt-actions">
+          <button type="button" class="appt-btn-cancel" data-token="${appt.token_cancellation}" data-dateshort="${dateShort}" data-timeshort="${timeShort}">Cancelar turno</button>
+          <button type="button" class="appt-btn-reschedule" data-service-id="${appt.service_id}" data-id="${appt.id}" data-token="${appt.token_cancellation}">Reprogramar</button>
+        </div>
+        <div class="cancel-confirm-box" style="display:none; margin-top: 14px; padding: 12px 16px; background: rgba(220,38,38,0.07); border: 1.5px solid rgba(220,38,38,0.2); border-radius: 10px; font-size: 13px; color: #DC2626; font-weight: 600; text-align: center;"></div>
+      `;
+
+      // Evento Cancelar individual
+      const btnCancelCard = card.querySelector('.appt-btn-cancel');
+      const btnRescheduleCard = card.querySelector('.appt-btn-reschedule');
+      const confirmBox = card.querySelector('.cancel-confirm-box');
+
+      btnCancelCard.addEventListener('click', async () => {
+        btnCancelCard.disabled = true;
+        btnCancelCard.textContent = 'Cancelando...';
+        try {
+          const res = await fetch(`/api/v1/booking/cancel/${appt.token_cancellation}`, { method: 'POST' });
+          if (res.ok) {
+            btnCancelCard.style.display = 'none';
+            btnRescheduleCard.style.display = 'none';
+            confirmBox.textContent = `Tu turno del ${dateShort} a las ${timeShort} hs fue cancelado. ¡Gracias por avisarnos!`;
+            confirmBox.style.display = 'block';
+          } else {
+            btnCancelCard.textContent = 'Cancelar turno';
+            btnCancelCard.disabled = false;
+            showError('No se pudo cancelar. Intentá de nuevo.');
+          }
+        } catch (e) {
+          btnCancelCard.textContent = 'Cancelar turno';
+          btnCancelCard.disabled = false;
+          showError('Error de conexión al cancelar.');
+        }
+      });
+
+      // Evento Reprogramar individual
+      btnRescheduleCard.addEventListener('click', () => {
+        phoneLookupSection.style.display = 'none';
+        activeApptSection.style.display = 'none';
+
+        const serviceCard = document.querySelector(`.service-card[data-service-id="${appt.service_id}"]`);
+        if (serviceCard) serviceCard.click();
+
+        const servicesSection = document.getElementById('services-section');
+        const calendarSection = document.getElementById('calendar-section');
+        if (servicesSection) servicesSection.style.display = '';
+        if (calendarSection) calendarSection.style.display = '';
+
+        window._rescheduleApptId = appt.id;
+        window._rescheduleToken = appt.token_cancellation;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      activeApptSection.appendChild(card);
+    });
   }
 
-  // Ocultar tarjeta de cita activa
+  // Ocultar tarjetas de citas activas
   function hideActiveAppt() {
     activeApptSection.style.display = 'none';
-    currentAppt = null;
+    activeApptSection.innerHTML = '';
   }
 
   // Consultar turno por celular
@@ -659,8 +741,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!res.ok) throw new Error('Error del servidor');
       const data = await res.json();
 
-      if (data.has_active_appointment) {
-        showActiveAppt(data.appointment);
+      if (data.has_active_appointment && data.appointments && data.appointments.length > 0) {
+        showActiveAppts(data.appointments);
         hideError();
       } else {
         hideActiveAppt();
@@ -680,72 +762,5 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   btnLookup.addEventListener('click', lookupAppointment);
-
-  // ── Cancelar turno ──
-  btnCancel.addEventListener('click', async () => {
-    if (!currentAppt) return;
-    btnCancel.disabled = true;
-    btnCancel.textContent = 'Cancelando...';
-
-    try {
-      const res = await fetch(`/api/v1/booking/cancel/${currentAppt.token_cancellation}`, { method: 'POST' });
-      if (res.ok) {
-        btnCancel.style.display = 'none';
-        btnReschedule.style.display = 'none';
-        
-        let dateShort = '';
-        let timeShort = '';
-        if (currentAppt.start_time_iso) {
-          const dt = new Date(currentAppt.start_time_iso);
-          const dd = String(dt.getDate()).padStart(2, '0');
-          const mm = String(dt.getMonth() + 1).padStart(2, '0');
-          const hh = String(dt.getHours()).padStart(2, '0');
-          const min = String(dt.getMinutes()).padStart(2, '0');
-          dateShort = `${dd}/${mm}`;
-          timeShort = `${hh}:${min}`;
-        }
-        cancelConfirm.textContent = `Tu turno del ${dateShort} a las ${timeShort} hs fue cancelado. ¡Gracias por avisarnos!`;
-        cancelConfirm.style.display = 'block';
-        currentAppt = null;
-      } else {
-        btnCancel.textContent = 'Cancelar turno';
-        btnCancel.disabled = false;
-        showError('No se pudo cancelar. Intentá de nuevo.');
-      }
-    } catch (e) {
-      btnCancel.textContent = 'Cancelar turno';
-      btnCancel.disabled = false;
-      showError('Error de conexión al cancelar.');
-    }
-  });
-
-  // ── Reprogramar turno ──
-  btnReschedule.addEventListener('click', () => {
-    if (!currentAppt) return;
-
-    // Ocultar sección de consulta y tarjeta de cita activa
-    phoneLookupSection.style.display = 'none';
-    hideActiveAppt();
-
-    // Pre-seleccionar el mismo servicio en la grilla (si existe)
-    const serviceId = currentAppt.service_id;
-    const serviceCard = document.querySelector(`.service-card[data-service-id="${serviceId}"]`);
-    if (serviceCard) {
-      // Simular click en la tarjeta del servicio correspondiente
-      serviceCard.click();
-    }
-
-    // Asegurar que la sección de booking sea visible
-    const servicesSection = document.getElementById('services-section');
-    const calendarSection = document.getElementById('calendar-section');
-    if (servicesSection) servicesSection.style.display = '';
-    if (calendarSection) calendarSection.style.display = '';
-
-    // Guardar token para usarlo al confirmar la reprogramación
-    window._rescheduleApptId = currentAppt.id;
-    window._rescheduleToken  = currentAppt.token_cancellation;
-
-    // Scroll suave al inicio del formulario
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
 })();
+

@@ -289,13 +289,13 @@ def get_my_appointment(
     db: Session = Depends(get_db)
 ):
     """
-    Busca la cita activa más próxima de un paciente por número de celular.
-    No requiere service_id — devuelve cualquier cita SCHEDULED o CONFIRMED futura.
+    Busca todas las citas activas futuras de un paciente por número de celular.
+    Retorna una lista de turnos agendados en orden cronológico.
     """
     tenant = get_or_create_primary_tenant(db)
     target_digits = clean_phone_digits(phone)
     if not target_digits or len(target_digits) < 6:
-        return {"has_active_appointment": False}
+        return {"has_active_appointment": False, "appointments": []}
 
     # Buscar paciente por teléfono normalizado
     patients = db.query(Patient).filter(Patient.tenant_id == tenant.id).all()
@@ -306,37 +306,43 @@ def get_my_appointment(
             break
 
     if not matched_patient:
-        return {"has_active_appointment": False}
+        return {"has_active_appointment": False, "appointments": []}
 
-    # Buscar la cita activa más próxima (futura)
+    # Buscar todas las citas activas futuras
     now = datetime.utcnow()
-    appt = db.query(Appointment).filter(
+    appts = db.query(Appointment).filter(
         Appointment.tenant_id == tenant.id,
         Appointment.patient_id == matched_patient.id,
         Appointment.status.in_(["SCHEDULED", "CONFIRMED"]),
         Appointment.start_time >= now
-    ).order_by(Appointment.start_time.asc()).first()
+    ).order_by(Appointment.start_time.asc()).all()
 
-    if not appt:
-        return {"has_active_appointment": False}
+    if not appts:
+        return {"has_active_appointment": False, "appointments": []}
 
-    service = db.query(Service).filter(Service.id == appt.service_id).first()
-
-    return {
-        "has_active_appointment": True,
-        "appointment": {
+    appointments_list = []
+    for appt in appts:
+        service = db.query(Service).filter(Service.id == appt.service_id).first()
+        appointments_list.append({
             "id": appt.id,
             "patient_name": matched_patient.full_name,
             "service_id": service.id if service else "",
             "service_name": service.name if service else "Especialidad",
             "duration_minutes": service.duration_minutes if service else 30,
             "start_time_iso": appt.start_time.isoformat(),
-            "date_formatted": appt.start_time.strftime("%A %d/%m/%Y"),
+            "date_formatted": appt.start_time.strftime("%d/%m/%Y"),
             "time_formatted": appt.start_time.strftime("%H:%M hs"),
             "status": appt.status,
             "token_cancellation": appt.token_cancellation
-        }
+        })
+
+    return {
+        "has_active_appointment": True,
+        "appointments": appointments_list,
+        # Compatibilidad retroactiva con appointment único
+        "appointment": appointments_list[0]
     }
+
 
 
 @router.post("/reschedule")

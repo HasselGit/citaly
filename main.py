@@ -59,6 +59,20 @@ def health_check(request: Request, db: Session = Depends(get_db)):
         "database": "connected"
     }
 
+@app.get("/r/{token}")
+def serve_cancel_page(token: str):
+    from fastapi.responses import FileResponse
+    if os.path.exists("static/cancel.html"):
+        return FileResponse("static/cancel.html")
+    return JSONResponse(status_code=404, content={"detail": "Página no encontrada"})
+
+@app.get("/dashboard")
+def serve_dashboard(request: Request):
+    from fastapi.responses import FileResponse
+    if os.path.exists("static/dashboard.html"):
+        return FileResponse("static/dashboard.html")
+    return JSONResponse(status_code=404, content={"detail": "Página no encontrada"})
+
 @app.get("/")
 def read_root(request: Request):
     subdomain = getattr(request.state, "subdomain", "demo")
