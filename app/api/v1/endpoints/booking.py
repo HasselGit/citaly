@@ -342,6 +342,51 @@ def reschedule_appointment(
         "message": f"Turno reprogramado exitosamente para el {new_start_dt.strftime('%d/%m a las %H:%M hs')}"
     }
 
+@router.get("/appointment/{token}")
+def get_appointment_by_token(token: str, db: Session = Depends(get_db)):
+    appointment = db.query(Appointment).filter(Appointment.token_cancellation == token).first()
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Turno no encontrado")
+
+    tenant = db.query(Tenant).filter(Tenant.id == appointment.tenant_id).first()
+    patient = db.query(Patient).filter(Patient.id == appointment.patient_id).first()
+    service = db.query(Service).filter(Service.id == appointment.service_id).first()
+
+    start_dt = appointment.start_time
+    date_str = start_dt.strftime("%d/%m/%Y")
+    time_str = start_dt.strftime("%H:%M hs")
+
+    return {
+        "appointment_id": appointment.id,
+        "tenant_id": appointment.tenant_id,
+        "business_name": tenant.business_name if tenant else "Consultorio",
+        "doctor_name": tenant.owner_name if tenant else "Profesional",
+        "patient_name": patient.full_name if patient else "Paciente",
+        "patient_whatsapp": patient.whatsapp_phone if patient else "",
+        "service_id": service.id if service else "",
+        "service_name": service.name if service else "Consulta",
+        "duration_minutes": service.duration_minutes if service else 30,
+        "start_time_iso": start_dt.isoformat(),
+        "date_formatted": date_str,
+        "time_formatted": time_str,
+        "status": appointment.status,
+        "token_cancellation": appointment.token_cancellation
+    }
+
+@router.post("/confirm/{token}")
+def confirm_appointment(token: str, db: Session = Depends(get_db)):
+    appointment = db.query(Appointment).filter(Appointment.token_cancellation == token).first()
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Turno no encontrado")
+
+    appointment.status = "CONFIRMED"
+    db.commit()
+
+    return {
+        "success": True,
+        "message": "Tu asistencia ha sido confirmada con éxito. ¡Te esperamos!"
+    }
+
 @router.post("/cancel/{token}")
 def cancel_appointment(token: str, db: Session = Depends(get_db)):
     appointment = db.query(Appointment).filter(Appointment.token_cancellation == token).first()
@@ -353,5 +398,5 @@ def cancel_appointment(token: str, db: Session = Depends(get_db)):
 
     return {
         "success": True,
-        "message": "Turno cancelado exitosamente. El horario ha sido liberado para otros pacientes."
+        "message": "Turno cancelado exitosamente."
     }

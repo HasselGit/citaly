@@ -1,12 +1,22 @@
+import re
 from fastapi import APIRouter, Request, HTTPException, Query, Depends
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from app.core.config import settings
 from app.db.session import get_db
 from app.models.whatsapp_log import WhatsAppLog
+from app.models.appointment import Appointment
+from app.models.patient import Patient
+from app.services.whatsapp import whatsapp_service
 
 router = APIRouter(prefix="/api/v1/webhook", tags=["WhatsApp Webhook"])
+
+def clean_digits(phone: str) -> str:
+    if not phone:
+        return ""
+    return re.sub(r"\D", "", phone)
 
 @router.get("/whatsapp")
 def verify_meta_webhook(
@@ -27,30 +37,85 @@ def verify_meta_webhook(
 @router.post("/whatsapp")
 async def receive_meta_webhook(request: Request, db: Session = Depends(get_db)):
     """
-    Recibe notificaciones de estado de mensajes (entregado, leído, fallido) desde WhatsApp.
+    Recibe notificaciones de estado y mensajes entrantes del paciente desde WhatsApp.
+    Procesa respuestas como 'CANCELAR' para dar de baja la cita automáticamente.
     """
     data = await request.json()
     print("[WEBHOOK EVENT RECEIVED]:", data)
 
-    # Procesar actualizaciones de estado de Meta (Statuses)
     try:
         entries = data.get("entry", [])
         for entry in entries:
             changes = entry.get("changes", [])
             for change in changes:
                 value = change.get("value", {})
-                statuses = value.get("statuses", [])
                 
+                # 1. Actualizaciones de estado de entregado/leído
+                statuses = value.get("statuses", [])
                 for status_event in statuses:
                     wamid = status_event.get("id")
-                    status_str = status_event.get("status") # sent, delivered, read, failed
-
+                    status_str = status_event.get("status")
                     if wamid and status_str:
                         log = db.query(WhatsAppLog).filter(WhatsAppLog.meta_message_id == wamid).first()
                         if log:
                             log.status = status_str.upper()
                             db.commit()
                             print(f"[STATUS UPDATED] Message {wamid} -> {status_str.upper()}")
+
+                # 2. Mensajes entrantes del paciente (Respuestas 'CANCELAR')
+                messages = value.get("messages", [])
+                for msg in messages:
+                    sender_phone = msg.get("from", "")
+                    msg_type = msg.get("type", "")
+                    
+                    body_text = ""
+                    if msg_type == "text":
+                        body_text = msg.get("text", {}).get("body", "")
+                    elif msg_type == "button":
+                        body_text = msg.get("button", {}).get("text", "") or msg.get("button", {}).get("payload", "")
+
+                    clean_sender = clean_digits(sender_phone)
+                    clean_body = body_text.strip().upper()
+
+                    print(f"[WHATSAPP INCOMING] Sender: {sender_phone} ({clean_sender}) | Text: '{body_text}'")
+
+                    # Si el paciente responde CANCELAR
+                    if "CANCELAR" in clean_body or "CANCEL" in clean_body:
+                        # Buscar pacientes por teléfono
+                        all_patients = db.query(Patient).all()
+                        matched_patients = [p for p in all_patients if clean_digits(p.whatsapp_phone).endswith(clean_sender[-10:]) or clean_sender.endswith(clean_digits(p.whatsapp_phone)[-10:])]
+
+                        if matched_patients:
+                            patient_ids = [p.id for p in matched_patients]
+                            active_appts = db.query(Appointment).filter(
+                                Appointment.patient_id.in_(patient_ids),
+                                Appointment.status.in_(["SCHEDULED", "CONFIRMED"])
+                            ).order_by(Appointment.start_time.asc()).all()
+
+                            if active_appts:
+                                # Cancelar la cita más próxima
+                                appt_to_cancel = active_appts[0]
+                                appt_to_cancel.status = "CANCELLED"
+                                db.commit()
+
+                                start_dt = appt_to_cancel.start_time
+                                date_str = start_dt.strftime("%d/%m")
+                                time_str = start_dt.strftime("%H:%M")
+
+                                reply_msg = f"Tu turno del {date_str} a las {time_str} hs fue cancelado. ¡Gracias por avisarnos!"
+
+                                # Responder confirmación automática al paciente
+                                result = await whatsapp_service.send_text_message(to_phone=sender_phone, text_body=reply_msg)
+                                
+                                log = WhatsAppLog(
+                                    appointment_id=appt_to_cancel.id,
+                                    message_type="AUTO_CANCEL_REPLY",
+                                    status="SENT" if result.get("status") != "ERROR" else "FAILED",
+                                    meta_message_id=result.get("messages", [{}])[0].get("id")
+                                )
+                                db.add(log)
+                                db.commit()
+                                print(f"[AUTO CANCELLED VIA WHATSAPP] Appointment {appt_to_cancel.id} cancelled by patient {sender_phone}")
     except Exception as e:
         print(f"[ERROR WEBHOOK PROCESS]: {e}")
 

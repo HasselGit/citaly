@@ -45,14 +45,22 @@ async def send_scheduled_reminders(db: Session = Depends(get_db)):
             service = db.query(Service).filter(Service.id == appt.service_id).first()
 
             if patient and tenant and service:
+                start_dt = appt.start_time
+                date_str = start_dt.strftime("%d/%m")
+                time_str = start_dt.strftime("%H:%M")
+                cancellation_url = f"https://citaly-six.vercel.app/r/{appt.token_cancellation}"
+
+                # Enviar plantilla oficial de Meta Cloud API con parámetros
                 result = await whatsapp_service.send_template_message(
                     to_phone=patient.whatsapp_phone,
                     template_name="citaly_reminder_24h",
                     parameters=[
                         {"type": "text", "text": patient.full_name},
                         {"type": "text", "text": tenant.business_name},
-                        {"type": "text", "text": appt.start_time.strftime("%d/%m a las %H:%M hs")},
-                        {"type": "text", "text": f"https://citaly.com/r/{appt.token_cancellation}"}
+                        {"type": "text", "text": service.name},
+                        {"type": "text", "text": date_str},
+                        {"type": "text", "text": time_str},
+                        {"type": "text", "text": cancellation_url}
                     ]
                 )
 

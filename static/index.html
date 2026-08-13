@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-  <title>Reserva de Turnos — Dr. Alejandro Pérez | TuTurno Pro</title>
+  <title>Reserva de Turnos — Dr. Alejandro Pérez | Citaly</title>
   <link rel="manifest" href="/static/manifest.json">
   <meta name="theme-color" content="#F8FAFC">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,10 +19,10 @@
 
   <div class="app-container">
     
-    <!-- Header Fijo Institucional (Fondo #F8FAFC idéntico al cuerpo) -->
+    <!-- Header Fijo Institucional -->
     <header class="brand-header-sticky">
       <div class="sticky-top-bar">
-        <!-- Isotipo Monograma T+Check Transparente -->
+        <!-- Isotipo Monograma -->
         <div class="tuturno-logo-box">
           <div class="tuturno-emblem-pure">
             <svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -30,16 +30,19 @@
               <path d="M 42 46 L 58 64 L 88 26" stroke="#D97706" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <div class="tuturno-brand-text">Tu<span>Turno</span></div>
+          <div class="tuturno-brand-text">Citaly<span>Pro</span></div>
         </div>
       </div>
 
-      <!-- Nombre del Consultorio / Dr. Alejandro Pérez (Fondo #F8FAFC) -->
+      <!-- Nombre del Consultorio / Dr. Alejandro Pérez -->
       <div class="client-business-header">
         <div>
           <h1 class="client-doctor-name">Dr. Alejandro Pérez</h1>
           <p class="client-doctor-sub">Consultorio Odontológico Especializado</p>
         </div>
+        <button type="button" id="btn-lookup-appt" style="background: #F1F5F9; border: 1.5px solid #CBD5E1; color: #0F172A; font-weight: 700; font-size: 11px; padding: 6px 12px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          <span>🔍 Consultar Cita</span>
+        </button>
       </div>
     </header>
 
@@ -54,7 +57,7 @@
       </button>
     </div>
 
-    <!-- 1. Selecciona un Servicio (Grid Bento de 2 Columnas) -->
+    <!-- 1. Selecciona un Servicio -->
     <section class="section-card" id="services-section">
       <h2 class="section-title">
         <span class="title-icon">
@@ -68,7 +71,7 @@
       </div>
     </section>
 
-    <!-- 2. Elige Fecha y Horario (Calendario sin días pasados) -->
+    <!-- 2. Elige Fecha y Horario -->
     <section class="calendar-card" id="calendar-section">
       <h2 class="section-title">
         <span class="title-icon">
@@ -77,7 +80,7 @@
         <span>2. Día y Horario Disponible</span>
       </h2>
       
-      <!-- Navegador de Mes Ultra-Intuitivo (◄ Agosto 2026 ►) -->
+      <!-- Navegador de Mes -->
       <div class="calendar-header-nav">
         <button type="button" class="month-nav-btn" id="btn-prev-week" title="Semana anterior">◄</button>
         <span class="month-title" id="current-month-year">Agosto 2026</span>
@@ -97,56 +100,36 @@
 
   </div>
 
-  <!-- Botón Principal 100% FIJO en la parte inferior (Sin líneas de corte, Fondo #F8FAFC) -->
-  <div class="fixed-bottom-bar-wrapper">
-    <button class="btn-primary-sticky" id="btn-open-modal" disabled>
-      <span>Confirmar Horario Elegido</span>
-      <span>→</span>
+  <!-- Botón Principal FIJO -->
+  <div class="sticky-bottom-action">
+    <button type="button" class="btn-primary-sticky" id="btn-open-modal" disabled>
+      <span>Confirmar Horario Elegido →</span>
     </button>
   </div>
 
-  <!-- Modal/Drawer de Confirmación con Resumen Claro del Turno Elegido -->
+  <!-- Modal de Formulario de Datos del Paciente -->
   <div class="modal-overlay" id="booking-modal">
     <div class="modal-card">
-      <h3 style="font-family: 'Hanken Grotesk', sans-serif; font-size: 19px; font-weight: 800; color: #0F172A; margin-bottom: 4px;">Confirmar Reserva de Turno</h3>
-      <p style="color: #64748B; font-size: 12.5px; margin-bottom: 16px;">Por favor, revisa el detalle de tu cita antes de completar tus datos.</p>
-      
-      <!-- Banner Resumen Claro de la Especialidad, Fecha y Hora Elegida -->
-      <div class="booking-summary-card">
-        <div class="summary-row">
-          <span class="summary-label">Tratamiento</span>
-          <span class="summary-value" id="summary-service-name">Ortodoncia / Control</span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-label">Fecha y Horario</span>
-          <span class="summary-value" id="summary-date-time">Martes 11 de Agosto — 10:00 hs</span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-label">Duración y Valor</span>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            <span style="font-size: 11px; color: #64748B;" id="summary-service-duration">⏱ 120 min</span>
-            <span class="summary-value-price" id="summary-service-price">$15.000 ARS</span>
-          </div>
-        </div>
-      </div>
+      <h3 style="font-family: 'Hanken Grotesk', sans-serif; font-size: 20px; font-weight: 800; color: #0F172A; margin-bottom: 2px;">Datos del Paciente</h3>
+      <p style="color: #64748B; font-size: 13px; margin-bottom: 12px;">Completa tus datos para confirmar tu turno.</p>
 
-      <!-- Banner de Notificación de Error Ejecutivo -->
-      <div id="modal-error-banner" style="display: none; background: #FEF2F2; border: 1.5px solid #FCA5A5; border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; color: #991B1B; font-size: 13px; font-weight: 600;">
-        <div style="display: flex; align-items: center; gap: 8px;">
+      <!-- Banner de Error Vidrio en Modal -->
+      <div id="modal-error-banner" style="display: none; background: rgba(254, 242, 242, 0.95); backdrop-filter: blur(12px); border: 1.5px solid #FCA5A5; border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.12);">
+        <div style="display: flex; items-center; gap: 8px;">
           <span style="font-size: 16px;">⚠️</span>
-          <span id="modal-error-text">No se pudo procesar la reserva.</span>
+          <div style="font-size: 12px; font-weight: 700; color: #991B1B;" id="modal-error-text">No se pudo confirmar la reserva.</div>
         </div>
       </div>
 
       <form id="booking-form">
         <div class="form-group">
           <label class="form-label">Nombre Completo</label>
-          <input type="text" id="patient-name" class="form-input" placeholder="Ej. Juan Pérez" required autocomplete="off">
+          <input type="text" id="patient-name" class="form-input" placeholder="Ej. María Gómez" required autocomplete="off">
         </div>
         
         <div class="form-group">
           <label class="form-label">Celular (WhatsApp)</label>
-          <input type="tel" id="patient-phone" class="form-input" placeholder="(+54) 2302 20875" required autocomplete="off">
+          <input type="tel" id="patient-phone" class="form-input" placeholder="(+54) 11 5555 1234" required autocomplete="off">
         </div>
 
         <button type="submit" class="btn-primary-sticky btn-loading-sweep" id="btn-submit-modal" style="position: static; margin-top: 14px; background: #0F172A; color: white;">
@@ -184,26 +167,47 @@
     </div>
   </div>
 
-  <!-- Modal de Auto-Gestión / Cita Existente -->
+  <!-- Modal de Consulta por Celular -->
+  <div class="modal-overlay" id="lookup-modal">
+    <div class="modal-card">
+      <h3 style="font-family: 'Hanken Grotesk', sans-serif; font-size: 19px; font-weight: 800; color: #0F172A; margin-bottom: 4px;">Consultar Mi Cita</h3>
+      <p style="color: #64748B; font-size: 13px; margin-bottom: 16px;">Ingresa tu número de WhatsApp para ver tu turno agendado.</p>
+
+      <form id="lookup-form">
+        <div class="form-group">
+          <label class="form-label">Número de Celular</label>
+          <input type="tel" id="lookup-phone" class="form-input" placeholder="(+54) 11 5555 1234" required autocomplete="off">
+        </div>
+        <button type="submit" id="btn-submit-lookup" class="btn-primary-sticky" style="position: static; width: 100%; background: #0F172A; color: white; margin-top: 10px;">
+          <span>Buscar Mi Cita 🔍</span>
+        </button>
+        <button type="button" id="btn-close-lookup-modal" style="width: 100%; background: none; border: none; padding: 12px; margin-top: 4px; color: #64748B; font-weight: 600; cursor: pointer; font-size: 14px;">
+          Cerrar
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de Cita Existente / Autogestión -->
   <div class="modal-overlay" id="existing-appointment-modal">
     <div class="modal-card" style="border-top: 4px solid #D97706;">
       <div style="width: 52px; height: 52px; background: #FEF3C7; color: #D97706; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 14px auto;">
-        📅
+        🗓️
       </div>
-      <h3 style="font-family: 'Hanken Grotesk', sans-serif; font-size: 19px; font-weight: 800; text-align: center; color: #0F172A; margin-bottom: 8px;">Ya tienes una cita agendada</h3>
+      <h3 style="font-family: 'Hanken Grotesk', sans-serif; font-size: 19px; font-weight: 800; text-align: center; color: #0F172A; margin-bottom: 8px;">Cita Agendada</h3>
       <p style="color: #475569; font-size: 13.5px; text-align: center; line-height: 1.5; margin-bottom: 20px;" id="existing-appt-info">
-        Detectamos un turno activo a tu nombre. ¿Deseas reprogramarlo para el nuevo día y horario elegido o cancelarlo?
+        Detectamos un turno activo a tu nombre. ¿Deseas reprogramarlo o cancelarlo?
       </p>
 
       <div style="display: flex; flex-direction: column; gap: 10px;">
         <button type="button" id="btn-reschedule-existing" class="btn-modal-action btn-reschedule">
-          <span>🔄</span>
-          <span>Reprogramar para la nueva fecha</span>
+          <span>📅</span>
+          <span>Reprogramar Cita</span>
         </button>
         
         <button type="button" id="btn-cancel-existing" class="btn-modal-action btn-cancel-appt">
           <span>❌</span>
-          <span>Cancelar cita y liberar horario</span>
+          <span>Cancelar</span>
         </button>
         
         <button type="button" id="btn-close-existing-modal" style="width: 100%; background: none; border: none; padding: 12px; color: #64748B; font-weight: 600; cursor: pointer; font-size: 14px; margin-top: 4px;">

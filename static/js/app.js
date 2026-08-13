@@ -40,6 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCancelExisting = document.getElementById('btn-cancel-existing');
   const btnCloseExistingModal = document.getElementById('btn-close-existing-modal');
 
+  const btnLookupAppt = document.getElementById('btn-lookup-appt');
+  const lookupModal = document.getElementById('lookup-modal');
+  const lookupForm = document.getElementById('lookup-form');
+  const lookupPhone = document.getElementById('lookup-phone');
+  const btnCloseLookupModal = document.getElementById('btn-close-lookup-modal');
+
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       fetchAvailability();
@@ -49,6 +55,45 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('focus', () => {
     fetchAvailability();
   });
+
+  // Modal Consulta Cita
+  if (btnLookupAppt && lookupModal) {
+    btnLookupAppt.addEventListener('click', () => {
+      lookupModal.classList.add('active');
+    });
+  }
+
+  if (btnCloseLookupModal && lookupModal) {
+    btnCloseLookupModal.addEventListener('click', () => {
+      lookupModal.classList.remove('active');
+    });
+  }
+
+  if (lookupForm) {
+    lookupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const phoneVal = lookupPhone ? lookupPhone.value.trim() : '';
+      if (!phoneVal) return;
+
+      try {
+        const res = await fetch(`/api/v1/booking/check-patient?phone=${encodeURIComponent(phoneVal)}&service_id=${selectedServiceId}`);
+        const data = await res.json();
+
+        if (data.has_active_appointment && data.appointment) {
+          activePatientAppt = data.appointment;
+          if (lookupModal) lookupModal.classList.remove('active');
+          if (existingApptInfo) {
+            existingApptInfo.innerText = `Tienes un turno activo para ${data.appointment.service_name} el día ${data.appointment.start_time_formatted}. ¿Deseas reprogramarlo o cancelarlo?`;
+          }
+          if (existingModal) existingModal.classList.add('active');
+        } else {
+          alert('No encontramos ninguna cita activa para ese número de celular.');
+        }
+      } catch (e) {
+        alert('Error al consultar el turno.');
+      }
+    });
+  }
 
   const fallbackServices = [
     { id: "s1", name: "Ortodoncia / Control", duration_minutes: 120, price: 15000 },
@@ -100,22 +145,29 @@ document.addEventListener('DOMContentLoaded', () => {
     startAutoSync();
   }
 
+  function startAutoSync() {
+    if (syncInterval) clearInterval(syncInterval);
+    syncInterval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        fetchAvailability();
+      }
+    }, 4000);
+  }
+
   function attachServiceClickEvents() {
     document.querySelectorAll('.service-card').forEach(card => {
       card.addEventListener('click', () => {
         document.querySelectorAll('.service-card').forEach(c => c.classList.remove('active'));
         card.classList.add('active');
+
         selectedServiceId = card.getAttribute('data-service-id');
         selectedServiceName = card.getAttribute('data-service-name');
-
         if (collapsedServiceName) collapsedServiceName.innerText = selectedServiceName;
+
+        // Auto-colapsar tarjetas
+        if (servicesSection) servicesSection.classList.add('collapsed');
         if (serviceCollapsedBar) serviceCollapsedBar.classList.add('active');
-        if (servicesSection) servicesSection.style.display = 'none';
 
-        selectedTimeSlot = null;
-        if (btnOpenModal) btnOpenModal.disabled = true;
-
-        renderSlotsInstant();
         fetchAvailability();
       });
     });
@@ -123,283 +175,218 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnChangeService) {
     btnChangeService.addEventListener('click', () => {
-      if (servicesSection) servicesSection.style.display = 'block';
+      if (servicesSection) servicesSection.classList.remove('collapsed');
       if (serviceCollapsedBar) serviceCollapsedBar.classList.remove('active');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
 
-  function formatLocalDate(dateObj) {
-    const yyyy = dateObj.getFullYear();
-    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const dd = String(dateObj.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
-  }
-
-  const daysShortName = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+  // 2. Renderizar Píldoras de Fechas Futuras
   const monthsName = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
   function renderDatePills() {
-    dateScrollContainer.innerHTML = '';
-    const now = new Date();
-    const todayStr = formatLocalDate(now);
-    const nowHour = now.getHours();
+    if (!dateScrollContainer) return;
+    const today = new Date();
+    const pills = [];
 
-    let startDateCandidate = new Date(selectedDate);
-    
-    if (formatLocalDate(startDateCandidate) === todayStr && nowHour >= 18) {
-      startDateCandidate.setDate(startDateCandidate.getDate() + 1);
-      selectedDate = new Date(startDateCandidate);
+    for (let i = 0; i < 14; i++) {
+      const dateObj = new Date(today);
+      dateObj.setDate(today.getDate() + i);
+
+      // Omitir domingos
+      if (dateObj.getDay() === 0) continue;
+
+      const isSelected = dateObj.toDateString() === selectedDate.toDateString();
+      const dayNum = dateObj.getDate();
+      const dayName = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'][dateObj.getDay()];
+
+      pills.push(`
+        <div class="date-pill ${isSelected ? 'selected' : ''}" data-date="${dateObj.toISOString()}">
+          <span class="date-pill-day-name">${dayName}</span>
+          <span class="date-pill-day-number">${dayNum}</span>
+        </div>
+      `);
     }
 
-    currentMonthYear.innerText = `${monthsName[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
+    dateScrollContainer.innerHTML = pills.join('');
 
-    let datesToRender = [];
-    let tempDate = new Date(selectedDate);
-
-    for (let i = 0; i < 7; i++) {
-      const dStr = formatLocalDate(tempDate);
-      if (dStr === todayStr && nowHour >= 18) {
-        tempDate.setDate(tempDate.getDate() + 1);
-        continue;
-      }
-      datesToRender.push(new Date(tempDate));
-      tempDate.setDate(tempDate.getDate() + 1);
+    if (currentMonthYear) {
+      currentMonthYear.innerText = `${monthsName[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
     }
 
-    datesToRender.slice(0, 7).forEach((d, idx) => {
-      const dayName = daysShortName[d.getDay()];
-      const dayNum = d.getDate();
-      const dateIso = formatLocalDate(d);
-      const isSelected = dateIso === formatLocalDate(selectedDate);
-
-      const pill = document.createElement('div');
-      pill.className = `date-pill ${isSelected ? 'active' : ''}`;
-      pill.setAttribute('data-date', dateIso);
-      pill.innerHTML = `
-        <span class="date-day">${dayName}</span>
-        <span class="date-num">${dayNum}</span>
-      `;
-
+    document.querySelectorAll('.date-pill').forEach(pill => {
       pill.addEventListener('click', () => {
-        document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
-        selectedDate = new Date(d);
+        document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('selected'));
+        pill.classList.add('selected');
+
+        selectedDate = new Date(pill.getAttribute('data-date'));
+        if (currentMonthYear) {
+          currentMonthYear.innerText = `${monthsName[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
+        }
+
         selectedTimeSlot = null;
         if (btnOpenModal) btnOpenModal.disabled = true;
 
-        currentMonthYear.innerText = `${monthsName[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
-        renderSlotsInstant();
         fetchAvailability();
       });
-
-      dateScrollContainer.appendChild(pill);
     });
   }
 
-  const btnPrevWeek = document.getElementById('btn-prev-week');
-  const btnNextWeek = document.getElementById('btn-next-week');
-
-  if (btnPrevWeek) {
-    btnPrevWeek.addEventListener('click', () => {
-      const prevDate = new Date(selectedDate);
-      prevDate.setDate(prevDate.getDate() - 7);
-      const today = new Date();
-      if (prevDate >= new Date(today.getFullYear(), today.getMonth(), today.getDate())) {
-        selectedDate = prevDate;
-        renderDatePills();
-        renderSlotsInstant();
-        fetchAvailability();
-      }
-    });
-  }
-
-  if (btnNextWeek) {
-    btnNextWeek.addEventListener('click', () => {
-      const nextDate = new Date(selectedDate);
-      nextDate.setDate(nextDate.getDate() + 7);
-      selectedDate = nextDate;
-      renderDatePills();
-      renderSlotsInstant();
-      fetchAvailability();
-    });
-  }
-
-  const defaultMockSlotsTimes = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"];
-
+  // 3. Renderizar Slots de Horario Instantáneos
   function renderSlotsInstant() {
-    const targetDateIso = formatLocalDate(selectedDate);
-    const now = new Date();
-    const isToday = (targetDateIso === formatLocalDate(now));
-    const currentHour = now.getHours();
-    const currentMin = now.getMinutes();
+    if (!slotsContainer) return;
+    const hours = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'];
 
-    const slots = defaultMockSlotsTimes.map(t => {
-      const [hStr, mStr] = t.split(':');
-      const h = parseInt(hStr, 10);
-      const m = parseInt(mStr, 10);
-      
-      const isPast = isToday && (h < currentHour || (h === currentHour && m <= currentMin));
-      return {
-        time_str: t,
-        start_iso: `${targetDateIso}T${t}:00`,
-        end_iso: `${targetDateIso}T${t}:30`,
-        is_available: !isPast
-      };
-    });
+    slotsContainer.innerHTML = hours.map(h => `
+      <div class="time-slot" data-time="${h}">
+        <span class="time-text">${h}</span>
+        <span class="time-status">Disponible</span>
+      </div>
+    `).join('');
 
-    slotsContainer.innerHTML = slots.map(slot => {
-      if (slot.is_available) {
-        const isSelectedClass = (selectedTimeSlot === slot.start_iso) ? 'selected' : '';
-        return `<div class="slot-pill available ${isSelectedClass}" data-iso="${slot.start_iso}">${slot.time_str}</div>`;
-      } else {
-        return `<div class="slot-pill disabled">${slot.time_str}</div>`;
+    attachSlotClickEvents();
+  }
+
+  // 4. Obtener Disponibilidad Real desde API
+  async function fetchAvailability() {
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const day = String(selectedDate.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+
+    try {
+      const res = await fetch(`/api/v1/booking/availability?tenant_id=demo-tenant-citaly-001&service_id=${selectedServiceId}&target_date_str=${dateStr}`, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.slots) {
+          updateSlotsWithData(data.slots);
+        }
       }
+    } catch (e) {
+      console.warn('Error al obtener disponibilidad:', e);
+    }
+  }
+
+  function updateSlotsWithData(slotsList) {
+    if (!slotsContainer) return;
+
+    slotsContainer.innerHTML = slotsList.map(s => {
+      const isAvailable = s.is_available;
+      const isSelected = selectedTimeSlot === s.start_iso;
+
+      let slotClass = 'time-slot';
+      let statusText = 'Disponible';
+
+      if (!isAvailable) {
+        slotClass += ' occupied';
+        statusText = 'Ocupado';
+      } else if (isSelected) {
+        slotClass += ' selected';
+        statusText = 'Seleccionado';
+      }
+
+      return `
+        <div class="${slotClass}" data-start-iso="${s.start_iso}" data-time="${s.time_str}" data-available="${isAvailable}">
+          <span class="time-text">${s.time_str}</span>
+          <span class="time-status">${statusText}</span>
+        </div>
+      `;
     }).join('');
 
     attachSlotClickEvents();
   }
 
-  // 3. Cargar disponibilidad desde la API con no-store
-  async function fetchAvailability() {
-    if (!selectedServiceId) return;
-    const dateStr = formatLocalDate(selectedDate);
-
-    try {
-      const res = await fetch(`/api/v1/booking/availability?service_id=${selectedServiceId}&target_date_str=${dateStr}`, { cache: 'no-store' });
-      if (res.ok) {
-        const data = await res.json();
-        if (data && data.slots && data.slots.length > 0) {
-          slotsContainer.innerHTML = data.slots.map(slot => {
-            if (slot.is_available) {
-              const isSelectedClass = (selectedTimeSlot === slot.start_iso) ? 'selected' : '';
-              return `<div class="slot-pill available ${isSelectedClass}" data-iso="${slot.start_iso}">${slot.time_str}</div>`;
-            } else {
-              return `<div class="slot-pill disabled">${slot.time_str}</div>`;
-            }
-          }).join('');
-
-          attachSlotClickEvents();
-        }
-      }
-    } catch (e) {
-      console.warn('Error al sincronizar horarios desde servidor:', e);
-    }
-  }
-
   function attachSlotClickEvents() {
-    document.querySelectorAll('.slot-pill.available').forEach(pill => {
-      pill.addEventListener('click', () => {
-        document.querySelectorAll('.slot-pill').forEach(p => p.classList.remove('selected'));
-        pill.classList.add('selected');
+    document.querySelectorAll('.time-slot').forEach(slot => {
+      const isAvailable = slot.getAttribute('data-available') !== 'false' && !slot.classList.contains('occupied');
 
-        selectedTimeSlot = pill.getAttribute('data-iso');
-        if (btnOpenModal) btnOpenModal.disabled = false;
+      if (isAvailable) {
+        slot.addEventListener('click', () => {
+          document.querySelectorAll('.time-slot').forEach(s => {
+            if (!s.classList.contains('occupied')) {
+              s.classList.remove('selected');
+              const statusEl = s.querySelector('.time-status');
+              if (statusEl) statusEl.innerText = 'Disponible';
+            }
+          });
 
-        btnOpenModal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      });
+          slot.classList.add('selected');
+          const statusEl = slot.querySelector('.time-status');
+          if (statusEl) statusEl.innerText = 'Seleccionado';
+
+          selectedTimeSlot = slot.getAttribute('data-start-iso');
+          if (btnOpenModal) btnOpenModal.disabled = false;
+        });
+      }
     });
   }
 
-  // 4. Auto-Sincronización en Tiempo Real (cada 2.5 segundos)
-  function startAutoSync() {
-    if (syncInterval) clearInterval(syncInterval);
-    syncInterval = setInterval(() => {
-      if (document.visibilityState === 'visible' && !modalOverlay.classList.contains('active')) {
-        fetchAvailability();
-      }
-    }, 2500);
+  // 5. Manejo del Modal de Reserva
+  if (btnOpenModal) {
+    btnOpenModal.addEventListener('click', () => {
+      if (!selectedTimeSlot) return;
+      if (modalErrorBanner) modalErrorBanner.style.display = 'none';
+      if (modalOverlay) modalOverlay.classList.add('active');
+    });
   }
 
-  // 5. Modal de Confirmación
-  btnOpenModal.addEventListener('click', () => {
-    if (!selectedTimeSlot) {
-      return;
-    }
+  if (btnCloseModal) {
+    btnCloseModal.addEventListener('click', () => {
+      if (modalOverlay) modalOverlay.classList.remove('active');
+    });
+  }
 
-    if (modalErrorBanner) modalErrorBanner.style.display = 'none';
+  if (btnCloseSuccessModal) {
+    btnCloseSuccessModal.addEventListener('click', () => {
+      if (successModal) successModal.classList.remove('active');
+    });
+  }
 
-    const timeStr = selectedTimeSlot.split('T')[1].substring(0, 5);
-    const dayNum = selectedDate.getDate();
-    const monthName = monthsName[selectedDate.getMonth()];
-    const dayOfWeekName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][selectedDate.getDay()];
-    
-    const formattedDateText = `${dayOfWeekName} ${dayNum} de ${monthName} — ${timeStr} hs`;
+  if (btnCloseExistingModal) {
+    btnCloseExistingModal.addEventListener('click', () => {
+      if (existingModal) existingModal.classList.remove('active');
+    });
+  }
 
-    const summaryServiceName = document.getElementById('summary-service-name');
-    const summaryDateTime = document.getElementById('summary-date-time');
-    const summaryDuration = document.getElementById('summary-service-duration');
-    const summaryPrice = document.getElementById('summary-service-price');
+  // 6. Enviar Formulario de Reserva
+  if (bookingForm) {
+    bookingForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('patient-name').value.trim();
+      const phone = document.getElementById('patient-phone').value.trim();
+      const submitBtn = document.getElementById('btn-submit-modal');
 
-    const activeCard = document.querySelector('.service-card.active');
-    const serviceDurationText = activeCard ? activeCard.querySelector('.service-duration').innerText : '⏱ 60 min';
-    const servicePriceText = activeCard ? activeCard.querySelector('.service-price').innerText : '$15.000 ARS';
+      if (!name || !phone) return;
 
-    if (summaryServiceName) summaryServiceName.innerText = selectedServiceName || 'Ortodoncia / Control';
-    if (summaryDateTime) summaryDateTime.innerText = formattedDateText;
-    if (summaryDuration) summaryDuration.innerText = serviceDurationText;
-    if (summaryPrice) summaryPrice.innerText = servicePriceText;
-
-    document.getElementById('patient-name').value = '';
-    document.getElementById('patient-phone').value = '';
-
-    modalOverlay.classList.add('active');
-  });
-
-  if (btnCloseModal) btnCloseModal.addEventListener('click', () => modalOverlay.classList.remove('active'));
-  if (btnCloseExistingModal) btnCloseExistingModal.addEventListener('click', () => existingModal.classList.remove('active'));
-  if (btnCloseSuccessModal) btnCloseSuccessModal.addEventListener('click', () => {
-    if (successModal) successModal.classList.remove('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-
-  // 6. Finalizar Reserva
-  bookingForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    if (modalErrorBanner) modalErrorBanner.style.display = 'none';
-
-    const name = document.getElementById('patient-name').value.trim();
-    const phone = document.getElementById('patient-phone').value.trim();
-    const submitBtn = document.getElementById('btn-submit-modal');
-
-    if (!name || !phone) {
-      showModalError('Por favor completa tu Nombre y Celular.');
-      return;
-    }
-
-    if (!selectedTimeSlot) {
-      showModalError('Por favor selecciona un horario de la lista.');
-      return;
-    }
-
-    if (submitBtn) {
-      submitBtn.classList.add('loading');
-      submitBtn.disabled = true;
-    }
-
-    try {
-      const checkRes = await fetch(`/api/v1/booking/check-patient?phone=${encodeURIComponent(phone)}&service_id=${selectedServiceId}`, { cache: 'no-store' });
-      const checkData = await checkRes.json();
-
-      if (checkData.has_active_appointment) {
-        activePatientAppt = checkData.appointment;
-        existingApptInfo.innerText = `Hola ${checkData.appointment.patient_name}, detectamos que ya tienes un turno activo de ${checkData.appointment.service_name} el día ${checkData.appointment.start_time_formatted}. ¿Deseas reprogramarlo para el nuevo día y horario elegido o cancelarlo?`;
-        modalOverlay.classList.remove('active');
-        existingModal.classList.add('active');
-
-        if (submitBtn) {
-          submitBtn.classList.remove('loading');
-          submitBtn.disabled = false;
-        }
-        return;
+      if (submitBtn) {
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
       }
-    } catch (err) {
-      console.warn('Error al verificar turno existente:', err);
-    }
 
-    createAppointmentCall(name, phone, submitBtn);
-  });
+      // Verificar si ya tiene cita activa
+      try {
+        const checkRes = await fetch(`/api/v1/booking/check-patient?phone=${encodeURIComponent(phone)}&service_id=${selectedServiceId}`);
+        const checkData = await checkRes.json();
+
+        if (checkData.has_active_appointment && checkData.appointment) {
+          activePatientAppt = checkData.appointment;
+          if (modalOverlay) modalOverlay.classList.remove('active');
+          if (existingApptInfo) {
+            existingApptInfo.innerText = `Hola ${name}, detectamos que ya tienes una cita de ${checkData.appointment.service_name} el ${checkData.appointment.start_time_formatted}. ¿Deseas reprogramarla o cancelarla?`;
+          }
+          if (existingModal) existingModal.classList.add('active');
+          if (submitBtn) {
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+          }
+          return;
+        }
+      } catch (e) {
+        console.warn('Check paciente omitido:', e);
+      }
+
+      createAppointmentCall(name, phone, submitBtn);
+    });
+  }
 
   function showModalError(msg) {
     if (modalErrorBanner && modalErrorText) {
@@ -414,6 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          tenant_id: 'demo-tenant-citaly-001',
           service_id: selectedServiceId,
           start_time: selectedTimeSlot,
           patient_full_name: name,
@@ -439,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('success-date-time').innerText = formattedDateText;
         document.getElementById('success-doctor-name').innerText = 'Dr. Alejandro Pérez';
 
-        modalOverlay.classList.remove('active');
+        if (modalOverlay) modalOverlay.classList.remove('active');
         if (successModal) successModal.classList.add('active');
 
         selectedTimeSlot = null;
@@ -464,7 +452,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // 7. Acciones de Reprogramación y Cancelación Instantánea
   if (btnRescheduleExisting) {
     btnRescheduleExisting.addEventListener('click', async () => {
-      if (!activePatientAppt || !selectedTimeSlot) return;
+      if (!activePatientAppt || !selectedTimeSlot) {
+        alert('Por favor selecciona primero un nuevo día y horario disponible en el calendario.');
+        if (existingModal) existingModal.classList.remove('active');
+        return;
+      }
 
       try {
         btnRescheduleExisting.innerText = 'Reprogramando...';
@@ -483,13 +475,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (result.success) {
           existingModal.classList.remove('active');
           fetchAvailability();
+          alert(result.message || 'Turno reprogramado exitosamente.');
         } else {
           alert(result.detail || 'No se pudo reprogramar la cita.');
         }
       } catch (e) {
         alert('Error al reprogramar la cita.');
       } finally {
-        btnRescheduleExisting.innerText = 'Reprogramar para la nueva fecha';
+        btnRescheduleExisting.innerText = 'Reprogramar Cita';
         btnRescheduleExisting.disabled = false;
       }
     });
@@ -511,13 +504,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (result.success) {
           existingModal.classList.remove('active');
           fetchAvailability();
+          alert('Tu cita fue cancelada exitosamente.');
         } else {
           alert(result.detail || 'No se pudo cancelar la cita.');
         }
       } catch (e) {
         alert('Error al cancelar la cita.');
       } finally {
-        btnCancelExisting.innerText = 'Cancelar cita y liberar horario';
+        btnCancelExisting.innerText = 'Cancelar';
         btnCancelExisting.disabled = false;
       }
     });
