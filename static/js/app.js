@@ -325,6 +325,19 @@ document.addEventListener('DOMContentLoaded', () => {
     btnOpenModal.addEventListener('click', () => {
       if (!selectedTimeSlot) return;
       if (modalErrorBanner) modalErrorBanner.style.display = 'none';
+
+      const timeStr = selectedTimeSlot ? selectedTimeSlot.split('T')[1].substring(0, 5) : '10:00';
+      const dayNum = selectedDate.getDate();
+      const monthName = monthsName[selectedDate.getMonth()];
+      const dayOfWeekName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][selectedDate.getDay()];
+      const formattedDateText = `${dayOfWeekName} ${dayNum} de ${monthName} — ${timeStr} hs`;
+
+      const summarySvcName = document.getElementById('summary-service-name');
+      const summaryDateTime = document.getElementById('summary-date-time');
+
+      if (summarySvcName) summarySvcName.innerText = selectedServiceName;
+      if (summaryDateTime) summaryDateTime.innerText = formattedDateText;
+
       if (modalOverlay) modalOverlay.classList.add('active');
     });
   }
