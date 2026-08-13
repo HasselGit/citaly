@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
     attachSlotClickEvents();
   }
 
-  // 3. Cargar disponibilidad desde la API con no-store
+  // 3. Cargar disponibilidad desde la API (parche sin re-renderizar)
   async function fetchAvailability() {
     if (!selectedServiceId) return;
     const dateStr = formatLocalDate(selectedDate);
@@ -284,13 +284,38 @@ document.addEventListener('DOMContentLoaded', () => {
       if (res.ok) {
         const data = await res.json();
         if (data && data.slots && data.slots.length > 0) {
-          renderSlotsHTML(data.slots);
+          // Parche: actualizar disponibilidad en los pills existentes sin borrar el DOM
+          const existingPills = slotsContainer.querySelectorAll('.slot-pill');
+          const slotMap = {};
+          data.slots.forEach(s => { slotMap[s.start_iso] = s.is_available; });
+
+          existingPills.forEach(pill => {
+            const iso = pill.getAttribute('data-iso');
+            if (iso && iso in slotMap) {
+              if (!slotMap[iso]) {
+                // El slot fue tomado: marcarlo como disabled
+                pill.classList.remove('available', 'selected');
+                pill.classList.add('disabled');
+                if (selectedTimeSlot === iso) {
+                  selectedTimeSlot = null;
+                  if (btnOpenModal) btnOpenModal.disabled = true;
+                }
+              }
+            }
+          });
+
+          // Si la API trae slots nuevos que no estaban en el renderizado instantáneo
+          // (raro, pero posible), solo entonces re-renderizar completo
+          if (data.slots.length !== existingPills.length) {
+            renderSlotsHTML(data.slots);
+          }
         }
       }
     } catch (e) {
       console.warn('Error al sincronizar horarios desde servidor:', e);
     }
   }
+
 
   function attachSlotClickEvents() {
     document.querySelectorAll('.slot-pill.available').forEach(pill => {
