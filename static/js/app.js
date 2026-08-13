@@ -664,7 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hideError();
       } else {
         hideActiveAppt();
-        showError('No encontramos una cita activa para ese número. Si querés reservar un turno, elegí un tratamiento abajo.');
+        showError('No encontramos un turno agendado para ese número. ¡Podés solicitar tu turno fácilmente seleccionando un tratamiento abajo!');
       }
     } catch (e) {
       showError('No pudimos conectar con el servidor. Intentá de nuevo.');
@@ -692,6 +692,19 @@ document.addEventListener('DOMContentLoaded', () => {
       if (res.ok) {
         btnCancel.style.display = 'none';
         btnReschedule.style.display = 'none';
+        
+        let dateShort = '';
+        let timeShort = '';
+        if (currentAppt.start_time_iso) {
+          const dt = new Date(currentAppt.start_time_iso);
+          const dd = String(dt.getDate()).padStart(2, '0');
+          const mm = String(dt.getMonth() + 1).padStart(2, '0');
+          const hh = String(dt.getHours()).padStart(2, '0');
+          const min = String(dt.getMinutes()).padStart(2, '0');
+          dateShort = `${dd}/${mm}`;
+          timeShort = `${hh}:${min}`;
+        }
+        cancelConfirm.textContent = `Tu turno del ${dateShort} a las ${timeShort} hs fue cancelado. ¡Gracias por avisarnos!`;
         cancelConfirm.style.display = 'block';
         currentAppt = null;
       } else {

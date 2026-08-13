@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v12-my-appointment';
+const CACHE_NAME = 'citaly-v13-copy-fix';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
