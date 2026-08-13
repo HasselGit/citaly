@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 3. Cargar disponibilidad desde la API (parche sin re-renderizar)
+  // 3. Cargar disponibilidad desde la API — siempre fusiona en los 12 slots fijos, nunca cambia cantidad
   async function fetchAvailability() {
     if (!selectedServiceId) return;
     const dateStr = formatLocalDate(selectedDate);
@@ -325,38 +325,35 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch(`/api/v1/booking/availability?tenant_id=demo-tenant-citaly-001&service_id=${selectedServiceId}&target_date_str=${dateStr}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
-        if (data && data.slots && data.slots.length > 0) {
-          // Parche: actualizar disponibilidad en los pills existentes sin borrar el DOM
-          const existingPills = slotsContainer.querySelectorAll('.slot-pill');
-          const slotMap = {};
-          data.slots.forEach(s => { slotMap[s.start_iso] = s.is_available; });
+        if (data && data.slots) {
+          // Construir mapa de disponibilidad: start_iso → is_available
+          const apiMap = {};
+          data.slots.forEach(s => { apiMap[s.start_iso] = s.is_available; });
 
-          existingPills.forEach(pill => {
+          // Actualizar solo la clase de cada pill existente — NUNCA cambiar la cantidad
+          slotsContainer.querySelectorAll('.slot-pill').forEach(pill => {
             const iso = pill.getAttribute('data-iso');
-            if (iso && iso in slotMap) {
-              if (!slotMap[iso]) {
-                // El slot fue tomado: marcarlo como disabled
-                pill.classList.remove('available', 'selected');
-                pill.classList.add('disabled');
-                if (selectedTimeSlot === iso) {
-                  selectedTimeSlot = null;
-                  if (btnOpenModal) btnOpenModal.disabled = true;
-                }
+            if (!iso) return;
+            // Si la API conoce este slot y dice que no está disponible → disabled
+            if (iso in apiMap && !apiMap[iso]) {
+              pill.classList.remove('available', 'selected');
+              pill.classList.add('disabled');
+              if (selectedTimeSlot === iso) {
+                selectedTimeSlot = null;
+                if (btnOpenModal) btnOpenModal.disabled = true;
               }
             }
+            // Si la API NO incluye este slot → lo dejamos como está (renderSlotsInstant ya lo marcó)
           });
 
-          // Si la API trae slots nuevos que no estaban en el renderizado instantáneo
-          // (raro, pero posible), solo entonces re-renderizar completo
-          if (data.slots.length !== existingPills.length) {
-            renderSlotsHTML(data.slots);
-          }
+          attachSlotClickEvents();
         }
       }
     } catch (e) {
       console.warn('Error al sincronizar horarios desde servidor:', e);
     }
   }
+
 
 
   function attachSlotClickEvents() {
