@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v15-reschedule-slot-fix';
+const CACHE_NAME = 'citaly-v16-dashboard-bottom-padding-fix';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
