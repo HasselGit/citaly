@@ -87,7 +87,8 @@ document.addEventListener('DOMContentLoaded', () => {
     selectedServiceName = servicesList[0].name;
     if (collapsedServiceName) collapsedServiceName.innerText = selectedServiceName;
 
-    collapseServiceSection();
+    // NO colapsar al inicio — el usuario elige primero
+    expandServiceSection();
     attachServiceClickEvents();
   }
 
@@ -237,41 +238,81 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const defaultMockSlotsTimes = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30"];
 
-  function renderSlotsInstant() {
-    const targetDateIso = formatLocalDate(selectedDate);
+  function buildSlotsData(dateIso) {
     const now = new Date();
-    const isToday = (targetDateIso === formatLocalDate(now));
+    const isToday = (dateIso === formatLocalDate(now));
     const currentHour = now.getHours();
     const currentMin = now.getMinutes();
-
-    const slots = defaultMockSlotsTimes.map(t => {
+    return defaultMockSlotsTimes.map(t => {
       const [hStr, mStr] = t.split(':');
       const h = parseInt(hStr, 10);
       const m = parseInt(mStr, 10);
-      
       const isPast = isToday && (h < currentHour || (h === currentHour && m <= currentMin));
-      return {
-        time_str: t,
-        start_iso: `${targetDateIso}T${t}:00`,
-        end_iso: `${targetDateIso}T${t}:30`,
-        is_available: !isPast
-      };
+      return { time_str: t, start_iso: `${dateIso}T${t}:00`, is_available: !isPast };
     });
+  }
 
-    renderSlotsHTML(slots);
+  // Primer renderizado: crea los pills una única vez
+  function initSlotsDOM() {
+    const dateIso = formatLocalDate(selectedDate);
+    const slots = buildSlotsData(dateIso);
+    slotsContainer.innerHTML = slots.map(slot => {
+      if (slot.is_available) {
+        return `<div class="slot-pill available" data-iso="${slot.start_iso}">${slot.time_str}</div>`;
+      } else {
+        return `<div class="slot-pill disabled" data-iso="${slot.start_iso}">${slot.time_str}</div>`;
+      }
+    }).join('');
+    attachSlotClickEvents();
+  }
+
+  // Actualiza pills SIN destruir el DOM — cero layout shift
+  function patchSlotsDOM(slots) {
+    const pills = slotsContainer.querySelectorAll('.slot-pill');
+    slots.forEach((slot, i) => {
+      const pill = pills[i];
+      if (!pill) return;
+      pill.setAttribute('data-iso', slot.start_iso);
+      pill.textContent = slot.time_str;
+      // Mantener selección si el mismo horario sigue disponible
+      const wasSelected = (selectedTimeSlot === slot.start_iso);
+      pill.className = 'slot-pill ' + (slot.is_available ? ('available' + (wasSelected ? ' selected' : '')) : 'disabled');
+      if (!slot.is_available && wasSelected) {
+        selectedTimeSlot = null;
+        if (btnOpenModal) btnOpenModal.disabled = true;
+      }
+    });
+    attachSlotClickEvents();
+  }
+
+  function renderSlotsInstant() {
+    const dateIso = formatLocalDate(selectedDate);
+    const slots = buildSlotsData(dateIso);
+    const pills = slotsContainer.querySelectorAll('.slot-pill');
+    if (pills.length === slots.length) {
+      // Pills ya existen — solo parchear, sin tocar el DOM
+      patchSlotsDOM(slots);
+    } else {
+      // Primera vez o cantidad distinta — crear desde cero
+      initSlotsDOM();
+    }
   }
 
   function renderSlotsHTML(slotsList) {
-    slotsContainer.innerHTML = slotsList.map(slot => {
-      if (slot.is_available) {
-        const isSelectedClass = (selectedTimeSlot === slot.start_iso) ? 'selected' : '';
-        return `<div class="slot-pill available ${isSelectedClass}" data-iso="${slot.start_iso}">${slot.time_str}</div>`;
-      } else {
-        return `<div class="slot-pill disabled">${slot.time_str}</div>`;
-      }
-    }).join('');
-
-    attachSlotClickEvents();
+    const pills = slotsContainer.querySelectorAll('.slot-pill');
+    if (pills.length === slotsList.length) {
+      patchSlotsDOM(slotsList);
+    } else {
+      slotsContainer.innerHTML = slotsList.map(slot => {
+        if (slot.is_available) {
+          const isSelectedClass = (selectedTimeSlot === slot.start_iso) ? 'selected' : '';
+          return `<div class="slot-pill available ${isSelectedClass}" data-iso="${slot.start_iso}">${slot.time_str}</div>`;
+        } else {
+          return `<div class="slot-pill disabled" data-iso="${slot.start_iso}">${slot.time_str}</div>`;
+        }
+      }).join('');
+      attachSlotClickEvents();
+    }
   }
 
   // 3. Cargar disponibilidad desde la API (parche sin re-renderizar)

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v8-no-layout-shift';
+const CACHE_NAME = 'citaly-v9-stable-dom';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
