@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v18-autofill-reschedule-clean-copy';
+const CACHE_NAME = 'citaly-v19-stitch-executive-dashboard';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
