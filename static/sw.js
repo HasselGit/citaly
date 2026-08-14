@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v16-dashboard-bottom-padding-fix';
+const CACHE_NAME = 'citaly-v17-remove-manual-liberar-btn';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

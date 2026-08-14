@@ -289,8 +289,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (parts.length === 3) formattedDate = `${parts[2]}/${parts[1]}`;
       }
 
-      const showCancelBtn = a.status !== 'CANCELLED' && a.token_cancellation;
-
       return `
         <div class="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-xl border-l-4 ${borderClass} transition-all hover:translate-x-1 bg-white shadow-sm">
           <div class="flex items-center gap-3">
@@ -314,13 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="text-xs font-extrabold text-slate-900 font-mono">📅 ${formattedDate} — ⏰ ${a.time_str || '10:00'} hs</div>
               <div class="mt-1">${statusBadge}</div>
             </div>
-
-            ${showCancelBtn ? `
-              <button data-token="${a.token_cancellation}" data-patient="${a.patient_name || 'Paciente'}" data-date="${formattedDate} a las ${a.time_str || '10:00'} hs" class="btn-trigger-cancel px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1">
-                <span>❌</span>
-                <span>Liberar</span>
-              </button>
-            ` : ''}
           </div>
         </div>
       `;
