@@ -390,26 +390,6 @@
     </button>
   </nav>
 
-  <!-- Confirm Cancellation Modal -->
-  <div id="cancel-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 glass-modal hidden">
-    <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-200">
-      <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mb-4 mx-auto">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
-      </div>
-      <h3 class="text-lg font-extrabold text-primary text-center font-display mb-1">¿Liberar Horario?</h3>
-      <p id="cancel-modal-text" class="text-xs text-slate-500 text-center mb-6 leading-relaxed">Esta acción cancelará el turno del paciente y dejará el horario disponible inmediatamente en la web pública.</p>
-      
-      <div class="flex items-center gap-3">
-        <button id="btn-modal-close" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition-all">
-          Volver
-        </button>
-        <button id="btn-modal-confirm-cancel" class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs transition-all shadow-sm">
-          Sí, Liberar
-        </button>
-      </div>
-    </div>
-  </div>
-
   <script src="/static/js/dashboard.js"></script>
   <script>
     if ('serviceWorker' in navigator) {

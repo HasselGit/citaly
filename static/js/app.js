@@ -502,10 +502,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (result && result.was_rescheduled) {
           if (titleEl) titleEl.innerText = '¡Turno Reprogramado con Éxito!';
-          if (descEl) descEl.innerText = `El cambio de tu cita fue realizado de forma satisfactoria. Tu nuevo turno para ${selectedServiceName || 'Tratamiento'} es el ${formattedDateText}.`;
+          if (descEl) descEl.innerText = 'Los datos de tu nuevo turno fueron actualizados correctamente.';
         } else {
           if (titleEl) titleEl.innerText = '¡Turno Agendado con Éxito!';
-          if (descEl) descEl.innerText = `Tu turno para ${selectedServiceName || 'Tratamiento'} fue agendado exitosamente para el ${formattedDateText}.`;
+          if (descEl) descEl.innerText = 'Te enviamos la confirmación por WhatsApp. Te esperamos en el consultorio.';
         }
 
         document.getElementById('success-service-name').innerText = selectedServiceName || 'Ortodoncia / Control';
@@ -613,6 +613,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (paramRescheduleToken) {
     window._rescheduleToken = paramRescheduleToken;
+    fetch(`/api/v1/booking/appointment/${paramRescheduleToken}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.patient_name) {
+          const inputName = document.getElementById('patient-name');
+          const inputPhone = document.getElementById('patient-phone');
+          if (inputName) inputName.value = data.patient_name;
+          if (inputPhone && data.patient_whatsapp) inputPhone.value = data.patient_whatsapp;
+        }
+      }).catch(e => console.warn('Error pre-cargando paciente reprogramado:', e));
   }
   if (paramPhone) {
     const phoneInput = document.getElementById('phone-lookup-input');
@@ -734,7 +744,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
-      // Evento Reprogramar individual
+      // Evento Reprogramar individual — Autocompleta automáticamente Nombre y Celular
       btnRescheduleCard.addEventListener('click', () => {
         phoneLookupSection.style.display = 'none';
         activeApptSection.style.display = 'none';
@@ -749,6 +759,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window._rescheduleApptId = appt.id;
         window._rescheduleToken = appt.token_cancellation;
+
+        // Auto-completar Nombre y Celular en el modal de reserva
+        const inputName = document.getElementById('patient-name');
+        const inputPhone = document.getElementById('patient-phone');
+        if (inputName && appt.patient_name) inputName.value = appt.patient_name;
+        if (inputPhone) inputPhone.value = (phoneInput ? phoneInput.value : '') || appt.patient_whatsapp || appt.whatsapp_phone || '';
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
 

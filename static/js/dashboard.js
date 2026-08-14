@@ -317,56 +317,6 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }).join('');
 
-    // Listener para cancelar cita desde dashboard
-    document.querySelectorAll('.btn-trigger-cancel').forEach(btn => {
-      btn.addEventListener('click', () => {
-        activeCancelToken = btn.getAttribute('data-token');
-        const pName = btn.getAttribute('data-patient');
-        const pDate = btn.getAttribute('data-date');
-
-        const infoEl = document.getElementById('cancel-modal-info');
-        if (infoEl) {
-          infoEl.innerText = `¿Confirma la cancelación del turno de ${pName} para el ${pDate}? El horario quedará libre de inmediato en la web de reservas.`;
-        }
-        if (cancelModal) cancelModal.classList.remove('hidden');
-      });
-    });
-  }
-
-  // 10. Confirmación de Cancelación desde Modal
-  if (btnModalClose) {
-    btnModalClose.addEventListener('click', () => {
-      if (cancelModal) cancelModal.classList.add('hidden');
-      activeCancelToken = null;
-    });
-  }
-
-  if (btnModalConfirmCancel) {
-    btnModalConfirmCancel.addEventListener('click', async () => {
-      if (!activeCancelToken) return;
-
-      try {
-        btnModalConfirmCancel.innerText = 'Liberando horario...';
-        btnModalConfirmCancel.disabled = true;
-
-        const res = await fetch(`/api/v1/booking/cancel/${activeCancelToken}`, { method: 'POST' });
-        const result = await res.json();
-
-        if (result.success) {
-          showToast('Turno cancelado y horario liberado exitosamente');
-          if (cancelModal) cancelModal.classList.add('hidden');
-          activeCancelToken = null;
-          fetchDashboardAppointments();
-        } else {
-          showToast(result.detail || 'Error al cancelar la cita', 'error');
-        }
-      } catch (e) {
-        showToast('Error al conectar con el servidor', 'error');
-      } finally {
-        btnModalConfirmCancel.innerText = 'Sí, Cancelar y Liberar Horario';
-        btnModalConfirmCancel.disabled = false;
-      }
-    });
   }
 
   // 11. Renderizar Logs de WhatsApp

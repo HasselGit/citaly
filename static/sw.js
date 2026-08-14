@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v17-remove-manual-liberar-btn';
+const CACHE_NAME = 'citaly-v18-autofill-reschedule-clean-copy';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
