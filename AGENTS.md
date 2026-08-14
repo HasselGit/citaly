@@ -1,23 +1,24 @@
-# AGENTS.md - Directrices del Sistema para Agentes de IA (Citaly)
+# AGENTS.md - Directrices del Sistema y Blueprint Estructural (Citaly)
 
-Este documento contiene las reglas de arquitectura, infraestructura, base de datos, UX/UI y flujos de trabajo necesarias para que cualquier Agente de IA pueda mantener, extender o reproducir este proyecto hasta este punto exacto sin introducir regresiones.
+Este documento contiene las reglas de arquitectura, infraestructura, base de datos, UX/UI, endpoints backend y flujos de trabajo necesarias para que cualquier Agente de IA pueda reproducir, mantener o extender este proyecto hasta el más mínimo detalle desde el principio sin introducir regresiones.
 
 ---
 
-## 🏛️ 1. Arquitectura de Infraestructura
+## 🏛️ 1. Arquitectura de Infraestructura y Despliegue
 
 ### Despliegue en Vercel (Serverless Free Tier)
+- **URL de Producción Única:** `https://citaly-six.vercel.app` (No crear proyectos adicionales en Vercel).
 - **Framework Backend:** FastAPI (Python 3.12/3.14).
-- **Regla Crítica de Serverless:** **JAMÁS** ejecutar llamadas síncronas o bloqueantes a la base de datos durante la importación de módulos (ej. `init_db()` o `Base.metadata.create_all()` en `main.py` o `session.py`). Las funciones serverless congelan y rompen la invocación con *timeouts* (exit status 500 / context canceled).
-- **Patrón de Conexión:** **Lazy Connection** vía `get_db()`. La conexión a la base de datos se realiza únicamente a nivel de *request*.
+- **Regla Crítica Serverless:** **JAMÁS** ejecutar llamadas síncronas o bloqueantes a la base de datos durante la importación de módulos (ej. `init_db()` o `Base.metadata.create_all()` en `main.py` o `session.py`). Las funciones serverless congelan y rompen la invocación con timeouts (`exit status 500 / context canceled`).
+- **Patrón de Conexión:** **Lazy Connection** vía `get_db()`. La conexión a PostgreSQL se realiza únicamente a nivel de request.
 
 ### Conexión a Base de Datos (Supabase PostgreSQL)
 - **Host del Session Pooler:** `aws-1-us-west-2.pooler.supabase.com` en puerto `5432`.
 - **Formato de URL obligatorio:**  
-  `postgresql://postgres.[PROJECT_ID]:[PASSWORD]@aws-1-us-west-2.pooler.supabase.com:5432/postgres`
+  `postgresql://postgres.edkmkcxdtzygjjgvxgcq:ykDPIL5oyii2RT2w@aws-1-us-west-2.pooler.supabase.com:5432/postgres`
 - **¿Por qué Session Pooler IPv4?** Vercel Serverless (Hobby Tier) **NO soporta IPv6** para llamadas salientes. El host directo (`db.[PROJECT_ID].supabase.co`) resuelve a IPv6 y falla con `Cannot assign requested address`. El pooler en `aws-1` traduce IPv4 de Vercel a Supabase.
 - **NullPool mandatory:** `session.py` usa `poolclass=NullPool` para evitar agotar las conexiones de PostgreSQL en lambdas efímeras.
-- **SQLite Fallback:** **Prohibido en producción / Vercel**. `/tmp` en Vercel es efímero y borraría las citas guardadas entre invocaciones.
+- **SQLite Fallback:** **Prohibido en producción / Vercel**. `/tmp` en Vercel es efímero.
 
 ---
 
@@ -57,7 +58,7 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 - `patient_id` (VARCHAR 36, FK -> `patients.id`)
 - `start_time` (TIMESTAMP, INDEX)
 - `end_time` (TIMESTAMP)
-- `status` (VARCHAR 20) — (`SCHEDULED`, `CONFIRMED`, `CANCELLED`, `COMPLETED`)
+- `status` (VARCHAR 20) — (`SCHEDULED`, `CONFIRMED`, `REMINDER_SENT`, `CANCELLED`, `COMPLETED`)
 - `token_cancellation` (VARCHAR 64, UNIQUE, INDEX)
 - `created_at` (TIMESTAMP)
 
@@ -71,17 +72,30 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 
 ---
 
-## 🎨 3. Reglas de UX/UI y Frontend (PWA)
+## 🎨 3. Reglas de UX/UI y Frontend (PWA & Dashboard)
 
+### Frontend Paciente (PWA)
 1. **Patrón Colapsable de Tarjetas de Tratamiento:**
    - Al seleccionar un tratamiento en `index.html`, la tarjeta seleccionada colapsa/resume su vista para dar espacio al calendario y slots de horarios. **NO eliminar esta funcionalidad.**
-2. **Acceso al Dashboard:**
+2. **Reserva y Reprogramación Atómica:**
+   - Al reprogramar (`reschedule_from_token` o `reschedule_from_id`), la cita anterior pasa automáticamente a `status = 'CANCELLED'` en PostgreSQL, liberando de inmediato el horario viejo para otros pacientes.
+   - Autocompletado de datos: Al reprogramar, el sistema pre-carga automáticamente `patient_name` y `patient_whatsapp` en el formulario para que el usuario no deba reescribirlos.
+3. **Consulta de Turnos por Celular (`.active-appt-card`):**
+   - Diseño claro, médico e intuitivo: Tarjeta `#FFFFFF`, borde superior `#D97706`, badge `#FEF3C7`, filas `#F8FAFC`, enlace directo a WhatsApp `https://wa.me/...`, botón rojo suave de cancelación y botón dorado de reprogramación.
+4. **Mensaje de Cancelación:**
+   - Formato obligatorio: `Tu turno del DD/MM a las HH:MM hs fue cancelado. ¡Gracias por avisarnos!`.
+
+### Dashboard Ejecutivo (`/dashboard`)
+1. **Estética Executive Precision (Stitch MCP):**
+   - Paleta: Titanium Navy (`#0F172A`), Ámbar Dorado (`#D97706`), Soft Off-White (`#F8FAFC`), Esmeralda (`#10B981`).
+   - Tipografía: `Hanken Grotesk` (títulos), `JetBrains Mono` (horarios/badgets), `Work Sans` (cuerpo).
+2. **Acceso Restringido:**
    - El cliente/paciente **JAMÁS** debe tener enlace o acceso al `/dashboard`. El dashboard es exclusivo del profesional/doctor.
-3. **Manejo de Errores e Indicadores de Carga:**
-   - Los errores de conexión o reserva deben mostrarse dentro del banner `#modal-error-banner` de la tarjeta/modal con un diseño premium glassmorphism.
-   - El botón de confirmación usa una animación sutil de barrido sin entorpecer el flujo.
-4. **Reserva Atómica e Instantánea:**
-   - El cálculo de solapamientos se realiza en `app/services/booking.py`. Si un turno se reserva, automáticamente el horario pasa a `is_available: false`.
+3. **Soporte Dual de Vistas:**
+   - **Vista Tarjetas:** Módulos estilo Apple Health / Wallet optimizados para móviles y escritorio.
+   - **Vista Tabla:** Tabla ejecutiva de alta densidad con columnas completas (`Paciente`, `Tratamiento`, `Fecha y Horario`, `Duración`, `Estado WhatsApp`).
+4. **Gestión 100% Automatizada:**
+   - Prohibido agregar botones manuales de "Liberar" o "Cancelar" en las tarjetas del Dashboard. La liberación es totalmente automática por el sistema.
 
 ---
 
