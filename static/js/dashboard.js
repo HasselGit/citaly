@@ -334,54 +334,58 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Modo Vista Tarjetas
+    // Modo Vista Tarjetas (Estilo Ejecutivo Apple Health / Wallet)
     agendaContainer.innerHTML = filtered.map(a => {
       let statusBadge = '';
-      let borderClass = 'border-slate-300 bg-slate-50/60';
+      let borderClass = 'border-l-slate-900';
 
       if (a.status === 'SCHEDULED' || a.status === 'CONFIRMED') {
-        statusBadge = `<span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-lg flex items-center gap-1 font-mono">🟢 Confirmado</span>`;
-        borderClass = 'border-emerald-500 bg-emerald-50/40';
+        statusBadge = `<span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 text-[11px] font-bold rounded-full font-mono inline-flex items-center gap-1 shadow-xs">🟢 Confirmado</span>`;
+        borderClass = 'border-l-emerald-500';
       } else if (a.status === 'REMINDER_SENT') {
-        statusBadge = `<span class="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-lg flex items-center gap-1 font-mono">🟡 Recordatorio Enviado</span>`;
-        borderClass = 'border-amber-500 bg-amber-50/40';
+        statusBadge = `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-[11px] font-bold rounded-full font-mono inline-flex items-center gap-1 shadow-xs">🟡 Recordatorio</span>`;
+        borderClass = 'border-l-amber-500';
       } else if (a.status === 'CANCELLED') {
-        statusBadge = `<span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-lg flex items-center gap-1 font-mono">🔴 Cancelado / Liberado</span>`;
-        borderClass = 'border-red-400 bg-red-50/40 opacity-75';
+        statusBadge = `<span class="px-2.5 py-1 bg-red-100 text-red-800 text-[11px] font-bold rounded-full font-mono inline-flex items-center gap-1 shadow-xs">🔴 Cancelado</span>`;
+        borderClass = 'border-l-red-400 opacity-80';
       }
 
-      // Iniciales avatar
       const initials = (a.patient_name || 'P').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
       
-      // Formatear fecha bonita
       let formattedDate = a.start_time ? a.start_time.split('T')[0] : '';
       if (formattedDate) {
         const parts = formattedDate.split('-');
         if (parts.length === 3) formattedDate = `${parts[2]}/${parts[1]}`;
       }
 
+      const cleanPhone = (a.patient_whatsapp || '').replace(/\D/g, '');
+
       return `
-        <div class="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-xl border-l-4 ${borderClass} transition-all hover:translate-x-1 bg-white shadow-sm">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-extrabold text-xs font-display flex-shrink-0">
-              ${initials}
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="font-extrabold text-slate-900 text-sm font-display">${a.patient_name || 'Paciente'}</span>
-                <span class="text-xs font-semibold text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-md font-mono">${a.service_name || 'Especialidad'}</span>
+        <div class="glass-card rounded-2xl p-4 md:p-5 border-l-4 ${borderClass} transition-all hover:shadow-md bg-white">
+          <div class="flex items-center justify-between gap-3 mb-3 pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-3 overflow-hidden">
+              <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-extrabold text-xs font-mono shadow-sm flex-shrink-0">
+                ${initials}
               </div>
-              <div class="flex items-center gap-3 text-xs text-slate-500 mt-1 font-mono">
-                <span>📱 ${a.patient_whatsapp || 'Sin Celular'}</span>
-                <span>⏱ ${a.duration_minutes || 30} min</span>
+              <div class="overflow-hidden">
+                <h4 class="font-extrabold text-slate-900 text-sm font-display leading-tight truncate">${a.patient_name || 'Paciente'}</h4>
+                ${cleanPhone ? `
+                  <a href="https://wa.me/${cleanPhone}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 hover:underline font-mono mt-0.5">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    <span>${a.patient_whatsapp}</span>
+                  </a>
+                ` : `<span class="text-[11px] text-slate-400 font-mono">Sin celular</span>`}
               </div>
             </div>
+            <div class="flex-shrink-0">${statusBadge}</div>
           </div>
 
-          <div class="sm:ml-auto flex items-center gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-            <div class="text-right">
-              <div class="text-xs font-extrabold text-slate-900 font-mono">📅 ${formattedDate} — ⏰ ${a.time_str || '10:00'} hs</div>
-              <div class="mt-1">${statusBadge}</div>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="px-2.5 py-1 bg-amber-50 text-amber-900 border border-amber-200/80 rounded-lg font-bold text-[11px] font-mono">
+              ${a.service_name || 'Especialidad'} (${a.duration_minutes || 30} min)
+            </span>
+            <div class="px-3 py-1 bg-slate-900 text-white rounded-lg font-mono text-[11px] font-bold shadow-sm">
+              📅 ${formattedDate} • ⏰ ${a.time_str || '10:00'} hs
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v20-active-card-redesign-table-view';
+const CACHE_NAME = 'citaly-v21-mobile-executive-reservas-overhaul';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
