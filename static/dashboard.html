@@ -286,18 +286,32 @@
       <!-- ================= PESTAÑA 2: DESGLOSE DE RESERVAS ================= -->
       <div id="view-reservas" class="tab-content-anim" style="display: none;">
         
-        <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <h2 class="text-2xl md:text-3xl font-extrabold text-primary tracking-tight mb-1 font-display">Desglose Detallado de Turnos</h2>
-            <p class="text-xs md:text-sm text-slate-500">Revisa qué turnos están ocupados, qué tratamiento solicitó cada paciente y gestiona la liberación de horarios.</p>
+            <p class="text-xs md:text-sm text-slate-500">Consulta los turnos agendados por paciente, fecha, especialidad y estado de confirmación.</p>
           </div>
 
-          <!-- Filtros Día / Semana / Mes / Todos -->
-          <div class="flex items-center gap-1.5 bg-slate-200/80 p-1.5 rounded-xl border border-slate-300 self-start">
-            <button id="filter-all" class="filter-time-btn px-3.5 py-1.5 bg-primary text-white text-xs font-bold rounded-lg transition-all shadow-sm">Todos</button>
-            <button id="filter-day" class="filter-time-btn px-3.5 py-1.5 bg-white text-slate-700 hover:bg-slate-100 text-xs font-bold rounded-lg transition-all">Hoy</button>
-            <button id="filter-week" class="filter-time-btn px-3.5 py-1.5 bg-white text-slate-700 hover:bg-slate-100 text-xs font-bold rounded-lg transition-all">Esta Semana</button>
-            <button id="filter-month" class="filter-time-btn px-3.5 py-1.5 bg-white text-slate-700 hover:bg-slate-100 text-xs font-bold rounded-lg transition-all">Este Mes</button>
+          <div class="flex flex-wrap items-center gap-3 self-start lg:self-auto">
+            <!-- Selector de Modo de Vista: Tarjetas vs Tabla -->
+            <div class="flex items-center bg-slate-200/80 p-1 rounded-xl border border-slate-300 font-mono text-xs font-bold">
+              <button id="btn-view-cards" class="view-toggle-btn px-3 py-1.5 bg-primary text-white rounded-lg transition-all shadow-sm flex items-center gap-1.5">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                <span>Tarjetas</span>
+              </button>
+              <button id="btn-view-table" class="view-toggle-btn px-3 py-1.5 text-slate-700 hover:bg-slate-100 rounded-lg transition-all flex items-center gap-1.5">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                <span>Tabla</span>
+              </button>
+            </div>
+
+            <!-- Filtros Día / Semana / Mes / Todos -->
+            <div class="flex items-center gap-1 bg-slate-200/80 p-1 rounded-xl border border-slate-300 font-mono text-xs font-bold">
+              <button id="filter-all" class="filter-time-btn px-3 py-1.5 bg-primary text-white rounded-lg transition-all shadow-sm">Todos</button>
+              <button id="filter-day" class="filter-time-btn px-3 py-1.5 bg-white text-slate-700 hover:bg-slate-100 rounded-lg transition-all">Hoy</button>
+              <button id="filter-week" class="filter-time-btn px-3 py-1.5 bg-white text-slate-700 hover:bg-slate-100 rounded-lg transition-all">Esta Semana</button>
+              <button id="filter-month" class="filter-time-btn px-3 py-1.5 bg-white text-slate-700 hover:bg-slate-100 rounded-lg transition-all">Este Mes</button>
+            </div>
           </div>
         </div>
 
@@ -309,27 +323,27 @@
           </div>
         </div>
 
-        <!-- Filtro por Especialidad Dinámico -->
+        <!-- Filtro por Especialidad Dinámico con Wrap Visible -->
         <div class="glass-card rounded-2xl p-4 mb-6">
-          <span class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 font-mono">Filtrar por Tratamiento / Especialidad:</span>
-          <div class="flex items-center gap-2 overflow-x-auto pb-1.5" id="specialty-pills-container">
-            <button data-specialty="all" class="specialty-pill-btn px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl transition-all shadow-sm whitespace-nowrap">
+          <span class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2.5 font-mono">Filtrar por Tratamiento / Especialidad:</span>
+          <div class="flex flex-wrap items-center gap-2" id="specialty-pills-container">
+            <button data-specialty="all" class="specialty-pill-btn px-3.5 py-1.5 bg-primary text-white text-xs font-bold rounded-xl transition-all shadow-sm">
               Ver Todos
             </button>
-            <button data-specialty="Consulta General" class="specialty-pill-btn px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-all whitespace-nowrap">
-              Consulta General (30 min)
+            <button data-specialty="Consulta General" class="specialty-pill-btn px-3.5 py-1.5 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-all">
+              Consulta General
             </button>
-            <button data-specialty="Ortodoncia / Control" class="specialty-pill-btn px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-all whitespace-nowrap">
-              Ortodoncia / Control (2 hs)
+            <button data-specialty="Ortodoncia / Control" class="specialty-pill-btn px-3.5 py-1.5 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-all">
+              Ortodoncia / Control
             </button>
-            <button data-specialty="Limpieza & Blanqueamiento" class="specialty-pill-btn px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-all whitespace-nowrap">
-              Limpieza & Blanqueamiento (45 min)
+            <button data-specialty="Limpieza & Blanqueamiento" class="specialty-pill-btn px-3.5 py-1.5 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-all">
+              Limpieza & Blanqueamiento
             </button>
-            <button data-specialty="Implante Dental & Cirugía" class="specialty-pill-btn px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-all whitespace-nowrap">
-              Implante Dental & Cirugía (1.5 hs)
+            <button data-specialty="Implante Dental & Cirugía" class="specialty-pill-btn px-3.5 py-1.5 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-all">
+              Implante Dental & Cirugía
             </button>
-            <button data-specialty="Endodoncia / Conducto" class="specialty-pill-btn px-4 py-2 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-all whitespace-nowrap">
-              Endodoncia / Conducto (1 hs)
+            <button data-specialty="Endodoncia / Conducto" class="specialty-pill-btn px-3.5 py-1.5 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-all">
+              Endodoncia / Conducto
             </button>
           </div>
         </div>

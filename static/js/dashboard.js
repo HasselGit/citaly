@@ -230,6 +230,8 @@ document.addEventListener('DOMContentLoaded', () => {
     return items;
   }
 
+  let currentViewMode = 'cards'; // 'cards' | 'table'
+
   // 9. Renderizar Desglose de Turnos (Vista Reservas)
   function renderAgenda() {
     if (!agendaContainer) return;
@@ -264,6 +266,75 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Modo Vista Tabla
+    if (currentViewMode === 'table') {
+      agendaContainer.innerHTML = `
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse font-sans text-xs">
+            <thead>
+              <tr class="bg-slate-900 text-white font-mono text-[11px] uppercase tracking-wider">
+                <th class="py-3 px-4 rounded-l-xl">Paciente</th>
+                <th class="py-3 px-4">Tratamiento / Especialidad</th>
+                <th class="py-3 px-4">Fecha y Horario</th>
+                <th class="py-3 px-4">Duración</th>
+                <th class="py-3 px-4 rounded-r-xl">Estado WhatsApp</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              ${filtered.map(a => {
+                let statusBadge = '';
+                if (a.status === 'SCHEDULED' || a.status === 'CONFIRMED') {
+                  statusBadge = `<span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 font-bold rounded-full font-mono text-[11px]">🟢 Confirmado</span>`;
+                } else if (a.status === 'REMINDER_SENT') {
+                  statusBadge = `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 font-bold rounded-full font-mono text-[11px]">🟡 Recordatorio Enviado</span>`;
+                } else if (a.status === 'CANCELLED') {
+                  statusBadge = `<span class="px-2.5 py-1 bg-red-100 text-red-800 font-bold rounded-full font-mono text-[11px]">🔴 Cancelado / Liberado</span>`;
+                }
+
+                let formattedDate = a.start_time ? a.start_time.split('T')[0] : '';
+                if (formattedDate) {
+                  const parts = formattedDate.split('-');
+                  if (parts.length === 3) formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                }
+
+                const initials = (a.patient_name || 'P').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+                return `
+                  <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="py-3.5 px-4 font-bold text-slate-900">
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center text-[10px] font-extrabold font-mono flex-shrink-0">
+                          ${initials}
+                        </div>
+                        <div>
+                          <div class="font-extrabold text-slate-900">${a.patient_name || 'Paciente'}</div>
+                          <div class="text-[11px] text-slate-400 font-normal font-mono">📱 ${a.patient_whatsapp || 'Sin Celular'}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="py-3.5 px-4">
+                      <span class="px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg font-bold text-[11px] font-mono">${a.service_name || 'Especialidad'}</span>
+                    </td>
+                    <td class="py-3.5 px-4 font-mono font-bold text-slate-800">
+                      📅 ${formattedDate} — ⏰ ${a.time_str || '10:00'} hs
+                    </td>
+                    <td class="py-3.5 px-4 font-mono text-slate-500">
+                      ⏱ ${a.duration_minutes || 30} min
+                    </td>
+                    <td class="py-3.5 px-4">
+                      ${statusBadge}
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+      return;
+    }
+
+    // Modo Vista Tarjetas
     agendaContainer.innerHTML = filtered.map(a => {
       let statusBadge = '';
       let borderClass = 'border-slate-300 bg-slate-50/60';
@@ -387,8 +458,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 13. Listeners de Filtros
+  // 13. Listeners de Filtros y Modo de Vista
   if (searchInput) searchInput.addEventListener('input', renderAgenda);
+
+  const btnViewCards = document.getElementById('btn-view-cards');
+  const btnViewTable = document.getElementById('btn-view-table');
+
+  if (btnViewCards && btnViewTable) {
+    btnViewCards.addEventListener('click', () => {
+      currentViewMode = 'cards';
+      btnViewCards.classList.add('bg-primary', 'text-white');
+      btnViewCards.classList.remove('text-slate-700');
+      btnViewTable.classList.remove('bg-primary', 'text-white');
+      btnViewTable.classList.add('text-slate-700');
+      renderAgenda();
+    });
+
+    btnViewTable.addEventListener('click', () => {
+      currentViewMode = 'table';
+      btnViewTable.classList.add('bg-primary', 'text-white');
+      btnViewTable.classList.remove('text-slate-700');
+      btnViewCards.classList.remove('bg-primary', 'text-white');
+      btnViewCards.classList.add('text-slate-700');
+      renderAgenda();
+    });
+  }
 
   const timeFilterBtns = [
     { btn: filterAllBtn, key: 'all' },

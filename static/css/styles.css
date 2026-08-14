@@ -715,12 +715,13 @@ h1, h2, h3, h4, .font-display {
 
 /* ─── Active Appointment Card ─── */
 .active-appt-card {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.97) 0%, rgba(30, 41, 59, 0.97) 100%);
+  background: #FFFFFF;
   border-radius: var(--radius-lg);
   padding: 20px 18px;
   margin-bottom: 16px;
-  border: 1.5px solid rgba(217, 119, 6, 0.35);
-  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.20), 0 0 0 1px rgba(217,119,6,0.10);
+  border: 1.5px solid rgba(226, 232, 240, 0.9);
+  border-top: 4px solid #D97706;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
   animation: slideDownFade 0.3s ease;
 }
 
@@ -728,23 +729,27 @@ h1, h2, h3, h4, .font-display {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .active-appt-badge {
   font-family: 'Hanken Grotesk', sans-serif;
   font-size: 11px;
   font-weight: 800;
-  color: var(--secondary-amber);
+  color: #B45309;
+  background: #FEF3C7;
+  padding: 4px 10px;
+  border-radius: 9999px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(217, 119, 6, 0.2);
 }
 
 .active-appt-patient-name {
   font-family: 'Hanken Grotesk', sans-serif;
   font-size: 14px;
   font-weight: 700;
-  color: rgba(255,255,255,0.7);
+  color: #0F172A;
 }
 
 .active-appt-body {
@@ -758,17 +763,17 @@ h1, h2, h3, h4, .font-display {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 9px 12px;
-  background: rgba(255,255,255,0.06);
+  padding: 10px 14px;
+  background: #F8FAFC;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid #E2E8F0;
 }
 
 .active-appt-label {
   font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
-  color: rgba(255,255,255,0.45);
+  color: #64748B;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -776,8 +781,8 @@ h1, h2, h3, h4, .font-display {
 .active-appt-value {
   font-family: 'Hanken Grotesk', sans-serif;
   font-size: 13.5px;
-  font-weight: 700;
-  color: #FFFFFF;
+  font-weight: 800;
+  color: #0F172A;
   text-align: right;
 }
 
@@ -788,26 +793,26 @@ h1, h2, h3, h4, .font-display {
 }
 
 .appt-btn-cancel {
-  padding: 13px 0;
-  background: rgba(220, 38, 38, 0.12);
-  color: #FCA5A5;
+  padding: 12px 0;
+  background: #FEF2F2;
+  color: #DC2626;
   font-family: 'Hanken Grotesk', sans-serif;
   font-size: 13px;
   font-weight: 800;
-  border: 1.5px solid rgba(220, 38, 38, 0.30);
+  border: 1.5px solid #FCA5A5;
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .appt-btn-cancel:hover {
-  background: rgba(220, 38, 38, 0.22);
-  border-color: rgba(220, 38, 38, 0.50);
+  background: #FEE2E2;
+  border-color: #EF4444;
 }
 
 .appt-btn-reschedule {
-  padding: 13px 0;
-  background: var(--secondary-amber);
+  padding: 12px 0;
+  background: #D97706;
   color: #FFFFFF;
   font-family: 'Hanken Grotesk', sans-serif;
   font-size: 13px;
@@ -816,6 +821,7 @@ h1, h2, h3, h4, .font-display {
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
 }
 
 .appt-btn-reschedule:hover {

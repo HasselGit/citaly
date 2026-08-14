@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v19-stitch-executive-dashboard';
+const CACHE_NAME = 'citaly-v20-active-card-redesign-table-view';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
