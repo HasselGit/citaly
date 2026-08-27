@@ -15,9 +15,10 @@ class Settings(BaseSettings):
     SUPABASE_PROJECT_ID: str = os.getenv("SUPABASE_PROJECT_ID", "")
     
     # WhatsApp Meta Cloud API
-    WHATSAPP_TOKEN: str = os.getenv("WHATSAPP_TOKEN", "")
-    WHATSAPP_PHONE_NUMBER_ID: str = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "")
-    WHATSAPP_VERIFY_TOKEN: str = os.getenv("WHATSAPP_VERIFY_TOKEN", "citaly_verify_token")
+    WHATSAPP_TOKEN: str = os.getenv("WHATSAPP_TOKEN", os.getenv("WHATSAPP_ACCESS_TOKEN", ""))
+    WHATSAPP_PHONE_NUMBER_ID: str = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "1234817073057013")
+    WABA_ID: str = os.getenv("WABA_ID", "1006525879102174")
+    WHATSAPP_VERIFY_TOKEN: str = os.getenv("WHATSAPP_VERIFY_TOKEN", "citaly_verify_token_2026")
 
     class Config:
         case_sensitive = True

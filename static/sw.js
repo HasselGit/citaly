@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v21-mobile-executive-reservas-overhaul';
+const CACHE_NAME = 'citaly-v22-meta-credentials-setup';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
