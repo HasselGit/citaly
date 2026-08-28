@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v23-permanent-meta-token-connected';
+const CACHE_NAME = 'citaly-v24-meta-cloud-api-workflow-integrated';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

@@ -14,6 +14,7 @@ from app.models.patient import Patient
 from app.models.appointment import Appointment
 from app.models.whatsapp_log import WhatsAppLog
 from app.services.booking import calculate_available_slots
+from app.services.whatsapp import whatsapp_service
 
 router = APIRouter(prefix="/api/v1/booking", tags=["Booking"])
 
@@ -161,7 +162,7 @@ def get_availability(
     }
 
 @router.post("/appointments")
-def create_appointment(
+async def create_appointment(
     payload: AppointmentCreateRequest,
     request: Request,
     db: Session = Depends(get_db)
@@ -248,18 +249,46 @@ def create_appointment(
         db.commit()
         db.refresh(appointment)
 
-        # 5. Registrar log de WhatsApp inicial
+        # 5. Enviar mensaje de WhatsApp vía Meta Cloud API
+        start_time_str = appointment.start_time.strftime('%d/%m a las %H:%M hs')
+        reschedule_url = f"https://citaly-six.vercel.app/r/{token_cancel}"
+
+        if was_rescheduled:
+            wa_text = (
+                f"Hola {patient.full_name}, te confirmamos que tu turno en {tenant.business_name} "
+                f"para {service.name} fue REPROGRAMADO con éxito para el {start_time_str}.\n\n"
+                f"Si deseás cambiar la fecha u hora nuevamente o cancelar, hacelo aquí: {reschedule_url}"
+            )
+        else:
+            wa_text = (
+                f"Hola {patient.full_name}, te confirmamos tu turno en {tenant.business_name} "
+                f"para el tratamiento de {service.name} el día {start_time_str}.\n\n"
+                f"Si no podés asistir, respondé CANCELAR a este mensaje.\n"
+                f"Si deseás cambiar fecha u hora, reprogramá tu cita aquí: {reschedule_url}"
+            )
+
+        meta_result = await whatsapp_service.send_text_message(
+            to_phone=patient.whatsapp_phone,
+            text_body=wa_text
+        )
+
+        meta_msg_id = None
+        if isinstance(meta_result, dict) and "messages" in meta_result and len(meta_result["messages"]) > 0:
+            meta_msg_id = meta_result["messages"][0].get("id")
+
+        # 6. Registrar log de WhatsApp inicial en base de datos
         wa_log = WhatsAppLog(
             id=str(uuid.uuid4()),
             appointment_id=appointment.id,
             message_type="RESCHEDULE_CONFIRM" if was_rescheduled else "CONFIRMATION",
-            status="SENT"
+            status="SENT" if meta_result.get("status") != "ERROR" else "FAILED",
+            meta_message_id=meta_msg_id
         )
         db.add(wa_log)
         db.commit()
 
         msg_title = "¡Turno Reprogramado con Éxito!" if was_rescheduled else "¡Turno Agendado con Éxito!"
-        msg_body = f"Tu nuevo turno para {service.name} fue registrado para el {appointment.start_time.strftime('%d/%m a las %H:%M hs')}." if was_rescheduled else f"Tu turno para {service.name} fue registrado para el {appointment.start_time.strftime('%d/%m a las %H:%M hs')}."
+        msg_body = f"Tu nuevo turno para {service.name} fue registrado para el {start_time_str}." if was_rescheduled else f"Tu turno para {service.name} fue registrado para el {start_time_str}."
 
         return {
             "success": True,
@@ -272,7 +301,8 @@ def create_appointment(
             "was_rescheduled": was_rescheduled,
             "message_title": msg_title,
             "message_body": msg_body,
-            "whatsapp_preview": f"✅ {msg_title} - {tenant.business_name} para {service.name if service else 'Consulta'}: {appointment.start_time.strftime('%d/%m a las %H:%M hs')}."
+            "whatsapp_status": meta_result.get("status", "SENT"),
+            "whatsapp_preview": wa_text
         }
     except Exception as e:
         db.rollback()
