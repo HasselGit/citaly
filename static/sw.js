@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v27-meta-fallback-template';
+const CACHE_NAME = 'citaly-v28-template-fix-sandbox';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
