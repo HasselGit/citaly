@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v22-meta-credentials-setup';
+const CACHE_NAME = 'citaly-v23-permanent-meta-token-connected';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
