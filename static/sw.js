@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v24-meta-cloud-api-workflow-integrated';
+const CACHE_NAME = 'citaly-v25-e164-whatsapp-formatting';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

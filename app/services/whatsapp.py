@@ -1,4 +1,5 @@
 import httpx
+import re
 from typing import Dict, Any, Optional
 from app.core.config import settings
 
@@ -19,8 +20,16 @@ class WhatsAppService:
         Envía un mensaje de plantilla oficial usando Meta Cloud API Graph v18.0+.
         Si las credenciales no están configuradas en .env, entra en modo SIMULACIÓN.
         """
-        # Limpiar formato de teléfono
-        clean_phone = to_phone.replace("+", "").replace(" ", "").replace("-", "")
+        # Limpiar y normalizar formato de teléfono a E.164
+        digits = re.sub(r'\D', '', to_phone or '')
+        if len(digits) == 10:
+            clean_phone = f"549{digits}"
+        elif len(digits) == 11 and digits.startswith("9"):
+            clean_phone = f"54{digits}"
+        elif len(digits) == 11 and digits.startswith("0"):
+            clean_phone = f"549{digits[1:]}"
+        else:
+            clean_phone = digits
 
         # Si no hay token de Meta configurado en desarrollo, simulamos el envío exitoso
         if not self.token or not self.phone_number_id or self.token == "YOUR_META_WHATSAPP_API_TOKEN":
@@ -69,7 +78,15 @@ class WhatsAppService:
         """
         Envía un mensaje de texto directo usando Meta Cloud API Graph v18.0+.
         """
-        clean_phone = to_phone.replace("+", "").replace(" ", "").replace("-", "")
+        digits = re.sub(r'\D', '', to_phone or '')
+        if len(digits) == 10:
+            clean_phone = f"549{digits}"
+        elif len(digits) == 11 and digits.startswith("9"):
+            clean_phone = f"54{digits}"
+        elif len(digits) == 11 and digits.startswith("0"):
+            clean_phone = f"549{digits[1:]}"
+        else:
+            clean_phone = digits
 
         if not self.token or not self.phone_number_id or self.token == "YOUR_META_WHATSAPP_API_TOKEN":
             print(f"[SIMULACIÓN WHATSAPP TEXTO] a {clean_phone}: '{text_body}'")
