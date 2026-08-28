@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v26-patient-name-update-and-e164';
+const CACHE_NAME = 'citaly-v27-meta-fallback-template';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

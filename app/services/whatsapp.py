@@ -123,4 +123,15 @@ class WhatsAppService:
                     "details": response.text
                 }
 
+    async def send_confirmation_or_template(self, to_phone: str, text_body: str) -> Dict[str, Any]:
+        """
+        Intenta enviar el mensaje de texto formateado. Si Meta requiere plantilla por ventana de 24h,
+        hace fallback automático a la plantilla 'hello_world'.
+        """
+        res = await self.send_text_message(to_phone, text_body)
+        if res.get("status") == "ERROR" and "131047" in str(res.get("details", "")):
+            print("[WHATSAPP FALLBACK] Ventana de 24h de Meta. Enviando plantilla 'hello_world'...")
+            res = await self.send_template_message(to_phone, "hello_world", "en_US")
+        return res
+
 whatsapp_service = WhatsAppService()
