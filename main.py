@@ -59,6 +59,46 @@ def health_check(request: Request, db: Session = Depends(get_db)):
         "database": "connected"
     }
 
+@app.get("/api/debug-whatsapp")
+async def debug_whatsapp():
+    """Diagnóstico temporal: verifica token y envía hello_world a número de prueba."""
+    import httpx, re
+    token = settings.WHATSAPP_TOKEN
+    phone_id = settings.WHATSAPP_PHONE_NUMBER_ID
+    raw_phone = "1155769048"
+    digits = re.sub(r'\D', '', raw_phone)
+    clean_phone = f"549{digits}" if len(digits) == 10 else digits
+
+    token_preview = token[:20] + "..." if token else "VACIO"
+    has_token = bool(token and token != "YOUR_META_WHATSAPP_API_TOKEN")
+
+    result = {
+        "phone_number_id": phone_id,
+        "token_preview": token_preview,
+        "has_valid_token": has_token,
+        "clean_phone_to_send": clean_phone,
+        "meta_response": None
+    }
+
+    if has_token:
+        url = f"https://graph.facebook.com/v18.0/{phone_id}/messages"
+        headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+        payload = {
+            "messaging_product": "whatsapp",
+            "to": clean_phone,
+            "type": "template",
+            "template": {"name": "hello_world", "language": {"code": "en_US"}}
+        }
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(url, headers=headers, json=payload)
+            result["meta_response"] = {
+                "status_code": resp.status_code,
+                "body": resp.json() if resp.content else {}
+            }
+
+    return result
+
+
 @app.get("/r/{token}")
 def serve_cancel_page(token: str):
     from fastapi.responses import FileResponse
