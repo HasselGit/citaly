@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v25-e164-whatsapp-formatting';
+const CACHE_NAME = 'citaly-v26-patient-name-update-and-e164';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

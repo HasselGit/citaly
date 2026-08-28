@@ -208,11 +208,16 @@ async def create_appointment(
                 patient = p
                 break
 
-        if not patient:
+        if patient:
+            if payload.patient_full_name and payload.patient_full_name.strip() and payload.patient_full_name.strip() != patient.full_name:
+                patient.full_name = payload.patient_full_name.strip()
+                db.commit()
+                db.refresh(patient)
+        else:
             patient = Patient(
                 id=str(uuid.uuid4()),
                 tenant_id=tenant.id,
-                full_name=payload.patient_full_name,
+                full_name=payload.patient_full_name.strip(),
                 whatsapp_phone=payload.patient_whatsapp
             )
             db.add(patient)
