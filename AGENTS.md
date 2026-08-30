@@ -102,18 +102,20 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 
 ### Dashboard Ejecutivo (`/dashboard`)
 1. **Estética Minimalista High-End (Stitch MCP — TuTurno / Citaly Core):**
-   - Paleta: Titanium Navy (`#0F172A`), Fondo Soft Canvas (`#F8FAFC`), Tarjetas Blancas Puras (`#FFFFFF`), Bordes Hairline (`#E2E8F0`), Acentos Ámbar (`#D97706`) y Muted Slate (`#64748B`).
-   - Sin colores estridentes ni líneas punteadas; diseño limpio y profesional.
-   - Tipografía: `Montserrat` (títulos y display), `Inter` (cuerpo y labels), `JetBrains Mono` (fechas y números tabulares).
-2. **Módulo de Turnos Reprogramados (`#view-reprogramados`):**
-   - Pestaña dedicada y banner inteligente en Panel General.
-   - **Auto-expiración:** Solo muestra turnos reprogramados activos con fecha futura (`start_time >= now`). Se archivan automáticamente al cumplirse el turno.
-3. **Agenda de Turnos Diaria:**
+   - Paleta: Titanium Navy (`#0F172A`), Fondo Soft Canvas (`#F8FAFC`), Tarjetas Blancas Puras (`#FFFFFF`), Acentos Ámbar (`#D97706`) y Muted Slate (`#64748B`).
+   - Sin colores estridentes ni líneas divisorias duras en la barra superior, lateral o barra inferior móvil.
+   - Tipografía oficial unificada: `Montserrat` (títulos y display), `Inter` (cuerpo y labels), `JetBrains Mono` (fechas y números tabulares).
+2. **Resumen General:**
+   - Métricas Bento con selector de período (`Esta Semana` por defecto / `Este Mes`): `Turnos Totales`, `Cancelados`, `Reprogramados`, `Ocupación`.
+   - Módulo **Turnos de Hoy**: Subtítulo dinámico con fecha completa y tabla minimalista con filtro rápido por especialidad/tratamiento.
+   - Sección QR y link para pacientes integrada orgánicamente al fondo `#F8FAFC` sin marcos de tarjeta cerrados.
+3. **Agenda de Turnos & Vistas:**
    - Selector de días con botones limpios y conteo de turnos.
-   - Grilla minimalista:
-     - Horario Libre: Tarjeta `#FFFFFF`, borde sutil `#E2E8F0`, badge `Libre`.
-     - Horario Ocupado: Tarjeta `#F8FAFC`, badge `Ocupado`, nombre de paciente y tratamiento.
-4. **Pestañas Activas:** `Panel General`, `Turnos & Agenda`, `Reprogramados`. (WhatsApp Monitor eliminado por ser innecesario para la gestión diaria).
+   - Modos de vista: `Agenda Diaria` (grilla horaria), `Tarjetas` y `Tabla` con contraste nítido (`bg-navy text-white`).
+4. **Módulo de Turnos Reprogramados (`#view-reprogramados`):**
+   - Pestaña dedicada con auto-expiración de turnos cumplidos (`start_time >= now`).
+5. **Navegación Móvil:**
+   - BottomNavBar en `#F8FAFC` sin borde divisor superior y con íconos de escala 22px y trazo 2.3 para óptima visibilidad.
 
 ---
 
