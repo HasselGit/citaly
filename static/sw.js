@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v31-panel-reprog-banner';
+const CACHE_NAME = 'citaly-v32-clean-stitch-dashboard';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
