@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v30-dashboard-weekly-agenda';
+const CACHE_NAME = 'citaly-v31-panel-reprog-banner';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

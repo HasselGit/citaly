@@ -220,6 +220,28 @@
           </div>
         </div>
 
+        <!-- Banner Inteligente de Turnos Reprogramados -->
+        <div id="panel-reprogramados-alert" style="display: none;" class="mb-6 p-4 md:p-5 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border-2 border-amber-400/60 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-lg font-mono flex-shrink-0 shadow-sm">
+              🔄
+            </div>
+            <div>
+              <h4 class="text-sm font-extrabold text-slate-900 font-display flex items-center gap-2">
+                <span>Atención: Pacientes con Turno Reprogramado</span>
+                <span id="panel-alert-count-badge" class="px-2 py-0.5 bg-amber-200 text-amber-950 font-mono text-[10px] font-bold rounded-full">1 nuevo</span>
+              </h4>
+              <p id="panel-alert-summary-text" class="text-xs text-slate-600 font-sans mt-0.5">
+                Hay pacientes que cambiaron su turno original.
+              </p>
+            </div>
+          </div>
+          <button id="btn-goto-reprogramados" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold font-display rounded-xl transition-all shadow-sm flex items-center gap-2 whitespace-nowrap self-start sm:self-auto">
+            <span>Ver Turnos Reprogramados</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+
         <!-- Tarjetas de Métricas Reales Estilo Bento Premium -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 mb-6">
           

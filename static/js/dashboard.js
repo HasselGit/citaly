@@ -584,6 +584,30 @@ document.addEventListener('DOMContentLoaded', () => {
       mobileBadgeReprogramados.style.display = count > 0 ? 'block' : 'none';
     }
 
+    // Actualizar banner inteligente en Panel General
+    const panelAlert = document.getElementById('panel-reprogramados-alert');
+    const panelAlertBadge = document.getElementById('panel-alert-count-badge');
+    const panelAlertText = document.getElementById('panel-alert-summary-text');
+    const btnGotoReprog = document.getElementById('btn-goto-reprogramados');
+
+    if (panelAlert) {
+      if (count > 0) {
+        panelAlert.style.display = 'flex';
+        if (panelAlertBadge) panelAlertBadge.innerText = `${count} ${count === 1 ? 'nuevo' : 'nuevos'}`;
+        if (panelAlertText) {
+          const first = reprogramados[0];
+          panelAlertText.innerText = `${first.patient_name} reprogramó para el ${first.date_formatted} a las ${first.time_formatted} (${first.service_name}).`;
+        }
+      } else {
+        panelAlert.style.display = 'none';
+      }
+    }
+
+    if (btnGotoReprog && !btnGotoReprog._hasListener) {
+      btnGotoReprog._hasListener = true;
+      btnGotoReprog.addEventListener('click', () => showTab('reprogramados'));
+    }
+
     if (reprogramados.length === 0) {
       reprogramadosListContainer.innerHTML = `
         <div class="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
