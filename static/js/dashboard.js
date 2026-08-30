@@ -15,6 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const agendaCurrentDayTitle = document.getElementById('agenda-current-day-title');
   const agendaCurrentDayStats = document.getElementById('agenda-current-day-stats');
 
+  // Filtros de Disponibilidad en Agenda
+  const btnFilterAll = document.getElementById('btn-filter-all');
+  const btnFilterFree = document.getElementById('btn-filter-free');
+  const btnFilterOccupied = document.getElementById('btn-filter-occupied');
+
   const reprogramadosListContainer = document.getElementById('reprogramados-list-container');
   const reprogramadosCounterBadge = document.getElementById('reprogramados-counter-badge');
   const badgeCountReprogramados = document.getElementById('badge-count-reprogramados');
@@ -48,9 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Estado Local
   let allAppointments = [];
-  let currentMetricsPeriod = 'week'; // 'week' (default) | 'month'
-  let currentViewMode = 'agenda'; // 'agenda' (default) | 'cards' | 'table'
+  let currentMetricsPeriod = 'week'; // 'week' (7 días corridos) | 'month' (30 días corridos)
+  let currentViewMode = 'agenda'; // 'agenda' | 'cards' | 'table'
   let selectedTodaySpecialty = 'all';
+  let selectedAvailabilityFilter = 'all'; // 'all' | 'free' | 'occupied'
   let syncInterval = null;
   let selectedAgendaDate = new Date();
 
@@ -75,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${year}-${month}-${day}`;
   }
 
-  // 2. Toast System Minimalista (Sin líneas divisorias duras)
+  // 2. Toast System Minimalista
   function showToast(message) {
     if (!toastContainer) return;
     const toast = document.createElement('div');
@@ -370,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
     `).join('');
   }
 
-  // 9. Renderizar Grilla Diaria
+  // 9. Renderizar Grilla Diaria con Filtros de Disponibilidad
   function renderWeeklyAgenda() {
     if (!agendaDayPillsContainer || !agendaSlotsSheet) return;
 
@@ -439,10 +445,31 @@ document.addEventListener('DOMContentLoaded', () => {
       agendaCurrentDayStats.innerText = `${occupiedCount} ${occupiedCount === 1 ? 'turno agendado' : 'turnos agendados'} de ${defaultSlotsTimes.length} horarios`;
     }
 
-    // Grilla Horaria
-    agendaSlotsSheet.innerHTML = defaultSlotsTimes.map(timeSlot => {
+    // Filtrar Horarios según disponibilidad
+    let visibleSlots = defaultSlotsTimes.map(timeSlot => {
       const appt = dayAppointments.find(a => a.time_str === timeSlot);
+      return { timeSlot, appt };
+    });
 
+    if (selectedAvailabilityFilter === 'free') {
+      visibleSlots = visibleSlots.filter(s => !s.appt);
+    } else if (selectedAvailabilityFilter === 'occupied') {
+      visibleSlots = visibleSlots.filter(s => !!s.appt);
+    }
+
+    if (visibleSlots.length === 0) {
+      agendaSlotsSheet.innerHTML = `
+        <div class="col-span-full p-8 text-center bg-slate-50 rounded-xl border border-slate-200">
+          <p class="text-xs text-slate-500 font-sans">
+            No hay horarios ${selectedAvailabilityFilter === 'free' ? 'libres' : 'ocupados'} para este día.
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    // Grilla Horaria
+    agendaSlotsSheet.innerHTML = visibleSlots.map(({ timeSlot, appt }) => {
       if (appt) {
         const cleanPhone = (appt.patient_whatsapp || '').replace(/\D/g, '');
         return `
@@ -477,6 +504,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
+  // Listeners de Filtros de Disponibilidad
+  function setAvailabilityFilter(filter) {
+    selectedAvailabilityFilter = filter;
+    [btnFilterAll, btnFilterFree, btnFilterOccupied].forEach(b => {
+      if (b) {
+        b.className = 'px-2.5 py-1 text-slate-600 hover:bg-slate-200 rounded-lg transition-all font-semibold font-mono text-xs';
+      }
+    });
+
+    if (filter === 'all' && btnFilterAll) {
+      btnFilterAll.className = 'px-2.5 py-1 bg-navy text-white rounded-lg transition-all shadow-xs font-bold font-mono text-xs';
+    } else if (filter === 'free' && btnFilterFree) {
+      btnFilterFree.className = 'px-2.5 py-1 bg-navy text-white rounded-lg transition-all shadow-xs font-bold font-mono text-xs';
+    } else if (filter === 'occupied' && btnFilterOccupied) {
+      btnFilterOccupied.className = 'px-2.5 py-1 bg-navy text-white rounded-lg transition-all shadow-xs font-bold font-mono text-xs';
+    }
+
+    renderWeeklyAgenda();
+  }
+
+  if (btnFilterAll) btnFilterAll.addEventListener('click', () => setAvailabilityFilter('all'));
+  if (btnFilterFree) btnFilterFree.addEventListener('click', () => setAvailabilityFilter('free'));
+  if (btnFilterOccupied) btnFilterOccupied.addEventListener('click', () => setAvailabilityFilter('occupied'));
+
   // 10. Renderizar Turnos Reprogramados
   function renderReprogramados() {
     if (!reprogramadosListContainer) return;
@@ -496,7 +547,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (mobileBadgeReprogramados) {
-      mobileBadgeReprogramados.style.display = count > 0 ? 'block' : 'none';
+      if (count > 0) {
+        mobileBadgeReprogramados.innerText = count;
+        mobileBadgeReprogramados.style.display = 'flex';
+      } else {
+        mobileBadgeReprogramados.style.display = 'none';
+      }
     }
 
     if (reprogramados.length === 0) {
@@ -537,49 +593,71 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
-  // 11. Actualizar Métricas Bento (Semanales por Defecto / Mensuales Opcional)
+  // 11. Actualizar Métricas Bento (7 días corridos / 30 días con Ocupación Real de Agenda)
   function updateMetrics() {
     const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
     let periodAppointments = [];
+    let totalSlotsCapacity = 108; // 6 días de atención * 18 slots = 108 slots
 
     if (currentMetricsPeriod === 'week') {
-      const startOfWeek = new Date(now);
-      const dayOfWeek = now.getDay() || 7;
-      startOfWeek.setDate(now.getDate() - dayOfWeek + 1);
-      startOfWeek.setHours(0, 0, 0, 0);
-
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6);
-      endOfWeek.setHours(23, 59, 59, 999);
+      // 7 días corridos a partir de hoy (incluye días subsiguientes de la próxima semana)
+      const endOfRollingWeek = new Date(now);
+      endOfRollingWeek.setDate(now.getDate() + 6);
+      endOfRollingWeek.setHours(23, 59, 59, 999);
 
       periodAppointments = allAppointments.filter(a => {
         if (!a.start_time) return false;
         const d = new Date(a.start_time);
-        return d >= startOfWeek && d <= endOfWeek;
+        return d >= now && d <= endOfRollingWeek;
       });
+
+      totalSlotsCapacity = 6 * defaultSlotsTimes.length; // 108 slots
     } else {
-      // Mensual
-      const currentMonth = now.getMonth();
-      const currentYear = now.getFullYear();
+      // 30 días corridos a partir de hoy
+      const endOfRollingMonth = new Date(now);
+      endOfRollingMonth.setDate(now.getDate() + 29);
+      endOfRollingMonth.setHours(23, 59, 59, 999);
 
       periodAppointments = allAppointments.filter(a => {
         if (!a.start_time) return false;
         const d = new Date(a.start_time);
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        return d >= now && d <= endOfRollingMonth;
       });
+
+      totalSlotsCapacity = 26 * defaultSlotsTimes.length; // ~468 slots hábiles
     }
 
     const total = periodAppointments.length;
     const cancelados = periodAppointments.filter(a => a.status === 'CANCELLED').length;
-    const reprogramados = periodAppointments.filter(a => a.was_rescheduled && !a.is_past && a.status !== 'CANCELLED').length;
-    const activos = total - cancelados;
+    const activos = periodAppointments.filter(a => a.status !== 'CANCELLED').length;
+    
+    // Reprogramados activos en el período
+    const reprogramados = allAppointments.filter(a => {
+      if (!a.was_rescheduled || a.status === 'CANCELLED' || a.is_past) return false;
+      if (!a.start_time) return false;
+      const d = new Date(a.start_time);
+      if (currentMetricsPeriod === 'week') {
+        const endOfRollingWeek = new Date(now);
+        endOfRollingWeek.setDate(now.getDate() + 6);
+        endOfRollingWeek.setHours(23, 59, 59, 999);
+        return d >= now && d <= endOfRollingWeek;
+      } else {
+        const endOfRollingMonth = new Date(now);
+        endOfRollingMonth.setDate(now.getDate() + 29);
+        endOfRollingMonth.setHours(23, 59, 59, 999);
+        return d >= now && d <= endOfRollingMonth;
+      }
+    }).length;
 
     if (metricTotalTurnos) metricTotalTurnos.innerText = total;
     if (metricCanceladosCount) metricCanceladosCount.innerText = cancelados;
     if (metricReprogramadosCount) metricReprogramadosCount.innerText = reprogramados;
     
+    // Ocupación Real del Consultorio (Opción A): (Turnos Activos / Capacidad Total de Slots) * 100
     if (metricOcupacion) {
-      const rate = total > 0 ? Math.round((activos / total) * 100) : 100;
+      const rate = totalSlotsCapacity > 0 ? Math.round((activos / totalSlotsCapacity) * 100) : 0;
       metricOcupacion.innerText = `${rate}%`;
     }
   }
@@ -601,7 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 12. Listeners de Modo de Vista (Fix Robusto para Móvil & Desktop)
+  // 12. Listeners de Modo de Vista
   function setViewMode(mode) {
     currentViewMode = mode;
 
@@ -630,6 +708,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Inicializar
   setViewMode('agenda');
+  setAvailabilityFilter('all');
   fetchDashboardAppointments();
   startDashboardAutoSync();
 });
