@@ -272,12 +272,10 @@ async def create_appointment(
                 f"Si deseás cambiar fecha u hora, reprogramá tu cita aquí: {reschedule_url}"
             )
 
-        # Enviar plantilla oficial hello_world (requerido por Meta con número de prueba).
-        # Cuando tengamos número de producción aprobado, cambiar a send_text_message.
-        meta_result = await whatsapp_service.send_template_message(
+        # Enviar mensaje de texto personalizado con número de producción real.
+        meta_result = await whatsapp_service.send_text_message(
             to_phone=patient.whatsapp_phone,
-            template_name="hello_world",
-            language_code="en_US"
+            text_body=wa_text
         )
         print(f"[WHATSAPP META RESULT] {meta_result}")
 
