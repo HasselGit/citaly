@@ -693,28 +693,32 @@ document.addEventListener('DOMContentLoaded', () => {
       card.style.marginBottom = idx === apptsList.length - 1 ? '0px' : '16px';
       card.innerHTML = `
         <div class="active-appt-header">
-          <div class="active-appt-badge">● Turno Agendado ${apptsList.length > 1 ? `#${idx + 1}` : ''}</div>
-          <div class="active-appt-patient-name">${appt.patient_name}</div>
+          <div class="active-appt-title-group">
+            <span class="active-appt-service-name">${appt.service_name}</span>
+            <span class="active-appt-patient-name">Paciente: <strong>${appt.patient_name}</strong></span>
+          </div>
+          <div class="active-appt-badge"><span class="badge-dot"></span> Agendado</div>
         </div>
-        <div class="active-appt-body">
-          <div class="active-appt-row">
-            <span class="active-appt-label">Tratamiento</span>
-            <span class="active-appt-value">${appt.service_name}</span>
+        <div class="active-appt-datetime">
+          <div class="appt-datetime-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="18" y2="10"></line></svg>
+            <span>${appt.date_formatted}</span>
           </div>
-          <div class="active-appt-row">
-            <span class="active-appt-label">Fecha</span>
-            <span class="active-appt-value">${appt.date_formatted}</span>
-          </div>
-          <div class="active-appt-row">
-            <span class="active-appt-label">Horario</span>
-            <span class="active-appt-value">${appt.time_formatted}</span>
+          <div class="appt-datetime-divider">·</div>
+          <div class="appt-datetime-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span>${appt.time_formatted} hs</span>
           </div>
         </div>
         <div class="active-appt-actions">
-          <button type="button" class="appt-btn-cancel" data-token="${appt.token_cancellation}" data-dateshort="${dateShort}" data-timeshort="${timeShort}">Cancelar turno</button>
-          <button type="button" class="appt-btn-reschedule" data-service-id="${appt.service_id}" data-id="${appt.id}" data-token="${appt.token_cancellation}">Reprogramar</button>
+          <button type="button" class="appt-btn-reschedule" data-service-id="${appt.service_id}" data-id="${appt.id}" data-token="${appt.token_cancellation}">
+            Reprogramar fecha u horario
+          </button>
+          <button type="button" class="appt-btn-cancel" data-token="${appt.token_cancellation}" data-dateshort="${dateShort}" data-timeshort="${timeShort}">
+            Cancelar turno
+          </button>
         </div>
-        <div class="cancel-confirm-box" style="display:none; margin-top: 14px; padding: 12px 16px; background: rgba(220,38,38,0.07); border: 1.5px solid rgba(220,38,38,0.2); border-radius: 10px; font-size: 13px; color: #DC2626; font-weight: 600; text-align: center;"></div>
+        <div class="cancel-confirm-box" style="display:none; margin-top: 12px; padding: 12px 14px; background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 10px; font-size: 13px; color: #DC2626; font-weight: 600; text-align: center;"></div>
       `;
 
       // Evento Cancelar individual

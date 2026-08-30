@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v28-template-fix-sandbox';
+const CACHE_NAME = 'citaly-v29-minimalist-card-clean-flow';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

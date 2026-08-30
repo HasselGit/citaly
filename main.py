@@ -100,11 +100,9 @@ async def debug_whatsapp():
 
 
 @app.get("/r/{token}")
-def serve_cancel_page(token: str):
-    from fastapi.responses import FileResponse
-    if os.path.exists("static/cancel.html"):
-        return FileResponse("static/cancel.html")
-    return JSONResponse(status_code=404, content={"detail": "Página no encontrada"})
+def redirect_to_reschedule(token: str):
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url=f"/?reschedule_token={token}", status_code=307)
 
 @app.get("/dashboard")
 def serve_dashboard(request: Request):

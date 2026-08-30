@@ -256,20 +256,21 @@ async def create_appointment(
 
         # 5. Enviar mensaje de WhatsApp vía Meta Cloud API
         start_time_str = appointment.start_time.strftime('%d/%m a las %H:%M hs')
-        reschedule_url = f"https://citaly-six.vercel.app/r/{token_cancel}"
+        pwa_url = "https://citaly-six.vercel.app"
 
         if was_rescheduled:
             wa_text = (
-                f"Hola {patient.full_name}, te confirmamos que tu turno en {tenant.business_name} "
-                f"para {service.name} fue REPROGRAMADO con éxito para el {start_time_str}.\n\n"
-                f"Si deseás cambiar la fecha u hora nuevamente o cancelar, hacelo aquí: {reschedule_url}"
+                f"Hola {patient.full_name}, tu turno en {tenant.business_name} "
+                f"para {service.name} fue REPROGRAMADO para el {start_time_str}.\n\n"
+                f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
+                f"• Para gestionar o reprogramar: {pwa_url}"
             )
         else:
             wa_text = (
                 f"Hola {patient.full_name}, te confirmamos tu turno en {tenant.business_name} "
-                f"para el tratamiento de {service.name} el día {start_time_str}.\n\n"
-                f"Si no podés asistir, respondé CANCELAR a este mensaje.\n"
-                f"Si deseás cambiar fecha u hora, reprogramá tu cita aquí: {reschedule_url}"
+                f"para {service.name} el día {start_time_str}.\n\n"
+                f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
+                f"• Para gestionar o reprogramar: {pwa_url}"
             )
 
         # Enviar mensaje de texto personalizado con número de producción real.
