@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v32-clean-stitch-dashboard';
+const CACHE_NAME = 'citaly-v33-clean-minimal-dashboard';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
