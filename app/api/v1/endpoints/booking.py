@@ -260,25 +260,39 @@ async def create_appointment(
 
         if was_rescheduled:
             wa_text = (
-                f"Hola {patient.full_name}, tu turno en {tenant.business_name} "
-                f"para {service.name} fue REPROGRAMADO para el {start_time_str}.\n\n"
+                f"Hola {patient.full_name}, te confirmamos que tu turno en {tenant.business_name} "
+                f"para {service.name} fue REPROGRAMADO para el día {start_time_str}.\n\n"
                 f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
-                f"• Para gestionar o reprogramar: {pwa_url}"
+                f"• Para reprogramar ingresá a: {pwa_url}"
             )
         else:
             wa_text = (
                 f"Hola {patient.full_name}, te confirmamos tu turno en {tenant.business_name} "
                 f"para {service.name} el día {start_time_str}.\n\n"
                 f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
-                f"• Para gestionar o reprogramar: {pwa_url}"
+                f"• Para reprogramar ingresá a: {pwa_url}"
             )
 
-        # Enviar mensaje de texto personalizado con número de producción real.
+        # Enviar mensaje de texto personalizado con número de producción real al paciente.
         meta_result = await whatsapp_service.send_text_message(
             to_phone=patient.whatsapp_phone,
             text_body=wa_text
         )
         print(f"[WHATSAPP META RESULT] {meta_result}")
+
+        # Si fue reprogramado, notificar también a la administración/dueño si tiene número activo
+        if was_rescheduled and tenant.whatsapp_number and "000000" not in tenant.whatsapp_number and tenant.whatsapp_number != patient.whatsapp_phone:
+            admin_text = (
+                f"🔔 Aviso de Reprogramación:\n"
+                f"El paciente {patient.full_name} ({patient.whatsapp_phone}) reprogramó su turno de {service.name} para el {start_time_str}."
+            )
+            try:
+                await whatsapp_service.send_text_message(
+                    to_phone=tenant.whatsapp_number,
+                    text_body=admin_text
+                )
+            except Exception as adm_err:
+                print(f"[WHATSAPP ADMIN ALERT ERR]: {adm_err}")
 
         meta_msg_id = None
         if isinstance(meta_result, dict) and "messages" in meta_result and len(meta_result["messages"]) > 0:
