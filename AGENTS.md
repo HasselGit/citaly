@@ -82,29 +82,23 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 2. **Reserva y Reprogramación Atómica:**
    - Al reprogramar (`reschedule_from_token` o `reschedule_from_id`), la cita anterior pasa automáticamente a `status = 'CANCELLED'` en PostgreSQL, liberando de inmediato el horario viejo para otros pacientes.
    - Autocompletado de datos: Al reprogramar, el sistema pre-carga automáticamente `patient_name` y `patient_whatsapp` en el formulario para que el usuario no deba reescribirlos.
-3. **Consulta de Turnos por Celular (`.active-appt-card`):**
-   - Diseño claro, médico e intuitivo: Tarjeta `#FFFFFF`, borde superior `#D97706`, badge `#FEF3C7`, filas `#F8FAFC`, enlace directo a WhatsApp `https://wa.me/...`, botón rojo suave de cancelación y botón dorado de reprogramación.
+### Frontend Paciente (PWA)
+1. **Patrón Colapsable de Tarjetas de Tratamiento:**
+   - Al seleccionar un tratamiento en `index.html`, la tarjeta seleccionada colapsa/resume su vista para dar espacio al calendario y slots de horarios. **NO eliminar esta funcionalidad.**
+2. **Reserva y Reprogramación Atómica:**
+   - Al reprogramar (`reschedule_from_token` o `reschedule_from_id`), la cita anterior pasa automáticamente a `status = 'CANCELLED'` en PostgreSQL, liberando de inmediato el horario viejo para otros pacientes.
+   - Autocompletado de datos: Al reprogramar, el sistema pre-carga automáticamente `patient_name` y `patient_whatsapp` en el formulario para que el usuario no deba reescribirlos.
+3. **Consulta de Turnos por Celular (`.active-appt-card` — Diseño Minimalist Premium):**
+   - Tarjeta `#FFFFFF` con borde sutil `#E2E8F0` y radio `16px`.
+   - Cabecera limpia con nombre de servicio en negrita, paciente asociado y badge verde esmeralda `Agendado`.
+   - Fila de Fecha y Horario con iconos minimalistas en caja gris suave `#F8FAFC`.
+   - Botón primario de alta jerarquía Titanium Navy (`#0F172A`) para "Reprogramar fecha u horario" y botón sutil ghost para "Cancelar turno".
 4. **Mensaje de Cancelación:**
    - Formato obligatorio: `Tu turno del DD/MM a las HH:MM hs fue cancelado. ¡Gracias por avisarnos!`.
 5. **Normalización de Teléfonos (E.164 Argentina):**
    - El sistema acepta cualquier formato de entrada (`1155769048`, `91155769048`, `+5491155769048`, etc.)
    - `clean_phone_digits()` en `booking.py` extrae los últimos 10 dígitos para matching de pacientes.
-   - `whatsapp.py` normaliza a E.164 (`5491155769048`) antes de llamar a Meta API:
-     - 10 dígitos → `549{digits}`
-     - 11 dígitos empezando en `9` → `54{digits}`
-     - 11 dígitos empezando en `0` → `549{digits[1:]}`
-
-### Dashboard Ejecutivo (`/dashboard`)
-1. **Estética Executive Precision (Stitch MCP):**
-   - Paleta: Titanium Navy (`#0F172A`), Ámbar Dorado (`#D97706`), Soft Off-White (`#F8FAFC`), Esmeralda (`#10B981`).
-   - Tipografía: `Hanken Grotesk` (títulos), `JetBrains Mono` (horarios/badgets), `Work Sans` (cuerpo).
-2. **Acceso Restringido:**
-   - El cliente/paciente **JAMÁS** debe tener enlace o acceso al `/dashboard`. El dashboard es exclusivo del profesional/doctor.
-3. **Soporte Dual de Vistas:**
-   - **Vista Tarjetas:** Módulos estilo Apple Health / Wallet optimizados para móviles y escritorio.
-   - **Vista Tabla:** Tabla ejecutiva de alta densidad con columnas completas (`Paciente`, `Tratamiento`, `Fecha y Horario`, `Duración`, `Estado WhatsApp`).
-4. **Gestión 100% Automatizada:**
-   - Prohibido agregar botones manuales de "Liberar" o "Cancelar" en las tarjetas del Dashboard. La liberación es totalmente automática por el sistema.
+   - `whatsapp.py` normaliza a E.164 (`5491155769048`) antes de llamar a Meta API.
 
 ---
 
@@ -112,11 +106,22 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 
 ### Arquitectura de Envío
 - **Servicio:** `app/services/whatsapp.py` → clase `WhatsAppService`
-- **Número Emisor (Sandbox):** `+1 555-659-2482` (Phone Number ID: `1234817073057013`)
-- **WABA ID:** `1006525879102174`
+- **Número Emisor (Producción Chip Propio):** `+54 9 2302 64-0284` (Phone Number ID: `1284438344753210`)
+- **WABA ID:** `965775717869143` (TuTurno) / `1006525879102174` (Plantillas)
 - **App ID Meta:** `2060755134547559`
 - **Token:** Long-lived user token, 59 días, **vence 26/10/2026**
 - **URL Base:** `https://graph.facebook.com/v18.0/{PHONE_NUMBER_ID}/messages`
+
+### Flujo de Cancelación y Reprogramación
+- **Cancelación Directa por WhatsApp:** Al responder `CANCELAR`, el webhook localiza de forma determinista el `wamid` de la notificación o el turno del último mensaje enviado a ese número y lo cancela de inmediato liberando el slot en DB.
+- **Enlace de Reprogramación Directo:** El mensaje de WhatsApp apunta directamente a la PWA principal (`https://citaly-six.vercel.app`), sin páginas intermedias redundantes.
+- **Formato del Mensaje:**
+  ```
+  Hola {patient.full_name}, te confirmamos tu turno en {tenant.business_name} para {service.name} el día {DD/MM a las HH:MM hs}.
+
+  • Para cancelar: respondé CANCELAR a este mensaje.
+  • Para gestionar o reprogramar: https://citaly-six.vercel.app
+  ```
 
 ### Restricción Crítica del Sandbox de Meta
 - Con el número de prueba (`+1 555-659-2482`), Meta **solo permite enviar mensajes a números verificados manualmente** en la consola de Meta Developers.
