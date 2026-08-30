@@ -87,12 +87,23 @@ async def receive_meta_webhook(request: Request, db: Session = Depends(get_db)):
                     if matched_patients:
                         patient_ids = [p.id for p in matched_patients]
 
+                        now_utc = datetime.utcnow()
+
                         # A) Si el paciente responde CANCELAR
                         if any(k in clean_body for k in ["CANCELAR", "CANCEL", "DAR DE BAJA", "NO PUEDO"]):
+                            # Priorizar turnos futuros (start_time >= now) o el más recientemente creado
                             active_appts = db.query(Appointment).filter(
                                 Appointment.patient_id.in_(patient_ids),
-                                Appointment.status.in_(["SCHEDULED", "CONFIRMED", "REMINDER_SENT"])
+                                Appointment.status.in_(["SCHEDULED", "CONFIRMED", "REMINDER_SENT"]),
+                                Appointment.start_time >= now_utc
                             ).order_by(Appointment.start_time.asc()).all()
+
+                            # Fallback si no hay futuros estrictos: tomar el más reciente creado
+                            if not active_appts:
+                                active_appts = db.query(Appointment).filter(
+                                    Appointment.patient_id.in_(patient_ids),
+                                    Appointment.status.in_(["SCHEDULED", "CONFIRMED", "REMINDER_SENT"])
+                                ).order_by(Appointment.created_at.desc()).all()
 
                             if active_appts:
                                 appt_to_cancel = active_appts[0]
@@ -119,14 +130,21 @@ async def receive_meta_webhook(request: Request, db: Session = Depends(get_db)):
                                 )
                                 db.add(log)
                                 db.commit()
-                                print(f"[AUTO CANCELLED VIA WHATSAPP] Appointment {appt_to_cancel.id} cancelled by patient {sender_phone}")
+                                print(f"[AUTO CANCELLED VIA WHATSAPP] Appointment {appt_to_cancel.id} ({date_str} {time_str}) cancelled by patient {sender_phone}")
 
                         # B) Si el paciente responde CONFIRMAR
                         elif any(k in clean_body for k in ["CONFIRMAR", "CONFIRMO", "OK", "SI", "SÍ", "ASISTO"]):
                             active_appts = db.query(Appointment).filter(
                                 Appointment.patient_id.in_(patient_ids),
-                                Appointment.status.in_(["SCHEDULED", "REMINDER_SENT"])
+                                Appointment.status.in_(["SCHEDULED", "REMINDER_SENT"]),
+                                Appointment.start_time >= now_utc
                             ).order_by(Appointment.start_time.asc()).all()
+
+                            if not active_appts:
+                                active_appts = db.query(Appointment).filter(
+                                    Appointment.patient_id.in_(patient_ids),
+                                    Appointment.status.in_(["SCHEDULED", "REMINDER_SENT"])
+                                ).order_by(Appointment.created_at.desc()).all()
 
                             if active_appts:
                                 appt_to_confirm = active_appts[0]
