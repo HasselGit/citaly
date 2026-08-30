@@ -22,9 +22,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const searchInput = document.getElementById('search-patient-input');
 
-  // KPIs
+  // Elementos de Turnos de Hoy (Panel General)
+  const todaySummarySubtitle = document.getElementById('today-summary-subtitle');
+  const todaySpecialtyPills = document.getElementById('today-specialty-pills');
+  const todayAppointmentsTbody = document.getElementById('today-appointments-tbody');
+
+  // KPIs y Selector de Período
+  const btnPeriodWeek = document.getElementById('btn-period-week');
+  const btnPeriodMonth = document.getElementById('btn-period-month');
   const metricTotalTurnos = document.getElementById('metric-total-turnos');
-  const metricConfirmados = document.getElementById('metric-confirmados');
+  const metricCanceladosCount = document.getElementById('metric-cancelados-count');
   const metricReprogramadosCount = document.getElementById('metric-reprogramados-count');
   const metricOcupacion = document.getElementById('metric-ocupacion');
   const liveStatusText = document.getElementById('live-status-text');
@@ -34,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnViewTable = document.getElementById('btn-view-table');
   const btnViewAgenda = document.getElementById('btn-view-agenda');
 
-  const btnCopyPatientLink = document.getElementById('btn-copy-patient-link');
   const btnCopyCardLink = document.getElementById('btn-copy-card-link');
   const btnManualSync = document.getElementById('btn-manual-sync');
   const syncIcon = document.getElementById('sync-icon');
@@ -42,7 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Estado Local
   let allAppointments = [];
+  let currentMetricsPeriod = 'week'; // 'week' (default) | 'month'
   let currentViewMode = 'agenda'; // 'agenda' (default) | 'cards' | 'table'
+  let selectedTodaySpecialty = 'all';
   let syncInterval = null;
   let selectedAgendaDate = new Date();
 
@@ -67,11 +75,11 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${year}-${month}-${day}`;
   }
 
-  // 2. Toast System Minimalista
+  // 2. Toast System Minimalista (Sin líneas divisorias duras)
   function showToast(message) {
     if (!toastContainer) return;
     const toast = document.createElement('div');
-    toast.className = 'pointer-events-auto flex items-center gap-2 px-3.5 py-2.5 rounded-xl shadow-lg bg-slate-900 text-white text-xs font-semibold font-sans transition-all transform translate-y-2 opacity-0';
+    toast.className = 'pointer-events-auto flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl bg-slate-900 text-white text-xs font-semibold font-sans transition-all transform translate-y-2 opacity-0';
     toast.innerHTML = `<span>✓</span><span>${message}</span>`;
 
     toastContainer.appendChild(toast);
@@ -94,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  if (btnCopyPatientLink) btnCopyPatientLink.addEventListener('click', copyPatientLink);
   if (btnCopyCardLink) btnCopyCardLink.addEventListener('click', copyPatientLink);
 
   // 4. Navegación por Pestañas (SPA Tab Switching)
@@ -105,7 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateNavStyles(tabName);
 
-    if (tabName === 'reservas') {
+    if (tabName === 'panel') {
+      renderTodayAppointments();
+      updateMetrics();
+    } else if (tabName === 'reservas') {
       renderAgenda();
     } else if (tabName === 'reprogramados') {
       renderReprogramados();
@@ -126,9 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } else {
         if (isActive) {
-          btn.className = 'nav-tab-btn relative flex flex-col items-center p-1 text-navy font-bold';
+          btn.className = 'nav-tab-btn flex flex-col items-center p-1 text-navy font-bold';
         } else {
-          btn.className = 'nav-tab-btn relative flex flex-col items-center p-1 text-slate-500';
+          btn.className = 'nav-tab-btn flex flex-col items-center p-1 text-slate-500 font-medium';
         }
       }
     });
@@ -150,6 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (res.ok) {
         const data = await res.json();
         allAppointments = data || [];
+        renderTodayAppointments();
         renderAgenda();
         renderReprogramados();
         updateMetrics();
@@ -182,7 +193,101 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 5000);
   }
 
-  // 7. Renderizar Agenda General
+  // 7. Renderizar Turnos del Día (Panel General) por Especialidad
+  function renderTodayAppointments() {
+    if (!todayAppointmentsTbody) return;
+
+    const today = new Date();
+    const todayIso = formatLocalDate(today);
+    const dayOfWeekName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][today.getDay()];
+    const dayNumber = today.getDate();
+    const monthName = monthsFull[today.getMonth()];
+
+    const todayAppts = allAppointments.filter(a => {
+      if (!a.start_time) return false;
+      return a.start_time.startsWith(todayIso);
+    });
+
+    if (todaySummarySubtitle) {
+      const activeCount = todayAppts.filter(a => a.status !== 'CANCELLED').length;
+      todaySummarySubtitle.innerText = `${dayOfWeekName} ${dayNumber} de ${monthName} • ${activeCount} ${activeCount === 1 ? 'turno agendado' : 'turnos agendados'}`;
+    }
+
+    // Renderizar Píldoras de Especialidad Rápidas de Hoy
+    if (todaySpecialtyPills) {
+      const specialties = ['all'];
+      todayAppts.forEach(a => {
+        if (a.service_name && !specialties.includes(a.service_name)) {
+          specialties.push(a.service_name);
+        }
+      });
+
+      todaySpecialtyPills.innerHTML = specialties.map(s => {
+        const isSelected = (selectedTodaySpecialty === s);
+        const label = s === 'all' ? 'Ver Todos' : s;
+        const btnClass = isSelected
+          ? 'bg-navy text-white shadow-xs font-bold'
+          : 'bg-slate-100 text-slate-700 hover:bg-slate-200 font-medium';
+        return `
+          <button data-today-spec="${s}" class="today-spec-btn px-2.5 py-1 rounded-lg text-[11px] font-sans whitespace-nowrap transition-all ${btnClass}">
+            ${label}
+          </button>
+        `;
+      }).join('');
+
+      todaySpecialtyPills.querySelectorAll('.today-spec-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedTodaySpecialty = btn.getAttribute('data-today-spec');
+          renderTodayAppointments();
+        });
+      });
+    }
+
+    let filtered = [...todayAppts];
+    if (selectedTodaySpecialty !== 'all') {
+      filtered = filtered.filter(a => a.service_name === selectedTodaySpecialty);
+    }
+
+    if (filtered.length === 0) {
+      todayAppointmentsTbody.innerHTML = `
+        <tr>
+          <td colspan="4" class="py-6 text-center text-slate-400 text-xs font-sans">
+            No hay turnos agendados para el día de hoy${selectedTodaySpecialty !== 'all' ? ' en esta especialidad' : ''}.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    // Ordenar por horario ascendente
+    filtered.sort((a, b) => (a.time_str || '').localeCompare(b.time_str || ''));
+
+    todayAppointmentsTbody.innerHTML = filtered.map(a => {
+      const isCancelled = a.status === 'CANCELLED';
+      const statusBadge = isCancelled
+        ? `<span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-semibold font-mono rounded-md">Cancelado</span>`
+        : `<span class="px-2 py-0.5 bg-slate-100 text-slate-900 text-[10px] font-semibold font-mono rounded-md">● Agendado</span>`;
+
+      return `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="py-2.5 px-3 font-mono font-bold text-navy whitespace-nowrap">${a.time_str || '09:00'} hs</td>
+          <td class="py-2.5 px-3 font-semibold text-navy">
+            <div class="font-display">${a.patient_name}</div>
+            <div class="text-[11px] text-slate-400 font-mono">${a.patient_whatsapp || 'Sin celular'}</div>
+          </td>
+          <td class="py-2.5 px-3 text-slate-700 font-medium">
+            <span>${a.service_name}</span>
+            <span class="text-[10px] text-slate-400 font-mono block">${a.duration_minutes || 30} min</span>
+          </td>
+          <td class="py-2.5 px-3 whitespace-nowrap">
+            ${statusBadge}
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // 8. Renderizar Agenda Diaria y Semanal
   function renderAgenda() {
     if (!reservasNormalView || !reservasAgendaView) return;
 
@@ -220,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-xs">
             <thead>
-              <tr class="border-b border-slate-200 text-slate-500 font-mono text-[11px] uppercase">
+              <tr class="border-b border-slate-200 text-slate-400 font-mono text-[11px] uppercase">
                 <th class="py-2.5 px-3">Paciente</th>
                 <th class="py-2.5 px-3">Tratamiento</th>
                 <th class="py-2.5 px-3">Fecha y Hora</th>
@@ -265,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
     `).join('');
   }
 
-  // 8. Renderizar Agenda Diaria (Limpia & Minimalista)
+  // 9. Renderizar Grilla Diaria
   function renderWeeklyAgenda() {
     if (!agendaDayPillsContainer || !agendaSlotsSheet) return;
 
@@ -297,7 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const countLabel = count === 0 ? 'Libre' : `${count} ${count === 1 ? 'turno' : 'turnos'}`;
 
       return `
-        <button data-day-iso="${dIso}" class="agenda-day-btn p-2.5 rounded-xl flex flex-col items-center justify-center text-center transition-all ${isSelected ? 'bg-navy text-white shadow-xs' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'}">
+        <button data-day-iso="${dIso}" class="agenda-day-btn p-2.5 rounded-xl flex flex-col items-center justify-center text-center transition-all ${isSelected ? 'bg-navy text-white shadow-xs font-bold' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'}">
           <span class="text-[10px] font-bold uppercase font-mono ${isSelected ? 'text-amber-400' : 'text-slate-500'}">${dayName}</span>
           <span class="text-sm font-bold font-display my-0.5">${dayNum}/${monthNum}</span>
           <span class="text-[9px] font-semibold font-mono ${isSelected ? 'text-slate-300' : 'text-slate-500'}">${countLabel}</span>
@@ -372,7 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
-  // 9. Renderizar Turnos Reprogramados
+  // 10. Renderizar Turnos Reprogramados
   function renderReprogramados() {
     if (!reprogramadosListContainer) return;
 
@@ -432,42 +537,86 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
-  // 10. Actualizar Métricas Bento
+  // 11. Actualizar Métricas Bento (Semanales por Defecto / Mensuales Opcional)
   function updateMetrics() {
-    const total = allAppointments.length;
-    const confirmados = allAppointments.filter(a => a.status === 'SCHEDULED' || a.status === 'CONFIRMED' || a.status === 'REMINDER_SENT').length;
-    const reprogramados = allAppointments.filter(a => a.was_rescheduled && !a.is_past && a.status !== 'CANCELLED').length;
+    const now = new Date();
+    let periodAppointments = [];
+
+    if (currentMetricsPeriod === 'week') {
+      const startOfWeek = new Date(now);
+      const dayOfWeek = now.getDay() || 7;
+      startOfWeek.setDate(now.getDate() - dayOfWeek + 1);
+      startOfWeek.setHours(0, 0, 0, 0);
+
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      endOfWeek.setHours(23, 59, 59, 999);
+
+      periodAppointments = allAppointments.filter(a => {
+        if (!a.start_time) return false;
+        const d = new Date(a.start_time);
+        return d >= startOfWeek && d <= endOfWeek;
+      });
+    } else {
+      // Mensual
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+
+      periodAppointments = allAppointments.filter(a => {
+        if (!a.start_time) return false;
+        const d = new Date(a.start_time);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      });
+    }
+
+    const total = periodAppointments.length;
+    const cancelados = periodAppointments.filter(a => a.status === 'CANCELLED').length;
+    const reprogramados = periodAppointments.filter(a => a.was_rescheduled && !a.is_past && a.status !== 'CANCELLED').length;
+    const activos = total - cancelados;
 
     if (metricTotalTurnos) metricTotalTurnos.innerText = total;
-    if (metricConfirmados) metricConfirmados.innerText = confirmados;
+    if (metricCanceladosCount) metricCanceladosCount.innerText = cancelados;
     if (metricReprogramadosCount) metricReprogramadosCount.innerText = reprogramados;
     
     if (metricOcupacion) {
-      const rate = total > 0 ? Math.round((confirmados / total) * 100) : 100;
+      const rate = total > 0 ? Math.round((activos / total) * 100) : 100;
       metricOcupacion.innerText = `${rate}%`;
     }
   }
 
-  // 11. Listeners de Modo de Vista
+  // Listeners de Período (Semana / Mes)
+  if (btnPeriodWeek && btnPeriodMonth) {
+    btnPeriodWeek.addEventListener('click', () => {
+      currentMetricsPeriod = 'week';
+      btnPeriodWeek.className = 'px-3 py-1 bg-navy text-white rounded-lg transition-all shadow-xs';
+      btnPeriodMonth.className = 'px-3 py-1 text-slate-700 hover:bg-slate-100 rounded-lg transition-all';
+      updateMetrics();
+    });
+
+    btnPeriodMonth.addEventListener('click', () => {
+      currentMetricsPeriod = 'month';
+      btnPeriodMonth.className = 'px-3 py-1 bg-navy text-white rounded-lg transition-all shadow-xs';
+      btnPeriodWeek.className = 'px-3 py-1 text-slate-700 hover:bg-slate-100 rounded-lg transition-all';
+      updateMetrics();
+    });
+  }
+
+  // 12. Listeners de Modo de Vista (Fix Robusto para Móvil & Desktop)
   function setViewMode(mode) {
     currentViewMode = mode;
 
     [btnViewCards, btnViewTable, btnViewAgenda].forEach(b => {
       if (b) {
-        b.classList.remove('bg-navy', 'text-white');
-        b.classList.add('text-slate-700');
+        b.className = 'px-3 py-1.5 text-slate-700 hover:bg-slate-100 rounded-lg transition-all font-semibold';
       }
     });
 
     if (mode === 'cards' && btnViewCards) {
-      btnViewCards.classList.add('bg-navy', 'text-white');
-      btnViewCards.classList.remove('text-slate-700');
+      btnViewCards.className = 'px-3 py-1.5 bg-navy text-white rounded-lg transition-all shadow-xs font-bold';
     } else if (mode === 'table' && btnViewTable) {
-      btnViewTable.classList.add('bg-navy', 'text-white');
-      btnViewTable.classList.remove('text-slate-700');
+      btnViewTable.className = 'px-3 py-1.5 bg-navy text-white rounded-lg transition-all shadow-xs font-bold';
     } else if (mode === 'agenda' && btnViewAgenda) {
-      btnViewAgenda.classList.add('bg-navy', 'text-white');
-      btnViewAgenda.classList.remove('text-slate-700');
+      btnViewAgenda.className = 'px-3 py-1.5 bg-navy text-white rounded-lg transition-all shadow-xs font-bold';
     }
 
     renderAgenda();
