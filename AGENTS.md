@@ -101,19 +101,19 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
    - `whatsapp.py` normaliza a E.164 (`5491155769048`) antes de llamar a Meta API.
 
 ### Dashboard Ejecutivo (`/dashboard`)
-1. **Estética Executive Precision (Stitch MCP):**
-   - Paleta: Titanium Navy (`#0F172A`), Ámbar Dorado (`#D97706`), Soft Off-White (`#F8FAFC`), Esmeralda (`#10B981`).
-   - Tipografía: `Hanken Grotesk` (títulos), `JetBrains Mono` (horarios/badgets), `Work Sans` (cuerpo).
+1. **Estética Minimalista High-End (Stitch MCP — TuTurno / Citaly Core):**
+   - Paleta: Titanium Navy (`#0F172A`), Fondo Soft Canvas (`#F8FAFC`), Tarjetas Blancas Puras (`#FFFFFF`), Bordes Hairline (`#E2E8F0`), Acentos Ámbar (`#D97706`) y Muted Slate (`#64748B`).
+   - Sin colores estridentes ni líneas punteadas; diseño limpio y profesional.
+   - Tipografía: `Montserrat` (títulos y display), `Inter` (cuerpo y labels), `JetBrains Mono` (fechas y números tabulares).
 2. **Módulo de Turnos Reprogramados (`#view-reprogramados`):**
-   - Pestaña dedicada con contador en tiempo real para visualizar pacientes que cambiaron su turno original.
+   - Pestaña dedicada y banner inteligente en Panel General.
    - **Auto-expiración:** Solo muestra turnos reprogramados activos con fecha futura (`start_time >= now`). Se archivan automáticamente al cumplirse el turno.
-3. **Agenda Semanal & Diaria de Alta Claridad (+40 Años Friendly):**
-   - Botones anchos para cada día de atención con indicador de ocupación.
-   - Grilla horaria de alto contraste:
-     - 🟢 **LIBRE / DISPONIBLE:** Fondo verde suave `#ECFDF5` con badge grande `🟢 09:00 hs — DISPONIBLE`.
-     - 🔵 **OCUPADO:** Fondo sólido Titanium Navy `#0F172A` con nombre de paciente, tratamiento y estado `Confirmado`.
-4. **Soporte Triple de Vistas:**
-   - `[ Agenda Semanal ]`, `[ Tarjetas ]` (Apple Health style) y `[ Tabla ]` (ejecutiva).
+3. **Agenda de Turnos Diaria:**
+   - Selector de días con botones limpios y conteo de turnos.
+   - Grilla minimalista:
+     - Horario Libre: Tarjeta `#FFFFFF`, borde sutil `#E2E8F0`, badge `Libre`.
+     - Horario Ocupado: Tarjeta `#F8FAFC`, badge `Ocupado`, nombre de paciente y tratamiento.
+4. **Pestañas Activas:** `Panel General`, `Turnos & Agenda`, `Reprogramados`. (WhatsApp Monitor eliminado por ser innecesario para la gestión diaria).
 
 ---
 
