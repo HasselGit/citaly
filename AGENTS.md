@@ -100,6 +100,21 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
    - `clean_phone_digits()` en `booking.py` extrae los últimos 10 dígitos para matching de pacientes.
    - `whatsapp.py` normaliza a E.164 (`5491155769048`) antes de llamar a Meta API.
 
+### Dashboard Ejecutivo (`/dashboard`)
+1. **Estética Executive Precision (Stitch MCP):**
+   - Paleta: Titanium Navy (`#0F172A`), Ámbar Dorado (`#D97706`), Soft Off-White (`#F8FAFC`), Esmeralda (`#10B981`).
+   - Tipografía: `Hanken Grotesk` (títulos), `JetBrains Mono` (horarios/badgets), `Work Sans` (cuerpo).
+2. **Módulo de Turnos Reprogramados (`#view-reprogramados`):**
+   - Pestaña dedicada con contador en tiempo real para visualizar pacientes que cambiaron su turno original.
+   - **Auto-expiración:** Solo muestra turnos reprogramados activos con fecha futura (`start_time >= now`). Se archivan automáticamente al cumplirse el turno.
+3. **Agenda Semanal & Diaria de Alta Claridad (+40 Años Friendly):**
+   - Botones anchos para cada día de atención con indicador de ocupación.
+   - Grilla horaria de alto contraste:
+     - 🟢 **LIBRE / DISPONIBLE:** Fondo verde suave `#ECFDF5` con badge grande `🟢 09:00 hs — DISPONIBLE`.
+     - 🔵 **OCUPADO:** Fondo sólido Titanium Navy `#0F172A` con nombre de paciente, tratamiento y estado `Confirmado`.
+4. **Soporte Triple de Vistas:**
+   - `[ Agenda Semanal ]`, `[ Tarjetas ]` (Apple Health style) y `[ Tabla ]` (ejecutiva).
+
 ---
 
 ## 📲 4. Integración WhatsApp (Meta Cloud API)
@@ -114,13 +129,13 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 
 ### Flujo de Cancelación y Reprogramación
 - **Cancelación Directa por WhatsApp:** Al responder `CANCELAR`, el webhook localiza de forma determinista el `wamid` de la notificación o el turno del último mensaje enviado a ese número y lo cancela de inmediato liberando el slot en DB.
-- **Enlace de Reprogramación Directo:** El mensaje de WhatsApp apunta directamente a la PWA principal (`https://citaly-six.vercel.app`), sin páginas intermedias redundantes.
+- **Enlace de Reprogramación Directo:** El mensaje de WhatsApp apunta directamente a la PWA principal (`https://citaly-six.vercel.app`), sin intermediarios.
 - **Formato del Mensaje:**
   ```
   Hola {patient.full_name}, te confirmamos tu turno en {tenant.business_name} para {service.name} el día {DD/MM a las HH:MM hs}.
 
   • Para cancelar: respondé CANCELAR a este mensaje.
-  • Para gestionar o reprogramar: https://citaly-six.vercel.app
+  • Para reprogramar ingresá a: https://citaly-six.vercel.app
   ```
 
 ### Restricción Crítica del Sandbox de Meta
