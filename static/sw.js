@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v29-minimalist-card-clean-flow';
+const CACHE_NAME = 'citaly-v30-dashboard-weekly-agenda';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

@@ -334,14 +334,25 @@ async def create_appointment(
 @router.get("/appointments")
 def get_appointments(request: Request, db: Session = Depends(get_db)):
     """
-    Retorna la lista completa de turnos agendados para el Dashboard Administrativo.
+    Retorna la lista completa de turnos agendados para el Dashboard Administrativo,
+    incluyendo detección de reprogramación e información para la vista semanal.
     """
+    now_utc = datetime.utcnow()
     appts = db.query(Appointment).order_by(Appointment.start_time.asc()).all()
     
     result = []
     for a in appts:
         patient = db.query(Patient).filter(Patient.id == a.patient_id).first()
         service = db.query(Service).filter(Service.id == a.service_id).first()
+        
+        # Detectar si fue reprogramado consultando logs de WhatsApp
+        reschedule_log = db.query(WhatsAppLog).filter(
+            WhatsAppLog.appointment_id == a.id,
+            WhatsAppLog.message_type == "RESCHEDULE_CONFIRM"
+        ).first()
+
+        is_past = (a.start_time < now_utc)
+        
         result.append({
             "id": a.id,
             "patient_name": patient.full_name if patient else "Paciente",
@@ -349,9 +360,15 @@ def get_appointments(request: Request, db: Session = Depends(get_db)):
             "service_name": service.name if service else "Especialidad",
             "duration_minutes": service.duration_minutes if service else 30,
             "start_time": a.start_time.isoformat(),
+            "date_formatted": a.start_time.strftime("%d/%m/%Y"),
+            "date_iso": a.start_time.strftime("%Y-%m-%d"),
             "time_str": a.start_time.strftime("%H:%M"),
+            "time_formatted": a.start_time.strftime("%H:%M hs"),
             "status": a.status,
-            "token_cancellation": a.token_cancellation
+            "token_cancellation": a.token_cancellation,
+            "was_rescheduled": bool(reschedule_log),
+            "rescheduled_at": reschedule_log.sent_at.isoformat() if reschedule_log and reschedule_log.sent_at else None,
+            "is_past": is_past
         })
 
     return result
