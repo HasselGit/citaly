@@ -1,6 +1,6 @@
 /* TuTurno Pro - Ultra-Intuitive Executive Precision Design System */
 
-@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Work+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
 
 :root {
   --primary-navy: #0F172A;
@@ -30,7 +30,7 @@
 }
 
 body {
-  font-family: 'Work Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   background-color: var(--bg-neutral);
   color: var(--text-dark);
   line-height: 1.5;
@@ -38,7 +38,7 @@ body {
 }
 
 h1, h2, h3, h4, .font-display {
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
 }
 
 /* App Main Container */
@@ -85,7 +85,7 @@ h1, h2, h3, h4, .font-display {
 }
 
 .tuturno-brand-text {
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 20px;
   font-weight: 800;
   color: var(--primary-navy);
@@ -110,7 +110,7 @@ h1, h2, h3, h4, .font-display {
 }
 
 .client-doctor-name {
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 21px;
   font-weight: 800;
   color: var(--primary-navy);
@@ -142,7 +142,7 @@ h1, h2, h3, h4, .font-display {
 }
 
 .section-title {
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 14px;
   font-weight: 800;
   color: var(--primary-navy);
@@ -184,7 +184,7 @@ h1, h2, h3, h4, .font-display {
 }
 
 .collapsed-service-name {
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 14.5px;
   font-weight: 800;
   color: #FFFFFF;
@@ -192,7 +192,7 @@ h1, h2, h3, h4, .font-display {
 
 /* Botón Cambiar Discreto y Elegante */
 .collapsed-change-btn {
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 11.5px;
   font-weight: 700;
   color: var(--secondary-amber);
@@ -267,7 +267,7 @@ h1, h2, h3, h4, .font-display {
 }
 
 .service-name {
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 13.5px;
   font-weight: 800;
   color: var(--primary-navy);
@@ -316,7 +316,7 @@ h1, h2, h3, h4, .font-display {
 }
 
 .month-title {
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 15.5px;
   font-weight: 800;
   color: var(--primary-navy);
@@ -404,7 +404,7 @@ h1, h2, h3, h4, .font-display {
 }
 
 .date-num {
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 17px;
   font-weight: 800;
   color: var(--primary-navy);
@@ -487,7 +487,7 @@ h1, h2, h3, h4, .font-display {
   color: #FFFFFF !important;
   border: none !important;
   border-radius: var(--radius-md) !important;
-  font-family: 'Hanken Grotesk', sans-serif !important;
+  font-family: 'Montserrat', sans-serif !important;
   font-size: 14.5px !important;
   font-weight: 800 !important;
   cursor: pointer !important;
@@ -545,7 +545,7 @@ h1, h2, h3, h4, .font-display {
 }
 
 .summary-value {
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-weight: 800;
   color: #FFFFFF;
   font-size: 13.5px;
@@ -644,7 +644,7 @@ h1, h2, h3, h4, .font-display {
   padding: 14px 16px;
   border-radius: var(--radius-md);
   border: 1.5px solid var(--border-light);
-  font-family: 'Work Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 14.5px;
   background: var(--bg-neutral);
   transition: all 0.2s ease;
@@ -695,7 +695,7 @@ h1, h2, h3, h4, .font-display {
   padding: 0 20px;
   background: var(--primary-navy);
   color: #FFFFFF;
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 13.5px;
   font-weight: 800;
   border: none;
@@ -745,7 +745,7 @@ h1, h2, h3, h4, .font-display {
 }
 
 .active-appt-service-name {
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 16px;
   font-weight: 700;
   color: #0F172A;
@@ -753,7 +753,7 @@ h1, h2, h3, h4, .font-display {
 }
 
 .active-appt-patient-name {
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 13px;
   font-weight: 500;
   color: #64748B;
@@ -768,7 +768,7 @@ h1, h2, h3, h4, .font-display {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 11.5px;
   font-weight: 600;
   color: #047857;
@@ -796,7 +796,7 @@ h1, h2, h3, h4, .font-display {
   border-radius: var(--radius-md);
   border: 1px solid #F1F5F9;
   color: #334155;
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 13.5px;
   font-weight: 600;
   margin-bottom: 16px;
@@ -829,7 +829,7 @@ h1, h2, h3, h4, .font-display {
   padding: 11px 16px;
   background: #0F172A;
   color: #FFFFFF;
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 13.5px;
   font-weight: 700;
   border: none;
@@ -849,7 +849,7 @@ h1, h2, h3, h4, .font-display {
   padding: 8px 12px;
   background: transparent;
   color: #94A3B8;
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 12.5px;
   font-weight: 600;
   border: none;

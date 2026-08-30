@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v33-clean-minimal-dashboard';
+const CACHE_NAME = 'citaly-v34-unified-typography';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
