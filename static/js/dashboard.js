@@ -276,16 +276,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
       return `
         <tr class="hover:bg-slate-50 transition-colors">
-          <td class="py-2.5 px-3 font-mono font-bold text-navy whitespace-nowrap">${a.time_str || '09:00'} hs</td>
-          <td class="py-2.5 px-3 font-semibold text-navy">
+          <td class="py-3.5 px-3 font-mono font-bold text-navy whitespace-nowrap">${a.time_str || '09:00'} hs</td>
+          <td class="py-3.5 px-3 font-semibold text-navy">
             <div class="font-display">${a.patient_name}</div>
             <div class="text-[11px] text-slate-400 font-mono">${a.patient_whatsapp || 'Sin celular'}</div>
           </td>
-          <td class="py-2.5 px-3 text-slate-700 font-medium">
+          <td class="py-3.5 px-3 text-slate-700 font-medium">
             <span>${a.service_name}</span>
             <span class="text-[10px] text-slate-400 font-mono block">${a.duration_minutes || 30} min</span>
           </td>
-          <td class="py-2.5 px-3 whitespace-nowrap">
+          <td class="py-3.5 px-3 whitespace-nowrap">
             ${statusBadge}
           </td>
         </tr>

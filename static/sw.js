@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v38-sticky-headers';
+const CACHE_NAME = 'citaly-v39-sticky-headers-fix';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
