@@ -137,7 +137,7 @@
     </div>
   </aside>
 
-  <!-- Main Content Area (Scroll Nativo Fluido) -->
+  <!-- Main Content Area (Scroll Nativo Fluido & Ancho Balanceado en Desktop) -->
   <main class="flex-1 md:ml-64 min-h-screen w-full flex flex-col">
     
     <!-- TopNavBar Minimalista (Fondo idéntico al canvas #F8FAFC) -->
@@ -169,8 +169,8 @@
       </div>
     </header>
 
-    <!-- Dashboard Canvas Content (Padding inferior amplio para barra móvil) -->
-    <div class="pt-20 pb-36 md:pb-16 px-4 md:px-8 max-w-6xl mx-auto w-full flex-1">
+    <!-- Dashboard Canvas Content (Centrado y distribuido sin huecos a la izquierda) -->
+    <div class="pt-20 pb-36 md:pb-16 px-4 md:px-8 max-w-7xl mx-auto w-full flex-1">
       
       <!-- ================= PESTAÑA 1: PANEL GENERAL ================= -->
       <div id="view-panel" class="tab-content-anim" style="display: block;">
@@ -280,32 +280,58 @@
       <!-- ================= PESTAÑA 2: DESGLOSE DE TURNOS & AGENDA ================= -->
       <div id="view-reservas" class="tab-content-anim" style="display: none;">
         
-        <!-- Header de Agenda -->
-        <div class="mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <!-- Header de Agenda con Buscador Integrado y Switcher de Vistas -->
+        <div class="mb-5 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div>
             <h2 class="text-xl md:text-2xl font-bold text-navy tracking-tight font-display">Agenda de Turnos</h2>
             <p class="text-xs text-slate-muted mt-0.5">Visualización de horarios ocupados y libres.</p>
           </div>
 
-          <!-- Switcher de Vistas (Agenda / Tarjetas / Tabla) -->
-          <div class="flex items-center bg-slate-200/70 p-0.5 rounded-xl border border-slate-300 font-mono text-xs font-semibold">
-            <button id="btn-view-agenda" class="px-3 py-1.5 bg-navy text-white rounded-lg transition-all shadow-xs">
-              Agenda Diaria
-            </button>
-            <button id="btn-view-cards" class="px-3 py-1.5 text-slate-700 hover:bg-slate-100 rounded-lg transition-all">
-              Tarjetas
-            </button>
-            <button id="btn-view-table" class="px-3 py-1.5 text-slate-700 hover:bg-slate-100 rounded-lg transition-all">
-              Tabla
-            </button>
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            <!-- Buscador en Tiempo Real de Agenda -->
+            <div class="relative min-w-[240px]">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              </div>
+              <input type="text" id="agenda-search-input" placeholder="Buscar por paciente o celular..." class="w-full pl-9 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-navy placeholder:text-slate-400 focus:outline-none focus:border-navy shadow-2xs">
+            </div>
+
+            <!-- Switcher de Vistas (Agenda / Tarjetas / Tabla) -->
+            <div class="flex items-center bg-slate-200/70 p-0.5 rounded-xl border border-slate-300 font-mono text-xs font-semibold">
+              <button id="btn-view-agenda" class="px-3 py-1.5 bg-navy text-white rounded-lg transition-all shadow-xs">
+                Agenda Diaria
+              </button>
+              <button id="btn-view-cards" class="px-3 py-1.5 text-slate-700 hover:bg-slate-100 rounded-lg transition-all">
+                Tarjetas
+              </button>
+              <button id="btn-view-table" class="px-3 py-1.5 text-slate-700 hover:bg-slate-100 rounded-lg transition-all">
+                Tabla
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- Vista Agenda Diaria & Semanal (Limpia y fluida) -->
+        <!-- Vista Agenda Diaria & Semanal -->
         <div id="reservas-agenda-view" class="space-y-4">
-          <!-- Selector de Días Horizontal -->
-          <div class="citaly-card p-3">
-            <div class="text-[11px] font-semibold text-slate-muted uppercase tracking-wider font-mono mb-2 px-1">Días de Atención</div>
+          <!-- Selector de Días Horizontal con Navegación Semanal (< / >) -->
+          <div class="citaly-card p-3.5">
+            <div class="flex items-center justify-between mb-2.5 px-1">
+              <span class="text-[11px] font-semibold text-slate-muted uppercase tracking-wider font-mono">Días de Atención</span>
+              
+              <!-- Controles Semanales (< / >) -->
+              <div class="flex items-center gap-1.5 font-mono text-xs">
+                <button id="btn-prev-week" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all flex items-center gap-1 font-semibold" title="Semana anterior">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                  <span class="hidden sm:inline text-[11px]">Sem. Anterior</span>
+                </button>
+                <span id="agenda-week-label" class="px-2 py-0.5 text-slate-600 font-semibold text-[11px]">Esta Semana</span>
+                <button id="btn-next-week" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all flex items-center gap-1 font-semibold" title="Semana siguiente">
+                  <span class="hidden sm:inline text-[11px]">Sem. Siguiente</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+              </div>
+            </div>
+            
             <div id="agenda-day-pills-container" class="grid grid-cols-3 sm:grid-cols-6 gap-2">
               <!-- Dinámico: Días de atención -->
             </div>
@@ -339,11 +365,6 @@
 
         <!-- Vista Lista de Tarjetas / Tabla (Secundaria) -->
         <div id="reservas-normal-view" style="display: none;" class="space-y-4">
-          <!-- Buscador -->
-          <div class="citaly-card p-3">
-            <input type="text" id="search-patient-input" placeholder="Buscar por paciente o celular..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-navy focus:outline-none focus:border-navy">
-          </div>
-
           <div class="citaly-card p-5">
             <div id="agenda-timeline-container" class="space-y-3">
               <!-- Dinámico -->

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v41-clean-agenda';
+const CACHE_NAME = 'citaly-v42-agenda-nav-search';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
