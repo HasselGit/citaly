@@ -109,19 +109,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 3200);
   }
 
+  const desktopTabBtns = document.querySelectorAll('.desktop-tab-btn');
+  const mobileTabBtns = document.querySelectorAll('.mobile-tab-btn');
+
   // 3. Switcher de Pestañas (Panel / Agenda / Reprogramados)
   function switchTab(tabId) {
     [tabPanel, tabReservas, tabReprogramados].forEach(tab => {
       if (tab) tab.style.display = 'none';
     });
 
-    navTabBtns.forEach(btn => {
+    // Actualizar botones de escritorio
+    desktopTabBtns.forEach(btn => {
       if (btn.getAttribute('data-tab') === tabId) {
         btn.classList.add('bg-navy', 'text-white', 'font-bold', 'shadow-xs');
-        btn.classList.remove('text-slate-600', 'text-slate-500', 'hover:bg-slate-100');
+        btn.classList.remove('text-slate-600', 'hover:bg-slate-100');
       } else {
         btn.classList.remove('bg-navy', 'text-white', 'font-bold', 'shadow-xs');
         btn.classList.add('text-slate-600', 'hover:bg-slate-100');
+      }
+    });
+
+    // Actualizar botones móviles (Cápsula suave, orgánico sin bloques oscuros)
+    mobileTabBtns.forEach(btn => {
+      if (btn.getAttribute('data-tab') === tabId) {
+        btn.classList.add('text-navy', 'font-bold', 'bg-slate-200/80');
+        btn.classList.remove('text-slate-500', 'font-medium');
+      } else {
+        btn.classList.remove('text-navy', 'font-bold', 'bg-slate-200/80');
+        btn.classList.add('text-slate-500', 'font-medium');
       }
     });
 
@@ -142,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  navTabBtns.forEach(btn => {
+  [...desktopTabBtns, ...mobileTabBtns].forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       const tabId = btn.getAttribute('data-tab');

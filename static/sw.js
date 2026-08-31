@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v44-header-card-data-fix';
+const CACHE_NAME = 'citaly-v45-clean-ui-refinement';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

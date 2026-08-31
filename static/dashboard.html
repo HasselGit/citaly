@@ -80,12 +80,12 @@
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- SideNavBar (Desktop - Sin rayas duras) -->
+  <!-- SideNavBar (Desktop - Limpio y sin tarjeta duplicada) -->
   <aside class="hidden md:flex flex-col fixed left-0 top-0 h-full w-64 bg-white p-5 z-40">
     
     <!-- Logo Minimalista Citaly -->
-    <div class="flex items-center gap-2.5 mb-6 px-1">
-      <div class="w-8 h-8 rounded-lg bg-navy flex items-center justify-center text-white font-display font-extrabold text-sm shadow-sm">
+    <div class="flex items-center gap-2.5 mb-8 px-1">
+      <div class="w-9 h-9 rounded-xl bg-navy flex items-center justify-center text-white font-display font-extrabold text-sm shadow-sm">
         C
       </div>
       <div>
@@ -94,32 +94,19 @@
       </div>
     </div>
 
-    <!-- Perfil del Doctor / Consultorio en Sidebar -->
-    <div class="mb-6 p-3.5 bg-slate-50 rounded-2xl border border-slate-200/60 shadow-2xs">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-navy text-white flex items-center justify-center font-display font-bold text-xs shadow-xs flex-shrink-0">
-          AP
-        </div>
-        <div class="flex flex-col overflow-hidden">
-          <span class="text-xs text-navy font-bold font-display truncate">Dr. Alejandro Pérez</span>
-          <span class="text-[11px] text-slate-muted truncate font-sans">Odontología Integral</span>
-        </div>
-      </div>
-    </div>
-
     <!-- Navegación Principal Desktop -->
-    <nav class="flex-1 space-y-1" id="desktop-nav-container">
-      <button data-tab="panel" class="nav-tab-btn w-full flex items-center gap-3 bg-navy text-white rounded-xl px-3.5 py-2.5 font-semibold text-xs transition-all shadow-xs">
+    <nav class="flex-1 space-y-1.5" id="desktop-nav-container">
+      <button data-tab="panel" class="desktop-tab-btn w-full flex items-center gap-3 bg-navy text-white rounded-xl px-3.5 py-2.5 font-semibold text-xs transition-all shadow-xs">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
         <span>Panel General</span>
       </button>
 
-      <button data-tab="reservas" class="nav-tab-btn w-full flex items-center gap-3 text-slate-600 hover:bg-slate-100 hover:text-navy transition-all rounded-xl px-3.5 py-2.5 font-semibold text-xs">
+      <button data-tab="reservas" class="desktop-tab-btn w-full flex items-center gap-3 text-slate-600 hover:bg-slate-100 hover:text-navy transition-all rounded-xl px-3.5 py-2.5 font-semibold text-xs">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
         <span>Turnos & Agenda</span>
       </button>
 
-      <button data-tab="reprogramados" class="nav-tab-btn w-full flex items-center justify-between text-slate-600 hover:bg-slate-100 hover:text-navy transition-all rounded-xl px-3.5 py-2.5 font-semibold text-xs">
+      <button data-tab="reprogramados" class="desktop-tab-btn w-full flex items-center justify-between text-slate-600 hover:bg-slate-100 hover:text-navy transition-all rounded-xl px-3.5 py-2.5 font-semibold text-xs">
         <div class="flex items-center gap-3">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
           <span>Reprogramados</span>
@@ -129,7 +116,7 @@
     </nav>
 
     <!-- Estado del Sistema -->
-    <div class="mt-auto pt-4">
+    <div class="mt-auto pt-4 border-t border-slate-100">
       <div class="flex items-center gap-2 text-[11px] font-medium text-slate-muted font-mono">
         <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
         <span>Sistema en línea</span>
@@ -140,42 +127,31 @@
   <!-- Main Content Area -->
   <main class="flex-1 md:ml-64 min-h-screen w-full flex flex-col">
     
-    <!-- TopNavBar Minimalista con Tarjeta Ejecutiva del Doctor de Alto Impacto -->
-    <header class="fixed top-0 left-0 md:left-64 right-0 z-30 h-16 bg-[#F8FAFC]/95 backdrop-blur-sm flex justify-between items-center px-4 md:px-10">
+    <!-- TopNavBar Minimalista con Tarjeta Ejecutiva del Doctor de Gran Presencia -->
+    <header class="fixed top-0 left-0 md:left-64 right-0 z-30 h-20 bg-[#F8FAFC]/95 backdrop-blur-sm flex justify-between items-center px-4 md:px-10">
       
-      <!-- Mobile Header Card -->
-      <div class="sm:hidden flex items-center gap-2.5 bg-white px-3 py-1.5 rounded-2xl border border-slate-200 shadow-2xs">
-        <div class="w-7 h-7 rounded-xl bg-navy text-white flex items-center justify-center font-display font-bold text-xs flex-shrink-0">
+      <!-- Tarjeta Ejecutiva del Consultorio (Alta Presencia en TopBar) -->
+      <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-slate-200/90 shadow-xs">
+        <div class="w-10 h-10 rounded-xl bg-navy text-white flex items-center justify-center font-display font-bold text-sm shadow-xs flex-shrink-0">
           AP
         </div>
         <div class="flex flex-col">
-          <span class="text-xs text-navy font-bold font-display leading-tight">Dr. Alejandro Pérez</span>
-          <span class="text-[9px] text-slate-muted font-sans">Odontología Integral</span>
-        </div>
-      </div>
-      
-      <!-- Desktop Header Card (Reemplaza el texto plano anterior por tarjeta ejecutiva con presencia) -->
-      <div class="hidden sm:flex items-center gap-3 bg-white px-3.5 py-1.5 rounded-2xl border border-slate-200 shadow-2xs">
-        <div class="w-8 h-8 rounded-xl bg-navy text-white flex items-center justify-center font-display font-bold text-xs shadow-xs flex-shrink-0">
-          AP
-        </div>
-        <div class="flex flex-col">
-          <span class="text-xs text-navy font-bold font-display leading-tight">Dr. Alejandro Pérez</span>
-          <span class="text-[10px] text-slate-muted font-sans font-medium">Odontología Integral</span>
+          <span class="text-sm text-navy font-bold font-display leading-tight">Dr. Alejandro Pérez</span>
+          <span class="text-xs text-slate-muted font-sans font-medium">Odontología Integral</span>
         </div>
       </div>
 
       <!-- Acciones de Encabezado -->
       <div class="flex items-center gap-2.5">
-        <button id="btn-manual-sync" title="Sincronizar en vivo" class="p-2 bg-white hover:bg-slate-100 text-slate-700 rounded-xl transition-all font-mono text-xs flex items-center gap-1.5 border border-slate-200 shadow-2xs">
-          <svg id="sync-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
+        <button id="btn-manual-sync" title="Sincronizar en vivo" class="p-2.5 bg-white hover:bg-slate-100 text-slate-700 rounded-xl transition-all font-mono text-xs flex items-center gap-2 border border-slate-200 shadow-2xs">
+          <svg id="sync-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
           <span class="hidden sm:inline font-semibold">Actualizar</span>
         </button>
       </div>
     </header>
 
     <!-- Dashboard Canvas Content -->
-    <div class="pt-20 pb-36 md:pb-16 px-4 md:px-10 max-w-7xl w-full flex-1">
+    <div class="pt-24 pb-36 md:pb-16 px-4 md:px-10 max-w-7xl w-full flex-1">
       
       <!-- ================= PESTAÑA 1: PANEL GENERAL ================= -->
       <div id="view-panel" class="tab-content-anim" style="display: block;">
@@ -232,7 +208,7 @@
         <!-- Sección Turnos del Día (Sticky Header Adhesivo Activo) -->
         <div class="citaly-card mb-6">
           <!-- Cabecera Adhesiva Sticky -->
-          <div class="sticky top-16 z-20 bg-white rounded-t-2xl p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div class="sticky top-20 z-20 bg-white rounded-t-2xl p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
             <div>
               <h3 class="text-base font-bold text-navy font-display">Turnos del Día</h3>
               <span id="today-summary-subtitle" class="text-xs text-slate-muted font-mono">Cargando turnos de hoy...</span>
@@ -285,31 +261,31 @@
       <!-- ================= PESTAÑA 2: DESGLOSE DE TURNOS & AGENDA ================= -->
       <div id="view-reservas" class="tab-content-anim" style="display: none;">
         
-        <!-- Header de Agenda con Buscador Integrado y Switcher de Vistas -->
+        <!-- Header de Agenda con Buscador Ampliado y Switcher de Vistas -->
         <div class="mb-5 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div>
             <h2 class="text-xl md:text-2xl font-bold text-navy tracking-tight font-display">Agenda de Turnos</h2>
             <p class="text-xs text-slate-muted mt-0.5">Visualización de horarios ocupados y libres.</p>
           </div>
 
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-            <!-- Buscador en Tiempo Real de Agenda -->
-            <div class="relative min-w-[240px]">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <!-- Buscador Ampliado de Agenda con Mayor Presencia -->
+            <div class="relative w-full sm:w-80 md:w-96">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               </div>
-              <input type="text" id="agenda-search-input" placeholder="Buscar por paciente o celular..." class="w-full pl-9 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-navy placeholder:text-slate-400 focus:outline-none focus:border-navy shadow-2xs">
+              <input type="text" id="agenda-search-input" placeholder="Buscar por paciente o celular..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-navy placeholder:text-slate-400 focus:outline-none focus:border-navy focus:ring-1 focus:ring-navy shadow-2xs transition-all">
             </div>
 
             <!-- Switcher de Vistas (Agenda / Tarjetas / Tabla) -->
-            <div class="flex items-center bg-slate-200/70 p-0.5 rounded-xl border border-slate-300 font-mono text-xs font-semibold">
-              <button id="btn-view-agenda" class="px-3 py-1.5 bg-navy text-white rounded-lg transition-all shadow-xs">
+            <div class="flex items-center bg-slate-200/70 p-0.5 rounded-xl border border-slate-300 font-mono text-xs font-semibold flex-shrink-0">
+              <button id="btn-view-agenda" class="px-3.5 py-2 bg-navy text-white rounded-lg transition-all shadow-xs">
                 Agenda Diaria
               </button>
-              <button id="btn-view-cards" class="px-3 py-1.5 text-slate-700 hover:bg-slate-100 rounded-lg transition-all">
+              <button id="btn-view-cards" class="px-3.5 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-all">
                 Tarjetas
               </button>
-              <button id="btn-view-table" class="px-3 py-1.5 text-slate-700 hover:bg-slate-100 rounded-lg transition-all">
+              <button id="btn-view-table" class="px-3.5 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-all">
                 Tabla
               </button>
             </div>
@@ -343,7 +319,7 @@
           <!-- Planilla de Horarios del Día (Sticky Header Adhesivo Activo) -->
           <div class="citaly-card">
             <!-- Cabecera Adhesiva Sticky -->
-            <div class="sticky top-16 z-20 bg-white rounded-t-2xl p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+            <div class="sticky top-20 z-20 bg-white rounded-t-2xl p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
               <div>
                 <h3 id="agenda-current-day-title" class="text-base font-bold text-navy font-display">Lunes 31 de Agosto</h3>
                 <span id="agenda-current-day-stats" class="text-xs text-slate-muted font-mono">0 turnos agendados</span>
@@ -403,24 +379,24 @@
     </div>
   </main>
 
-  <!-- BottomNavBar (Mobile) -->
-  <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-[#F8FAFC]/95 backdrop-blur-md shadow-lg" id="mobile-nav-container">
-    <button data-tab="panel" class="nav-tab-btn flex flex-col items-center p-1 text-navy font-bold">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-      <span class="text-[10px] mt-1 font-mono">Panel</span>
+  <!-- BottomNavBar (Mobile - Cápsula suave sin bloques oscuros toscos) -->
+  <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2.5 bg-[#F8FAFC]/95 backdrop-blur-md shadow-lg border-t border-slate-200/60" id="mobile-nav-container">
+    <button data-tab="panel" class="mobile-tab-btn flex flex-col items-center px-4 py-1 rounded-full text-navy font-bold transition-all bg-slate-200/80">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+      <span class="text-[10px] mt-0.5 font-mono">Panel</span>
     </button>
 
-    <button data-tab="reservas" class="nav-tab-btn flex flex-col items-center p-1 text-slate-500 font-medium">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-      <span class="text-[10px] mt-1 font-mono">Agenda</span>
+    <button data-tab="reservas" class="mobile-tab-btn flex flex-col items-center px-4 py-1 rounded-full text-slate-500 font-medium transition-all">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      <span class="text-[10px] mt-0.5 font-mono">Agenda</span>
     </button>
 
-    <button data-tab="reprogramados" class="nav-tab-btn relative flex flex-col items-center p-1 text-slate-500 font-medium">
+    <button data-tab="reprogramados" class="mobile-tab-btn relative flex flex-col items-center px-4 py-1 rounded-full text-slate-500 font-medium transition-all">
       <div class="relative flex items-center justify-center">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
-        <span id="mobile-badge-reprogramados" class="absolute -top-1.5 -right-2.5 min-w-[16px] h-[16px] px-1 bg-navy text-white text-[9px] font-mono font-bold rounded-full flex items-center justify-center hidden shadow-xs">1</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
+        <span id="mobile-badge-reprogramados" class="absolute -top-1.5 -right-2.5 min-w-[16px] h-[16px] px-1 bg-navy text-white text-[9px] font-mono font-bold rounded-full flex items-center justify-center hidden shadow-xs">0</span>
       </div>
-      <span class="text-[10px] mt-1 font-mono">Reprog.</span>
+      <span class="text-[10px] mt-0.5 font-mono">Reprog.</span>
     </button>
   </nav>
 
