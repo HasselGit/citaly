@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v37-natural-scroll';
+const CACHE_NAME = 'citaly-v38-sticky-headers';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

@@ -124,7 +124,7 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
           <span>Reprogramados</span>
         </div>
-        <span id="badge-count-reprogramados" class="px-2 py-0.5 bg-amber-100 text-amber-900 text-[10px] font-bold rounded-full font-mono hidden">0</span>
+        <span id="badge-count-reprogramados" class="px-2 py-0.5 bg-slate-200 text-slate-800 text-[10px] font-bold rounded-full font-mono hidden">0</span>
       </button>
     </nav>
 
@@ -224,23 +224,24 @@
 
         </div>
 
-        <!-- Sección Turnos del Día (Limpia y con visualización completa) -->
-        <div class="citaly-card p-5 mb-6">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 pb-3 border-b border-slate-100">
+        <!-- Sección Turnos del Día (Con Sticky Header al scrollear) -->
+        <div class="citaly-card overflow-hidden mb-6">
+          <!-- Cabecera Adhesiva Sticky -->
+          <div class="sticky top-16 z-20 bg-white/95 backdrop-blur-sm p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
             <div>
               <h3 class="text-base font-bold text-navy font-display">Turnos del Día</h3>
               <span id="today-summary-subtitle" class="text-xs text-slate-muted font-mono">Cargando turnos de hoy...</span>
             </div>
             <!-- Píldoras de Especialidad Rápidas -->
-            <div id="today-specialty-pills" class="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1">
+            <div id="today-specialty-pills" class="flex items-center gap-1.5 overflow-x-auto max-w-full pb-0.5">
               <!-- Dinámico -->
             </div>
           </div>
 
           <!-- Tabla Simple de Turnos de Hoy -->
-          <div class="overflow-x-auto rounded-xl border border-slate-100">
+          <div class="overflow-x-auto p-2 sm:p-4">
             <table class="w-full text-left border-collapse text-xs">
-              <thead class="border-b border-slate-200 bg-slate-50/50">
+              <thead class="border-b border-slate-200">
                 <tr class="text-slate-400 font-mono text-[11px] uppercase">
                   <th class="py-2.5 px-3">Horario</th>
                   <th class="py-2.5 px-3">Paciente</th>
@@ -310,9 +311,10 @@
             </div>
           </div>
 
-          <!-- Planilla de Horarios del Día -->
-          <div class="citaly-card p-5">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+          <!-- Planilla de Horarios del Día (Con Sticky Header al scrollear) -->
+          <div class="citaly-card overflow-hidden">
+            <!-- Cabecera Adhesiva Sticky -->
+            <div class="sticky top-16 z-20 bg-white/95 backdrop-blur-sm p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
               <div>
                 <h3 id="agenda-current-day-title" class="text-base font-bold text-navy font-display">Lunes 31 de Agosto</h3>
                 <span id="agenda-current-day-stats" class="text-xs text-slate-muted font-mono">0 turnos agendados</span>
@@ -327,8 +329,10 @@
             </div>
 
             <!-- Grilla Horaria Sin Cortes -->
-            <div id="agenda-slots-sheet" class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-              <!-- Dinámico: Horarios 09:00 a 18:00 hs -->
+            <div class="p-4 sm:p-5">
+              <div id="agenda-slots-sheet" class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                <!-- Dinámico: Horarios 09:00 a 18:00 hs -->
+              </div>
             </div>
           </div>
         </div>
@@ -375,7 +379,7 @@
     </div>
   </main>
 
-  <!-- BottomNavBar (Mobile - Fondo #F8FAFC, Sin rayas divisorias, Badge numérico nítido) -->
+  <!-- BottomNavBar (Mobile - Fondo #F8FAFC, Sin rayas divisorias, Badge milimétricamente anclado al ícono) -->
   <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-[#F8FAFC]/95 backdrop-blur-md shadow-lg" id="mobile-nav-container">
     <button data-tab="panel" class="nav-tab-btn flex flex-col items-center p-1 text-navy font-bold">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
@@ -387,10 +391,12 @@
       <span class="text-[10px] mt-1 font-mono">Agenda</span>
     </button>
 
-    <button data-tab="reprogramados" class="nav-tab-btn relative flex flex-col items-center p-1 text-slate-500 font-medium">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
+    <button data-tab="reprogramados" class="nav-tab-btn flex flex-col items-center p-1 text-slate-500 font-medium">
+      <div class="relative flex items-center justify-center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
+        <span id="mobile-badge-reprogramados" class="absolute -top-1.5 -right-2.5 min-w-[16px] h-[16px] px-1 bg-navy text-white text-[9px] font-mono font-bold rounded-full flex items-center justify-center hidden shadow-xs">1</span>
+      </div>
       <span class="text-[10px] mt-1 font-mono">Reprog.</span>
-      <span id="mobile-badge-reprogramados" class="absolute -top-1 right-2 min-w-[17px] h-[17px] px-1 bg-navy text-white text-[9px] font-mono font-bold rounded-full flex items-center justify-center hidden">1</span>
     </button>
   </nav>
 
