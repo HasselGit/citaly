@@ -236,7 +236,22 @@ async def create_appointment(
             old_appt.status = "CANCELLED"
             db.commit()
             was_rescheduled = True
-            print(f"[REPROGRAMACION]: Turno anterior {old_appt.id} del {old_appt.start_time} marcado como CANCELLED. Horario liberado.")
+        # 3.5. Validar solapamiento atómico concurrente (anti double-booking)
+        overlapping_appt = db.query(Appointment).filter(
+            Appointment.tenant_id == tenant.id,
+            Appointment.status != "CANCELLED",
+            Appointment.start_time < end_dt,
+            Appointment.end_time > start_dt
+        ).first()
+
+        if overlapping_appt:
+            return JSONResponse(
+                status_code=409,
+                content={
+                    "success": False,
+                    "detail": "El horario seleccionado acaba de ser reservado por otro paciente. Por favor, selecciona otro horario disponible."
+                }
+            )
 
         # 4. Crear la reserva del nuevo turno
         token_cancel = str(uuid.uuid4())

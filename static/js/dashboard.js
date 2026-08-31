@@ -445,14 +445,27 @@ document.addEventListener('DOMContentLoaded', () => {
       agendaCurrentDayStats.innerText = `${occupiedCount} ${occupiedCount === 1 ? 'turno agendado' : 'turnos agendados'} de ${defaultSlotsTimes.length} horarios`;
     }
 
-    // Filtrar Horarios según disponibilidad
+    const now = new Date();
+    const todayIso = formatLocalDate(now);
+    const isPastDay = selectedIso < todayIso;
+    const isToday = selectedIso === todayIso;
+    const currentHour = now.getHours();
+    const currentMin = now.getMinutes();
+
+    // Filtrar Horarios según disponibilidad y tiempo real
     let visibleSlots = defaultSlotsTimes.map(timeSlot => {
+      const [hStr, mStr] = timeSlot.split(':');
+      const slotH = parseInt(hStr, 10);
+      const slotM = parseInt(mStr, 10);
+
+      const isPastSlot = isPastDay || (isToday && (slotH < currentHour || (slotH === currentHour && slotM <= currentMin)));
       const appt = dayAppointments.find(a => a.time_str === timeSlot);
-      return { timeSlot, appt };
+      return { timeSlot, appt, isPastSlot };
     });
 
     if (selectedAvailabilityFilter === 'free') {
-      visibleSlots = visibleSlots.filter(s => !s.appt);
+      // Solo turnos que NO tienen cita y que NO han pasado
+      visibleSlots = visibleSlots.filter(s => !s.appt && !s.isPastSlot);
     } else if (selectedAvailabilityFilter === 'occupied') {
       visibleSlots = visibleSlots.filter(s => !!s.appt);
     }
@@ -461,7 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
       agendaSlotsSheet.innerHTML = `
         <div class="col-span-full p-8 text-center bg-slate-50 rounded-xl border border-slate-200">
           <p class="text-xs text-slate-500 font-sans">
-            No hay horarios ${selectedAvailabilityFilter === 'free' ? 'libres' : 'ocupados'} para este día.
+            No hay horarios ${selectedAvailabilityFilter === 'free' ? 'libres disponibles' : 'ocupados'} para este día.
           </p>
         </div>
       `;
@@ -469,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Grilla Horaria
-    agendaSlotsSheet.innerHTML = visibleSlots.map(({ timeSlot, appt }) => {
+    agendaSlotsSheet.innerHTML = visibleSlots.map(({ timeSlot, appt, isPastSlot }) => {
       if (appt) {
         const cleanPhone = (appt.patient_whatsapp || '').replace(/\D/g, '');
         return `
@@ -488,6 +501,18 @@ document.addEventListener('DOMContentLoaded', () => {
             </span>
           </div>
         `;
+      } else if (isPastSlot) {
+        return `
+          <div class="p-3 bg-slate-100/60 rounded-xl border border-slate-200/60 flex items-center justify-between gap-3 opacity-60">
+            <div class="flex items-center gap-3">
+              <span class="px-2.5 py-1 bg-slate-200 text-slate-500 text-xs font-bold font-mono rounded-lg flex-shrink-0">
+                ${timeSlot} hs
+              </span>
+              <span class="text-xs font-medium text-slate-400 font-sans">Horario no disponible</span>
+            </div>
+            <span class="text-[11px] font-semibold text-slate-400 font-mono">Pasado</span>
+          </div>
+        `;
       } else {
         return `
           <div class="p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between gap-3">
@@ -497,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
               </span>
               <span class="text-xs font-medium text-slate-400 font-sans">Disponible</span>
             </div>
-            <span class="text-[11px] font-semibold text-slate-400 font-mono">Libre</span>
+            <span class="text-[11px] font-semibold text-emerald-600 font-mono">● Libre</span>
           </div>
         `;
       }

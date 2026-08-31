@@ -334,16 +334,21 @@ document.addEventListener('DOMContentLoaded', () => {
           slotsContainer.querySelectorAll('.slot-pill').forEach(pill => {
             const iso = pill.getAttribute('data-iso');
             if (!iso) return;
-            // Si la API conoce este slot y dice que no está disponible → disabled
-            if (iso in apiMap && !apiMap[iso]) {
-              pill.classList.remove('available', 'selected');
-              pill.classList.add('disabled');
-              if (selectedTimeSlot === iso) {
-                selectedTimeSlot = null;
-                if (btnOpenModal) btnOpenModal.disabled = true;
+            if (iso in apiMap) {
+              if (!apiMap[iso]) {
+                pill.classList.remove('available', 'selected');
+                pill.classList.add('disabled');
+                if (selectedTimeSlot === iso) {
+                  selectedTimeSlot = null;
+                  if (btnOpenModal) btnOpenModal.disabled = true;
+                }
+              } else {
+                if (pill.classList.contains('disabled')) {
+                  pill.classList.remove('disabled');
+                  pill.classList.add('available');
+                }
               }
             }
-            // Si la API NO incluye este slot → lo dejamos como está (renderSlotsInstant ya lo marcó)
           });
 
           attachSlotClickEvents();
@@ -353,6 +358,24 @@ document.addEventListener('DOMContentLoaded', () => {
       console.warn('Error al sincronizar horarios desde servidor:', e);
     }
   }
+
+  // Auto-sincronización en vivo silenciosa cada 5 segundos
+  let liveSlotSyncTimer = null;
+  function startLiveSlotSync() {
+    if (liveSlotSyncTimer) clearInterval(liveSlotSyncTimer);
+    liveSlotSyncTimer = setInterval(() => {
+      if (document.visibilityState === 'visible' && selectedServiceId) {
+        fetchAvailability();
+      }
+    }, 5000);
+  }
+  startLiveSlotSync();
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && selectedServiceId) {
+      fetchAvailability();
+    }
+  });
 
 
 
