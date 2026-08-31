@@ -44,6 +44,7 @@
       background-color: #F8FAFC;
       color: #0F172A;
       -webkit-tap-highlight-color: transparent;
+      -webkit-overflow-scrolling: touch;
     }
     h1, h2, h3, h4, .font-display { font-family: 'Montserrat', sans-serif; }
     .font-mono { font-family: 'JetBrains Mono', monospace; }
@@ -74,7 +75,7 @@
     ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
   </style>
 </head>
-<body class="bg-[#F8FAFC] flex h-screen overflow-hidden text-slate-900">
+<body class="bg-[#F8FAFC] min-h-screen text-slate-900 antialiased">
 
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
@@ -136,10 +137,10 @@
     </div>
   </aside>
 
-  <!-- Main Content Area -->
-  <main class="flex-1 md:ml-64 flex flex-col h-full overflow-y-auto w-full">
+  <!-- Main Content Area (Scroll Nativo Fluido) -->
+  <main class="flex-1 md:ml-64 min-h-screen w-full flex flex-col">
     
-    <!-- TopNavBar Minimalista (Fondo idéntico al canvas #F8FAFC, Sin rayas duras) -->
+    <!-- TopNavBar Minimalista (Fondo idéntico al canvas #F8FAFC) -->
     <header class="fixed top-0 left-0 md:left-64 right-0 z-30 h-16 bg-[#F8FAFC]/95 backdrop-blur-sm flex justify-between items-center px-4 md:px-8">
       
       <!-- Mobile Header -->
@@ -168,8 +169,8 @@
       </div>
     </header>
 
-    <!-- Dashboard Canvas Content -->
-    <div class="pt-20 pb-28 md:pb-16 px-4 md:px-8 max-w-6xl mx-auto w-full flex-1">
+    <!-- Dashboard Canvas Content (Padding inferior amplio para barra móvil) -->
+    <div class="pt-20 pb-36 md:pb-16 px-4 md:px-8 max-w-6xl mx-auto w-full flex-1">
       
       <!-- ================= PESTAÑA 1: PANEL GENERAL ================= -->
       <div id="view-panel" class="tab-content-anim" style="display: block;">
@@ -223,7 +224,7 @@
 
         </div>
 
-        <!-- Sección Turnos del Día (Con scroll interno y sticky header) -->
+        <!-- Sección Turnos del Día (Limpia y con visualización completa) -->
         <div class="citaly-card p-5 mb-6">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 pb-3 border-b border-slate-100">
             <div>
@@ -236,11 +237,11 @@
             </div>
           </div>
 
-          <!-- Tabla Simple con Scroll Interno y Encabezado Fijo -->
-          <div class="max-h-64 overflow-y-auto rounded-xl border border-slate-100">
+          <!-- Tabla Simple de Turnos de Hoy -->
+          <div class="overflow-x-auto rounded-xl border border-slate-100">
             <table class="w-full text-left border-collapse text-xs">
-              <thead class="sticky top-0 bg-white z-10 border-b border-slate-200">
-                <tr class="text-slate-400 font-mono text-[11px] uppercase bg-white">
+              <thead class="border-b border-slate-200 bg-slate-50/50">
+                <tr class="text-slate-400 font-mono text-[11px] uppercase">
                   <th class="py-2.5 px-3">Horario</th>
                   <th class="py-2.5 px-3">Paciente</th>
                   <th class="py-2.5 px-3">Tratamiento</th>
@@ -254,7 +255,7 @@
           </div>
         </div>
 
-        <!-- Sección Enlace Público y QR (Ultra-compacta: QR al lado del botón, sin texto redundante) -->
+        <!-- Sección Enlace Público y QR (Ultra-compacta: QR al lado del botón) -->
         <div class="p-4 md:p-5 bg-white rounded-2xl border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
           <div>
             <span class="text-[10px] font-bold text-amber-brand uppercase tracking-wider font-mono block">Enlace de Pacientes</span>
@@ -299,7 +300,7 @@
           </div>
         </div>
 
-        <!-- Vista Agenda Diaria & Semanal (Limpia con scroll interno y filtros) -->
+        <!-- Vista Agenda Diaria & Semanal (Limpia y fluida) -->
         <div id="reservas-agenda-view" class="space-y-4">
           <!-- Selector de Días Horizontal -->
           <div class="citaly-card p-3">
@@ -325,11 +326,9 @@
               </div>
             </div>
 
-            <!-- Grilla Horaria con Altura Controlada y Scroll Fluido -->
-            <div class="max-h-[460px] overflow-y-auto pr-1">
-              <div id="agenda-slots-sheet" class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                <!-- Dinámico: Horarios 09:00 a 18:00 hs -->
-              </div>
+            <!-- Grilla Horaria Sin Cortes -->
+            <div id="agenda-slots-sheet" class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              <!-- Dinámico: Horarios 09:00 a 18:00 hs -->
             </div>
           </div>
         </div>

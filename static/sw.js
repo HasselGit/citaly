@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v36-dashboard-7improvements';
+const CACHE_NAME = 'citaly-v37-natural-scroll';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
