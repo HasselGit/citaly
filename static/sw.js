@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v43-calendar-layout-balance';
+const CACHE_NAME = 'citaly-v44-header-card-data-fix';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

@@ -171,15 +171,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 5. Cargar Turnos desde la API Backend
   async function fetchDashboardAppointments() {
-    if (syncIcon) syncIcon.classList.add('animate-spin');
-
     try {
-      const res = await fetch('/api/v1/booking/appointments-list?tenant_id=demo-tenant-citaly-001', { cache: 'no-store' });
+      const res = await fetch('/api/v1/booking/appointments', { cache: 'no-store' });
       if (!res.ok) throw new Error('Error al consultar turnos');
       const data = await res.json();
 
-      if (data && data.appointments) {
-        allAppointments = data.appointments;
+      allAppointments = Array.isArray(data) ? data : (data.appointments || []);
+      if (allAppointments) {
         
         // Actualizar hora de sincronización
         const now = new Date();
