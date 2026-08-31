@@ -307,7 +307,18 @@ document.addEventListener('DOMContentLoaded', () => {
     reservasNormalView.style.display = 'block';
     reservasAgendaView.style.display = 'none';
 
-    let filtered = [...allAppointments];
+    const now = new Date();
+    const sevenDaysAgo = new Date(now);
+    sevenDaysAgo.setDate(now.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    let filtered = allAppointments.filter(a => {
+      if (!a.start_time) return false;
+      const d = new Date(a.start_time);
+      // Turnos futuros o de los últimos 7 días
+      return d >= sevenDaysAgo;
+    });
+
     const searchVal = searchInput ? searchInput.value.toLowerCase().trim() : '';
     if (searchVal) {
       filtered = filtered.filter(a => 
@@ -462,6 +473,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const appt = dayAppointments.find(a => a.time_str === timeSlot);
       return { timeSlot, appt, isPastSlot };
     });
+
+    // En la vista general o libre, no mostrar slots libres que ya pasaron
+    visibleSlots = visibleSlots.filter(s => s.appt || !s.isPastSlot);
 
     if (selectedAvailabilityFilter === 'free') {
       // Solo turnos que NO tienen cita y que NO han pasado

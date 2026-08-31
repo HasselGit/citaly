@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v40-live-slots-sync';
+const CACHE_NAME = 'citaly-v41-clean-agenda';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
