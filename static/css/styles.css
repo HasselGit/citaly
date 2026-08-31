@@ -43,10 +43,17 @@ h1, h2, h3, h4, .font-display {
 
 /* App Main Container */
 .app-container {
-  max-width: 520px;
+  max-width: 580px;
   margin: 0 auto;
   padding: 0 16px 40px 16px;
   position: relative;
+}
+
+@media (min-width: 768px) {
+  .app-container {
+    max-width: 680px;
+    padding: 20px 24px 60px 24px;
+  }
 }
 
 /* Sticky Header Corporativo Fijo (Fondo idéntico al cuerpo #F8FAFC) */

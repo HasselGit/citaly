@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const agendaCurrentDayTitle = document.getElementById('agenda-current-day-title');
   const agendaCurrentDayStats = document.getElementById('agenda-current-day-stats');
 
-  // Controles de Navegación Semanal
+  // Controles de Navegación de Mes/Semanas
   const btnPrevWeek = document.getElementById('btn-prev-week');
   const btnNextWeek = document.getElementById('btn-next-week');
   const agendaWeekLabel = document.getElementById('agenda-week-label');
@@ -402,12 +402,14 @@ document.addEventListener('DOMContentLoaded', () => {
     `).join('');
   }
 
-  // 9. Renderizar Grilla Diaria con Filtros de Disponibilidad y Navegación Semanal
+  // 9. Renderizar Grilla Diaria con Filtros de Disponibilidad y Navegación de Mes/Semanas
   function renderWeeklyAgenda() {
     if (!agendaDayPillsContainer || !agendaSlotsSheet) return;
 
-    // Calcular días de la semana según el offset
+    // Calcular días a renderizar: 6 días consecutivos desde la fecha base
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
     const baseStart = new Date(today);
     baseStart.setDate(today.getDate() + (currentAgendaWeekOffset * 6));
     
@@ -418,18 +420,28 @@ document.addEventListener('DOMContentLoaded', () => {
       temp.setDate(temp.getDate() + 1);
     }
 
-    // Actualizar etiqueta de semana
-    if (agendaWeekLabel) {
-      if (currentAgendaWeekOffset === 0) {
-        agendaWeekLabel.innerText = 'Esta Semana';
-      } else if (currentAgendaWeekOffset > 0) {
-        agendaWeekLabel.innerText = `+${currentAgendaWeekOffset} Sem.`;
+    // Actualizar etiqueta de Mes y Año en la cabecera (ej: "Agosto / Septiembre 2026")
+    if (agendaWeekLabel && daysToRender.length > 0) {
+      const firstD = daysToRender[0];
+      const lastD = daysToRender[daysToRender.length - 1];
+      const firstM = monthsFull[firstD.getMonth()];
+      const lastM = monthsFull[lastD.getMonth()];
+      const year = lastD.getFullYear();
+      
+      if (firstM === lastM) {
+        agendaWeekLabel.innerText = `${firstM} ${year}`;
       } else {
-        agendaWeekLabel.innerText = `${currentAgendaWeekOffset} Sem.`;
+        agendaWeekLabel.innerText = `${firstM} / ${lastM} ${year}`;
       }
     }
 
-    const selectedIso = formatLocalDate(selectedAgendaDate);
+    // Si la fecha seleccionada no está en los 6 días visibles, seleccionar el primero
+    let selectedIso = formatLocalDate(selectedAgendaDate);
+    const visibleIsos = daysToRender.map(d => formatLocalDate(d));
+    if (!visibleIsos.includes(selectedIso)) {
+      selectedAgendaDate = daysToRender[0];
+      selectedIso = formatLocalDate(selectedAgendaDate);
+    }
 
     // Renderizar Selector de Días
     agendaDayPillsContainer.innerHTML = daysToRender.map(d => {
@@ -451,7 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <button data-day-iso="${dIso}" class="agenda-day-btn p-2.5 rounded-xl flex flex-col items-center justify-center text-center transition-all ${isSelected ? 'bg-navy text-white shadow-xs font-bold' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'}">
           <span class="text-[10px] font-bold uppercase font-mono ${isSelected ? 'text-amber-400' : 'text-slate-500'}">${dayName}</span>
           <span class="text-sm font-bold font-display my-0.5">${dayNum}/${monthNum}</span>
-          <span class="text-[9px] font-semibold font-mono ${isSelected ? 'text-slate-300' : 'text-slate-500'}">${countLabel}</span>
+          <span class="text-[9px] font-semibold font-mono ${isSelected ? 'text-slate-300' : (count > 0 ? 'text-amber-700 font-bold' : 'text-slate-500')}">${countLabel}</span>
         </button>
       `;
     }).join('');
@@ -503,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return { timeSlot, appt, isPastSlot };
     });
 
-    // En la vista general o libre, no mostrar slots libres que ya pasaron
+    // Ocultar slots libres que ya pasaron
     visibleSlots = visibleSlots.filter(s => s.appt || !s.isPastSlot);
 
     if (selectedAvailabilityFilter === 'free') {
@@ -570,13 +582,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
-  // Listeners de Navegación Semanal (< / >)
+  // Listeners de Navegación Semanal / Mes (< / >)
   if (btnPrevWeek) {
     btnPrevWeek.addEventListener('click', () => {
       currentAgendaWeekOffset--;
-      const base = new Date();
-      base.setDate(base.getDate() + (currentAgendaWeekOffset * 6));
-      selectedAgendaDate = base;
       renderWeeklyAgenda();
     });
   }
@@ -584,9 +593,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnNextWeek) {
     btnNextWeek.addEventListener('click', () => {
       currentAgendaWeekOffset++;
-      const base = new Date();
-      base.setDate(base.getDate() + (currentAgendaWeekOffset * 6));
-      selectedAgendaDate = base;
       renderWeeklyAgenda();
     });
   }

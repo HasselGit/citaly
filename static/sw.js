@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v42-agenda-nav-search';
+const CACHE_NAME = 'citaly-v43-calendar-layout-balance';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

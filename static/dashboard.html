@@ -137,11 +137,11 @@
     </div>
   </aside>
 
-  <!-- Main Content Area (Scroll Nativo Fluido & Ancho Balanceado en Desktop) -->
+  <!-- Main Content Area (Alineación natural junto a la barra lateral) -->
   <main class="flex-1 md:ml-64 min-h-screen w-full flex flex-col">
     
-    <!-- TopNavBar Minimalista (Fondo idéntico al canvas #F8FAFC) -->
-    <header class="fixed top-0 left-0 md:left-64 right-0 z-30 h-16 bg-[#F8FAFC]/95 backdrop-blur-sm flex justify-between items-center px-4 md:px-8">
+    <!-- TopNavBar Minimalista -->
+    <header class="fixed top-0 left-0 md:left-64 right-0 z-30 h-16 bg-[#F8FAFC]/95 backdrop-blur-sm flex justify-between items-center px-4 md:px-10">
       
       <!-- Mobile Header -->
       <div class="md:hidden flex items-center gap-2.5">
@@ -169,8 +169,8 @@
       </div>
     </header>
 
-    <!-- Dashboard Canvas Content (Centrado y distribuido sin huecos a la izquierda) -->
-    <div class="pt-20 pb-36 md:pb-16 px-4 md:px-8 max-w-7xl mx-auto w-full flex-1">
+    <!-- Dashboard Canvas Content (Balanceado en Desktop) -->
+    <div class="pt-20 pb-36 md:pb-16 px-4 md:px-10 max-w-7xl w-full flex-1">
       
       <!-- ================= PESTAÑA 1: PANEL GENERAL ================= -->
       <div id="view-panel" class="tab-content-anim" style="display: block;">
@@ -313,21 +313,19 @@
 
         <!-- Vista Agenda Diaria & Semanal -->
         <div id="reservas-agenda-view" class="space-y-4">
-          <!-- Selector de Días Horizontal con Navegación Semanal (< / >) -->
+          <!-- Selector de Días Horizontal con Navegación Natural de Mes (< / >) -->
           <div class="citaly-card p-3.5">
-            <div class="flex items-center justify-between mb-2.5 px-1">
+            <div class="flex items-center justify-between mb-3 px-1">
               <span class="text-[11px] font-semibold text-slate-muted uppercase tracking-wider font-mono">Días de Atención</span>
               
-              <!-- Controles Semanales (< / >) -->
-              <div class="flex items-center gap-1.5 font-mono text-xs">
-                <button id="btn-prev-week" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all flex items-center gap-1 font-semibold" title="Semana anterior">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                  <span class="hidden sm:inline text-[11px]">Sem. Anterior</span>
+              <!-- Controles de Mes / Semana (< / >) -->
+              <div class="flex items-center gap-2">
+                <button id="btn-prev-week" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all flex items-center justify-center" title="Días anteriores">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                 </button>
-                <span id="agenda-week-label" class="px-2 py-0.5 text-slate-600 font-semibold text-[11px]">Esta Semana</span>
-                <button id="btn-next-week" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all flex items-center gap-1 font-semibold" title="Semana siguiente">
-                  <span class="hidden sm:inline text-[11px]">Sem. Siguiente</span>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <span id="agenda-week-label" class="text-xs font-bold text-navy font-display px-1">Agosto / Septiembre 2026</span>
+                <button id="btn-next-week" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all flex items-center justify-center" title="Días siguientes">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </button>
               </div>
             </div>
