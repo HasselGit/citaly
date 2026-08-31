@@ -2,7 +2,7 @@
 
 Este documento contiene las reglas de arquitectura, infraestructura, base de datos, UX/UI, endpoints backend y flujos de trabajo necesarias para que cualquier Agente de IA pueda reproducir, mantener o extender este proyecto hasta el más mínimo detalle desde el principio sin introducir regresiones.
 
-**Última actualización:** 2026-08-28 (guarda-todo)
+**Última actualización:** 2026-08-30 (guarda-todo)
 
 ---
 
@@ -10,7 +10,7 @@ Este documento contiene las reglas de arquitectura, infraestructura, base de dat
 
 ### Despliegue en Vercel (Serverless Free Tier)
 - **URL de Producción Única:** `https://citaly-six.vercel.app` (No crear proyectos adicionales en Vercel).
-- **Framework Backend:** FastAPI (Python 3.12/3.14).
+- **Framework Backend:** FastAPI (Python 3.12).
 - **Regla Crítica Serverless:** **JAMÁS** ejecutar llamadas síncronas o bloqueantes a la base de datos durante la importación de módulos (ej. `init_db()` o `Base.metadata.create_all()` en `main.py` o `session.py`). Las funciones serverless congelan y rompen la invocación con timeouts (`exit status 500 / context canceled`).
 - **Patrón de Conexión:** **Lazy Connection** vía `get_db()`. La conexión a PostgreSQL se realiza únicamente a nivel de request.
 
@@ -76,12 +76,11 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 
 ## 🎨 3. Reglas de UX/UI y Frontend (PWA & Dashboard)
 
-### Frontend Paciente (PWA)
-1. **Patrón Colapsable de Tarjetas de Tratamiento:**
-   - Al seleccionar un tratamiento en `index.html`, la tarjeta seleccionada colapsa/resume su vista para dar espacio al calendario y slots de horarios. **NO eliminar esta funcionalidad.**
-2. **Reserva y Reprogramación Atómica:**
-   - Al reprogramar (`reschedule_from_token` o `reschedule_from_id`), la cita anterior pasa automáticamente a `status = 'CANCELLED'` en PostgreSQL, liberando de inmediato el horario viejo para otros pacientes.
-   - Autocompletado de datos: Al reprogramar, el sistema pre-carga automáticamente `patient_name` y `patient_whatsapp` en el formulario para que el usuario no deba reescribirlos.
+### Sistema Tipográfico Oficial Unificado (100% de la plataforma)
+- **Títulos y Display (`font-display`):** `Montserrat` (Pesos: 600, 700, 800)
+- **Cuerpo, Formularios y Botones (`font-sans`):** `Inter` (Pesos: 400, 500, 600)
+- **Fechas, Horarios y Badges (`font-mono`):** `JetBrains Mono` (Pesos: 500, 600, 700)
+
 ### Frontend Paciente (PWA)
 1. **Patrón Colapsable de Tarjetas de Tratamiento:**
    - Al seleccionar un tratamiento en `index.html`, la tarjeta seleccionada colapsa/resume su vista para dar espacio al calendario y slots de horarios. **NO eliminar esta funcionalidad.**
@@ -104,18 +103,30 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 1. **Estética Minimalista High-End (Stitch MCP — TuTurno / Citaly Core):**
    - Paleta: Titanium Navy (`#0F172A`), Fondo Soft Canvas (`#F8FAFC`), Tarjetas Blancas Puras (`#FFFFFF`), Acentos Ámbar (`#D97706`) y Muted Slate (`#64748B`).
    - Sin colores estridentes ni líneas divisorias duras en la barra superior, lateral o barra inferior móvil.
-   - Tipografía oficial unificada: `Montserrat` (títulos y display), `Inter` (cuerpo y labels), `JetBrains Mono` (fechas y números tabulares).
-2. **Resumen General:**
-   - Métricas Bento con selector de período (`Esta Semana` por defecto / `Este Mes`): `Turnos Totales`, `Cancelados`, `Reprogramados`, `Ocupación`.
-   - Módulo **Turnos de Hoy**: Subtítulo dinámico con fecha completa y tabla minimalista con filtro rápido por especialidad/tratamiento.
-   - Sección QR y link para pacientes integrada orgánicamente al fondo `#F8FAFC` sin marcos de tarjeta cerrados.
-3. **Agenda de Turnos & Vistas:**
+   - Fondo de la barra superior `header` idéntico al canvas general (`#F8FAFC`).
+2. **Resumen General (`#view-panel`):**
+   - **Métricas Bento con Selector de Período:** `[ Esta Semana ]` (7 días corridos) / `[ Este Mes ]` (30 días corridos).
+     - `Turnos Totales`
+     - `Cancelados` (reemplaza Confirmados)
+     - `Reprogramados` (contabiliza turnos con nueva fecha)
+     - `Ocupación` (mide la capacidad real: `Turnos Activos / Total Slots de Capacidad * 100`).
+   - **Módulo Turnos de Hoy:**
+     - Encabezado con fecha dinámica completa.
+     - Píldoras de filtro rápido por especialidad/tratamiento (`Ver Todos`, etc.).
+     - Tabla minimalista con padding vertical holgado (`py-3.5`) y Sticky Header (`sticky top-16 z-20 bg-white`).
+   - **Enlace Público y QR:** Sección integrada sin aspecto de tarjeta pesada, con el código QR alineado al lado del botón de copia.
+3. **Agenda de Turnos (`#view-reservas`):**
    - Selector de días con botones limpios y conteo de turnos.
-   - Modos de vista: `Agenda Diaria` (grilla horaria), `Tarjetas` y `Tabla` con contraste nítido (`bg-navy text-white`).
+   - Modos de vista: `Agenda Diaria`, `Tarjetas` y `Tabla` con contraste nítido (`bg-navy text-white`).
+   - **Grilla Horaria Diaria:**
+     - Filtros de disponibilidad: `[ Todos ]`, `[ Libres ]`, `[ Ocupados ]`.
+     - Sticky Header adhesivo (`sticky top-16 z-20 bg-white`) para el día seleccionado y los filtros al deslizar.
 4. **Módulo de Turnos Reprogramados (`#view-reprogramados`):**
    - Pestaña dedicada con auto-expiración de turnos cumplidos (`start_time >= now`).
-5. **Navegación Móvil:**
-   - BottomNavBar en `#F8FAFC` sin borde divisor superior y con íconos de escala 22px y trazo 2.3 para óptima visibilidad.
+   - Badge numérico en la navegación móvil `[ 1 ]` anclado en la esquina superior derecha del ícono de `Reprog.`.
+5. **Scroll Nativo y Holgura en Móvil:**
+   - `body` con scroll nativo (`min-h-screen`, sin `overflow-hidden` ni trampas táctiles).
+   - Padding inferior amplio (`pb-36`) para que la barra inferior móvil nunca tape el último elemento.
 
 ---
 
@@ -124,10 +135,16 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 ### Arquitectura de Envío
 - **Servicio:** `app/services/whatsapp.py` → clase `WhatsAppService`
 - **Número Emisor (Producción Chip Propio):** `+54 9 2302 64-0284` (Phone Number ID: `1284438344753210`)
-- **WABA ID:** `965775717869143` (TuTurno) / `1006525879102174` (Plantillas)
+- **WABA ID:** `1006525879102174` (Plantillas) / `965775717869143` (TuTurno)
 - **App ID Meta:** `2060755134547559`
 - **Token:** Long-lived user token, 59 días, **vence 26/10/2026**
 - **URL Base:** `https://graph.facebook.com/v18.0/{PHONE_NUMBER_ID}/messages`
+
+### Estado de Plantillas en Meta (WABA: `1006525879102174`)
+- `citaly_confirmacion_v1` (`es_AR`): ⏳ `PENDING` (En revisión de Meta)
+- `citaly_recordatorio_24h_v1` (`es_AR`): ⏳ `PENDING` (En revisión de Meta)
+- `citaly_recordatorio_2h_v1` (`es_AR`): ⏳ `PENDING` (En revisión de Meta)
+- `hello_world` (`en_US`): ✅ `APPROVED` (Aprobada)
 
 ### Flujo de Cancelación y Reprogramación
 - **Cancelación Directa por WhatsApp:** Al responder `CANCELAR`, el webhook localiza de forma determinista el `wamid` de la notificación o el turno del último mensaje enviado a ese número y lo cancela de inmediato liberando el slot en DB.
@@ -139,41 +156,6 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
   • Para cancelar: respondé CANCELAR a este mensaje.
   • Para reprogramar ingresá a: https://citaly-six.vercel.app
   ```
-
-### Restricción Crítica del Sandbox de Meta
-- Con el número de prueba (`+1 555-659-2482`), Meta **solo permite enviar mensajes a números verificados manualmente** en la consola de Meta Developers.
-- La verificación se hace en: [https://developers.facebook.com/apps/2060755134547559/whatsapp-business/wa-dev-console/](https://developers.facebook.com/apps/2060755134547559/wa-dev-console/)
-- **Paso para verificar receptor:** En "Destinatario" seleccionar número → hacer clic en "Enviar mensaje" → ingresar código OTP que llega por WhatsApp.
-- Esta restricción **desaparece totalmente** al registrar un número de negocio real (chip propio) en el Paso 2 de Meta.
-
-### Renovación del Token (cuando venza el 26/10/2026)
-1. Ir a la consola de Meta → "Generar token" → copiar token corto
-2. Ejecutar `scratch/exchange_token.py` con el nuevo token corto
-3. Actualizar `WHATSAPP_TOKEN` en Vercel:
-   ```powershell
-   npx vercel env rm WHATSAPP_TOKEN production --yes
-   echo "NUEVO_TOKEN" | npx vercel env add WHATSAPP_TOKEN production
-   npx vercel --prod --yes
-   ```
-
-### Mensajes y Plantillas
-- **Modo sandbox:** Solo se puede usar la plantilla `hello_world` (`en_US`) — Meta no permite texto libre como primer mensaje.
-- **Modo producción (número real):** Usar `send_text_message()` con el texto personalizado completo que ya está construido en `booking.py`.
-- **Texto de confirmación** (cuando haya número real):
-  ```
-  Hola {patient.full_name}, te confirmamos tu turno en {tenant.business_name}
-  para el tratamiento de {service.name} el día {DD/MM a las HH:MM hs}.
-  Si no podés asistir, respondé CANCELAR a este mensaje.
-  Si deseás cambiar fecha u hora, reprogramá tu cita aquí: {reschedule_url}
-  ```
-- **Webhook entrante:** `/api/v1/webhook/meta` procesa respuestas `CANCELAR` (→ `CANCELLED`) y `CONFIRMAR` (→ `CONFIRMED`) del paciente.
-
-### Próximo paso para producción real
-1. Comprar chip prepago (cualquier operadora Argentina)
-2. En Meta Developers → Paso 2: Configuración de producción → Agregar número de teléfono
-3. Verificar con OTP
-4. Actualizar `WHATSAPP_PHONE_NUMBER_ID` y `WHATSAPP_TOKEN` en Vercel
-5. Cambiar `send_template_message("hello_world")` → `send_text_message(wa_text)` en `booking.py` línea 275
 
 ---
 
@@ -195,19 +177,12 @@ Invoke-WebRequest -Uri "https://citaly-six.vercel.app/api/health" -UseBasicParsi
 # 2. Diagnóstico WhatsApp (token + envío de prueba)
 Invoke-RestMethod -Uri "https://citaly-six.vercel.app/api/debug-whatsapp" | ConvertTo-Json -Depth 10
 
-# 3. Crear una cita de prueba
+# 3. Consultar estado de plantillas Meta
+python scratch/check_templates_status.py
+
+# 4. Crear una cita de prueba
 $body = @{service_id="dummy";start_time="2026-09-01T10:00:00";patient_full_name="Test Usuario";patient_whatsapp="1155769048"} | ConvertTo-Json
 Invoke-WebRequest -Uri "https://citaly-six.vercel.app/api/v1/booking/appointments" -Method POST -ContentType "application/json" -Body $body -UseBasicParsing
-
-# 4. Verificar disponibilidad
-Invoke-WebRequest -Uri "https://citaly-six.vercel.app/api/v1/booking/availability?service_id=<ID>&target_date_str=2026-09-01" -UseBasicParsing
-```
-
-### Script de Intercambio de Token (renovación)
-```powershell
-# Desde c:\Users\Usuario\Desktop\Citaly\
-$env:PYTHONIOENCODING="utf-8"
-python scratch/exchange_token.py
 ```
 
 ---
@@ -221,7 +196,7 @@ python scratch/exchange_token.py
 | `SUPABASE_URL` | `https://edkmkcxdtzygjjgvxgcq.supabase.co` |
 | `ENVIRONMENT` | `production` |
 | `WHATSAPP_TOKEN` | Long-lived token 59 días (vence 26/10/2026) |
-| `WHATSAPP_PHONE_NUMBER_ID` | `1234817073057013` |
+| `WHATSAPP_PHONE_NUMBER_ID` | `1284438344753210` |
 | `WABA_ID` | `1006525879102174` |
 | `WHATSAPP_VERIFY_TOKEN` | `citaly_verify_token_2026` |
 | `META_APP_ID` | `2060755134547559` |
@@ -246,37 +221,39 @@ Citaly/
 │       ├── booking.py               # Cálculo de slots disponibles
 │       └── whatsapp.py              # WhatsAppService: send_template_message, send_text_message
 ├── static/
-│   ├── index.html                   # PWA paciente
-│   ├── dashboard.html               # Dashboard ejecutivo profesional
-│   ├── cancel.html                  # Página de cancelación/reprogramación por token
-│   ├── js/app.js                    # Lógica PWA
-│   ├── js/dashboard.js              # Lógica dashboard (filtros, vista dual)
-│   └── sw.js                        # Service Worker PWA (cache: citaly-v28-template-fix-sandbox)
+│   ├── index.html                   # PWA paciente (Montserrat + Inter)
+│   ├── dashboard.html               # Dashboard ejecutivo Stitch con Sticky Headers y filtros
+│   ├── cancel.html                  # Gestión/cancelación por token
+│   ├── css/styles.css               # Estilos globales unificados (Montserrat + Inter)
+│   ├── js/app.js                    # Lógica PWA paciente
+│   ├── js/dashboard.js              # Lógica dashboard (métricas rolling 7d/30d, sticky, filtros)
+│   └── sw.js                        # Service Worker PWA (cache: citaly-v39-sticky-headers-fix)
 ├── scratch/
+│   ├── check_templates_status.py    # Consulta de plantillas en Meta Cloud API
 │   ├── exchange_token.py            # Intercambiar token corto → 59 días
-│   ├── check_token_expiry.py        # Verificar vencimiento del token actual
-│   └── debug_whatsapp_template.py   # Test directo de envío a Meta API
+│   └── check_token_expiry.py        # Verificar vencimiento del token actual
 ├── .env                             # Variables locales (NO commitear)
-├── AGENTS.md                        # Este archivo
+├── AGENTS.md                        # Blueprint estructural del sistema
 ├── vercel.json                      # Configuración Vercel serverless
 └── requirements.txt                 # Dependencias Python
 ```
 
 ---
 
-## ⚡ 8. Estado Actual del Proyecto (al 28/08/2026)
+## ⚡ 8. Estado Actual del Proyecto (al 30/08/2026)
 
-### ✅ Funcionando en producción
-- Reserva de turnos completa (PWA → Backend → PostgreSQL)
-- Dashboard ejecutivo con vista dual (tarjetas + tabla)
-- Cancelación por token (link en WhatsApp)
-- Reprogramación atómica desde PWA y desde cancel.html
-- Consulta de turnos por número de celular
-- Normalización E.164 de teléfonos argentinos
-- Webhook Meta para procesar CANCELAR/CONFIRMAR del paciente
+### ✅ Funcionando al 100% en producción
+- Reserva de turnos completa (PWA paciente → Backend FastAPI → PostgreSQL Supabase).
+- Dashboard Ejecutivo Stitch Precision con:
+  - TopNavBar y BottomNavBar integrados en fondo `#F8FAFC` sin líneas duras.
+  - Sticky Headers adhesivos en "Turnos del Día" y "Agenda de Turnos".
+  - Tabla de Turnos de Hoy con filtro por especialidad y espaciado perfecto.
+  - Métricas Bento de 7 días corridos y 30 días con cálculo de Ocupación Real del Consultorio y tarjeta de Cancelados.
+  - Filtros de disponibilidad en la Agenda (`Todos`, `Libres`, `Ocupados`).
+  - Badge numérico nítido `[ 1 ]` anclado al ícono móvil de Reprogramados.
+  - Sección QR compacta alineada al botón de reserva.
+- Tipografía unificada en el 100% del proyecto (`Montserrat` + `Inter` + `JetBrains Mono`).
+- Normalización telefónica argentina E.164 y webhook de WhatsApp para CANCELAR/CONFIRMAR.
 
-### ⏳ Pendiente para producción completa
-- **Número emisor real:** Comprar chip → registrar en Meta Paso 2 → actualizar env vars
-- **Cambiar en `booking.py` línea 275:** `send_template_message("hello_world")` → `send_text_message(wa_text)` (texto personalizado completo ya construido)
-- **Plantillas Meta aprobadas:** Crear `citaly_confirmacion_turno`, `citaly_recordatorio_24h`, `citaly_recordatorio_2h` para mensajes business-initiated
-- **Recordatorios automáticos:** Vercel Cron ya configurado en `cron.py`, activar en `vercel.json`
+### ⏳ En espera de Meta
+- Aprobación de las 3 plantillas de Meta Cloud API (`citaly_confirmacion_v1`, `citaly_recordatorio_24h_v1`, `citaly_recordatorio_2h_v1`), actualmente en estado `PENDING`.
