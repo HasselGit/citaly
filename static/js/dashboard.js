@@ -951,28 +951,65 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await res.json();
 
         if (res.status === 409 && data && data.has_existing_same_service) {
-          const userConfirm = confirm(`El paciente ya tiene un turno de ${data.existing_service_name} el ${data.existing_date_str}.\n\n¿Deseás reprogramarlo y cambiarlo por este nuevo horario?`);
-          if (userConfirm) {
-            payload.reschedule_from_id = data.existing_appointment_id;
-            const retryRes = await fetch('/api/v1/booking/appointments', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-            const retryData = await retryRes.json();
-            if (retryRes.ok && retryData.success) {
-              showToast(`¡Turno reprogramado con éxito para ${patientName}!`, 'success');
-              if (adminPatientName) adminPatientName.value = '';
-              if (adminPatientPhone) adminPatientPhone.value = '';
-              await fetchDashboardAppointments();
-              setTimeout(() => switchTab('reservas'), 600);
-              return;
-            } else {
-              showToast(retryData.detail || 'No se pudo reprogramar.', 'error');
-              return;
-            }
-          } else {
-            showToast('Operación cancelada. Se conserva el turno original del paciente.');
+          const adminDuplicateModal = document.getElementById('admin-duplicate-modal');
+          const adminDupModalText = document.getElementById('admin-dup-modal-text');
+          const adminDupNewSlot = document.getElementById('admin-dup-new-slot');
+          const btnAdminDupReschedule = document.getElementById('btn-admin-dup-reschedule');
+          const btnAdminDupKeep = document.getElementById('btn-admin-dup-keep');
+
+          if (adminDuplicateModal && adminDupModalText && adminDupNewSlot) {
+            adminDupModalText.innerHTML = `El paciente <strong>${patientName}</strong> ya tiene un turno de <strong class="text-navy">${data.existing_service_name}</strong> el <strong class="text-navy font-mono">${data.existing_date_str}</strong>.<br><br>¿Deseás reprogramarlo y cambiarlo por este nuevo horario?`;
+            adminDupNewSlot.innerText = `${summaryBookingDate ? summaryBookingDate.innerText : selectedIso} — ${selectedAdminSlot} hs (${selectedAdminService.name})`;
+            adminDuplicateModal.classList.remove('hidden');
+
+            const handleReschedule = async () => {
+              adminDuplicateModal.classList.add('hidden');
+              cleanup();
+
+              btnAdminSubmitBooking.disabled = true;
+              btnAdminSubmitBooking.innerHTML = `<span>Reprogramando cita...</span>`;
+
+              payload.reschedule_from_id = data.existing_appointment_id;
+              try {
+                const retryRes = await fetch('/api/v1/booking/appointments', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(payload)
+                });
+                const retryData = await retryRes.json();
+                if (retryRes.ok && retryData.success) {
+                  showToast(`¡Turno reprogramado con éxito para ${patientName}!`, 'success');
+                  if (adminPatientName) adminPatientName.value = '';
+                  if (adminPatientPhone) adminPatientPhone.value = '';
+                  await fetchDashboardAppointments();
+                  setTimeout(() => switchTab('reservas'), 600);
+                } else {
+                  showToast(retryData.detail || 'No se pudo reprogramar.', 'error');
+                }
+              } catch (e) {
+                showToast('Error al reprogramar.', 'error');
+              } finally {
+                btnAdminSubmitBooking.disabled = false;
+                btnAdminSubmitBooking.innerHTML = `
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Confirmar y Agendar Turno</span>
+                `;
+              }
+            };
+
+            const handleKeep = () => {
+              adminDuplicateModal.classList.add('hidden');
+              cleanup();
+              showToast('Operación cancelada. Se conserva el turno original del paciente.');
+            };
+
+            const cleanup = () => {
+              if (btnAdminDupReschedule) btnAdminDupReschedule.removeEventListener('click', handleReschedule);
+              if (btnAdminDupKeep) btnAdminDupKeep.removeEventListener('click', handleKeep);
+            };
+
+            if (btnAdminDupReschedule) btnAdminDupReschedule.addEventListener('click', handleReschedule);
+            if (btnAdminDupKeep) btnAdminDupKeep.addEventListener('click', handleKeep);
             return;
           }
         }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v52-anti-duplicate-service-rule';
+const CACHE_NAME = 'citaly-v53-admin-duplicate-modal-ui';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
