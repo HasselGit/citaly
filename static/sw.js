@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v48-fix-admin-booking-and-mobile-nav';
+const CACHE_NAME = 'citaly-v49-qr-size-update';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

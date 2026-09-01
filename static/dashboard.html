@@ -249,16 +249,17 @@
           <div>
             <span class="text-[10px] font-bold text-amber-brand uppercase tracking-wider font-mono block">Enlace de Pacientes</span>
             <h4 class="text-sm font-bold text-navy font-display">Web de Reservas del Consultorio</h4>
+            <p class="text-xs text-slate-muted mt-0.5 font-sans">Compartí este enlace o mostrá el código QR a tus pacientes.</p>
           </div>
           
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3.5">
             <button id="btn-copy-card-link" class="px-4 py-2.5 bg-navy hover:bg-slate-800 text-white rounded-xl font-semibold text-xs inline-flex items-center gap-2 transition-all shadow-xs">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
               <span>Copiar Enlace de Reserva</span>
             </button>
             
-            <div class="p-1 bg-slate-50 rounded-xl border border-slate-200 flex-shrink-0" title="Código QR de Reserva">
-              <img class="w-10 h-10 object-contain rounded-lg" alt="Código QR" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://citaly-six.vercel.app/"/>
+            <div class="p-1.5 bg-white rounded-2xl border border-slate-200 shadow-xs flex-shrink-0" title="Código QR de Reserva">
+              <img class="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-xl" alt="Código QR" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://citaly-six.vercel.app/"/>
             </div>
           </div>
         </div>
