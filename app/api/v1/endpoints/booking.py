@@ -40,9 +40,10 @@ class TenantOut(BaseModel):
         from_attributes = True
 
 class AppointmentCreateRequest(BaseModel):
-    service_id: str
+    service_id: Optional[str] = None
     start_time: str # ISO string: YYYY-MM-DDTHH:MM:SS
-    patient_full_name: str
+    patient_full_name: Optional[str] = None
+    patient_name: Optional[str] = None
     patient_whatsapp: str
     reschedule_from_token: Optional[str] = None
     reschedule_from_id: Optional[str] = None
@@ -208,16 +209,17 @@ async def create_appointment(
                 patient = p
                 break
 
+        p_name = (payload.patient_full_name or payload.patient_name or "Paciente").strip()
         if patient:
-            if payload.patient_full_name and payload.patient_full_name.strip() and payload.patient_full_name.strip() != patient.full_name:
-                patient.full_name = payload.patient_full_name.strip()
+            if p_name and p_name != patient.full_name:
+                patient.full_name = p_name
                 db.commit()
                 db.refresh(patient)
         else:
             patient = Patient(
                 id=str(uuid.uuid4()),
                 tenant_id=tenant.id,
-                full_name=payload.patient_full_name.strip(),
+                full_name=p_name,
                 whatsapp_phone=payload.patient_whatsapp
             )
             db.add(patient)

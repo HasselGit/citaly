@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v47-clean-palette-fix';
+const CACHE_NAME = 'citaly-v48-fix-admin-booking-and-mobile-nav';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

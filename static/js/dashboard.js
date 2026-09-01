@@ -936,6 +936,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const payload = {
           tenant_id: "demo-tenant-citaly-001",
           service_id: selectedAdminService.id,
+          patient_full_name: patientName,
           patient_name: patientName,
           patient_whatsapp: patientPhone,
           start_time: startTimeIso
@@ -950,13 +951,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await res.json();
 
         if (res.ok && data.success) {
-          showToast(`¡Turno agendado con éxito para ${patientName}! WhatsApp oficial enviado.`, 'success');
+          showToast(`¡Turno agendado con éxito para ${patientName}!`, 'success');
           
           if (adminPatientName) adminPatientName.value = '';
           if (adminPatientPhone) adminPatientPhone.value = '';
 
           await fetchDashboardAppointments();
-          setTimeout(() => switchTab('reservas'), 1200);
+          setTimeout(() => switchTab('reservas'), 600);
         } else {
           showToast(data.detail || 'No se pudo reservar el turno. Verificá la disponibilidad.', 'error');
         }
@@ -1001,7 +1002,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (reprogramados.length === 0) {
       reprogramadosListContainer.innerHTML = `
-        <div class="p-8 text-center bg-slate-50 rounded-xl border border-slate-200">
+        <div class="p-8 text-center bg-white rounded-2xl border border-slate-200 shadow-2xs">
           <p class="text-xs font-semibold text-slate-600">No hay turnos reprogramados activos en este momento.</p>
           <p class="text-[11px] text-slate-400 mt-1">Los turnos modificados por los pacientes aparecerán aquí.</p>
         </div>
@@ -1012,7 +1013,7 @@ document.addEventListener('DOMContentLoaded', () => {
     reprogramadosListContainer.innerHTML = reprogramados.map(a => {
       const cleanPhone = (a.patient_whatsapp || '').replace(/\D/g, '');
       return `
-        <div class="p-4 bg-white rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs">
+        <div class="p-4 bg-white rounded-2xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-2xs">
           <div>
             <div class="flex items-center gap-2">
               <h4 class="font-bold text-navy text-sm font-display">${a.patient_name}</h4>
