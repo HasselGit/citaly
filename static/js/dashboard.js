@@ -3,8 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabPanel = document.getElementById('view-panel');
   const tabReservas = document.getElementById('view-reservas');
   const tabReprogramados = document.getElementById('view-reprogramados');
+  const tabNuevoTurno = document.getElementById('view-nuevo-turno');
 
-  const navTabBtns = document.querySelectorAll('.nav-tab-btn');
+  const desktopTabBtns = document.querySelectorAll('.desktop-tab-btn');
+  const mobileTabBtns = document.querySelectorAll('.mobile-tab-btn');
 
   // Elementos de Reservas y Agenda
   const reservasNormalView = document.getElementById('reservas-normal-view');
@@ -15,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const agendaCurrentDayTitle = document.getElementById('agenda-current-day-title');
   const agendaCurrentDayStats = document.getElementById('agenda-current-day-stats');
 
-  // Controles de Navegación de Mes/Semanas
+  // Controles de Navegación de Mes/Semanas en Agenda
   const btnPrevWeek = document.getElementById('btn-prev-week');
   const btnNextWeek = document.getElementById('btn-next-week');
   const agendaWeekLabel = document.getElementById('agenda-week-label');
@@ -57,14 +59,47 @@ document.addEventListener('DOMContentLoaded', () => {
   const syncIcon = document.getElementById('sync-icon');
   const toastContainer = document.getElementById('toast-container');
 
+  // Elementos del Módulo Asignar Nuevo Turno
+  const nuevoTurnoServicesGrid = document.getElementById('nuevo-turno-services-grid');
+  const btnAdminPrevWeek = document.getElementById('btn-admin-prev-week');
+  const btnAdminNextWeek = document.getElementById('btn-admin-next-week');
+  const adminBookingWeekLabel = document.getElementById('admin-booking-week-label');
+  const adminBookingDaysContainer = document.getElementById('admin-booking-days-container');
+  const adminBookingSelectedDayTitle = document.getElementById('admin-booking-selected-day-title');
+  const adminBookingFreeCountBadge = document.getElementById('admin-booking-free-count-badge');
+  const adminBookingSlotsGrid = document.getElementById('admin-booking-slots-grid');
+  const adminPatientName = document.getElementById('admin-patient-name');
+  const adminPatientPhone = document.getElementById('admin-patient-phone');
+  const adminPatientSuggestions = document.getElementById('admin-patient-suggestions');
+  const summaryServiceName = document.getElementById('summary-service-name');
+  const summaryBookingDate = document.getElementById('summary-booking-date');
+  const summaryBookingTime = document.getElementById('summary-booking-time');
+  const btnAdminSubmitBooking = document.getElementById('btn-admin-submit-booking');
+
+  // Servicios Oficiales
+  const dentalServices = [
+    { id: "srv-ortodoncia", name: "Ortodoncia / Control", duration: 120, price: "$25.000", desc: "Alineación y controles" },
+    { id: "srv-limpieza", name: "Limpieza & Blanqueamiento", duration: 45, price: "$18.000", desc: "Profilaxis y estética" },
+    { id: "srv-endodoncia", name: "Endodoncia / Conducto", duration: 45, price: "$32.000", desc: "Tratamiento de conducto" },
+    { id: "srv-implante", name: "Implante Dental & Cirugía", duration: 60, price: "$55.000", desc: "Cirugía especializada" },
+    { id: "srv-extraccion", name: "Extracción Muela de Juicio", duration: 30, price: "$20.000", desc: "Extracciones simples y complejas" },
+    { id: "srv-consulta", name: "Consulta & Diagnóstico", duration: 30, price: "$12.000", desc: "Evaluación integral" }
+  ];
+
   // Estado Local
   let allAppointments = [];
-  let currentMetricsPeriod = 'week'; // 'week' (7 días corridos) | 'month' (30 días corridos)
-  let currentViewMode = 'agenda'; // 'agenda' | 'cards' | 'table'
+  let currentMetricsPeriod = 'week';
+  let currentViewMode = 'agenda';
   let selectedTodaySpecialty = 'all';
-  let selectedAvailabilityFilter = 'all'; // 'all' | 'free' | 'occupied'
-  let currentAgendaWeekOffset = 0; // 0 = esta semana, 1 = próxima semana, etc.
+  let selectedAvailabilityFilter = 'all';
+  let currentAgendaWeekOffset = 0;
   let syncInterval = null;
+
+  // Estado del Módulo Asignar Turno
+  let selectedAdminService = dentalServices[0];
+  let selectedAdminDate = new Date();
+  let selectedAdminSlot = "09:00";
+  let adminWeekOffset = 0;
 
   // Fecha seleccionada para la Agenda (por defecto hoy)
   let selectedAgendaDate = new Date();
@@ -72,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const daysShort = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
   const monthsFull = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
-  // Slots de 09:00 a 18:00 (18 slots de 30 min)
   const defaultSlotsTimes = [
     "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
     "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
@@ -109,12 +143,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 3200);
   }
 
-  const desktopTabBtns = document.querySelectorAll('.desktop-tab-btn');
-  const mobileTabBtns = document.querySelectorAll('.mobile-tab-btn');
-
-  // 3. Switcher de Pestañas (Panel / Agenda / Reprogramados)
+  // 3. Switcher de Pestañas (Panel / Nuevo Turno / Agenda / Reprogramados)
   function switchTab(tabId) {
-    [tabPanel, tabReservas, tabReprogramados].forEach(tab => {
+    [tabPanel, tabNuevoTurno, tabReservas, tabReprogramados].forEach(tab => {
       if (tab) tab.style.display = 'none';
     });
 
@@ -129,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Actualizar botones móviles (Cápsula suave, orgánico sin bloques oscuros)
+    // Actualizar botones móviles
     mobileTabBtns.forEach(btn => {
       if (btn.getAttribute('data-tab') === tabId) {
         btn.classList.add('text-navy', 'font-bold', 'bg-slate-200/80');
@@ -144,6 +175,9 @@ document.addEventListener('DOMContentLoaded', () => {
       tabPanel.style.display = 'block';
       renderTodayAppointments();
       updateMetrics();
+    } else if (tabId === 'nuevo-turno' && tabNuevoTurno) {
+      tabNuevoTurno.style.display = 'block';
+      renderAdminNuevoTurno();
     } else if (tabId === 'reservas' && tabReservas) {
       tabReservas.style.display = 'block';
       if (currentViewMode === 'agenda') {
@@ -187,21 +221,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // 5. Cargar Turnos desde la API Backend
   async function fetchDashboardAppointments() {
     try {
+      if (syncIcon) syncIcon.classList.add('animate-spin');
       const res = await fetch('/api/v1/booking/appointments', { cache: 'no-store' });
       if (!res.ok) throw new Error('Error al consultar turnos');
       const data = await res.json();
 
       allAppointments = Array.isArray(data) ? data : (data.appointments || []);
       if (allAppointments) {
-        
-        // Actualizar hora de sincronización
         const now = new Date();
         const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
         if (liveStatusText) {
           liveStatusText.innerText = `Actualizado ${timeStr}`;
         }
 
-        // Renderizar vistas activas
         updateMetrics();
         renderTodayAppointments();
         if (currentViewMode === 'agenda') {
@@ -210,6 +242,9 @@ document.addEventListener('DOMContentLoaded', () => {
           renderTimeline();
         }
         renderReprogramados();
+        if (tabNuevoTurno && tabNuevoTurno.style.display === 'block') {
+          renderAdminNuevoTurno();
+        }
       }
     } catch (err) {
       console.warn('[DASHBOARD] Error de sincronización:', err);
@@ -235,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 5000);
   }
 
-  // 7. Renderizar Turnos del Día (Panel General) por Especialidad
+  // 7. Renderizar Turnos del Día (Panel General)
   function renderTodayAppointments() {
     if (!todayAppointmentsTbody) return;
 
@@ -255,7 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
       todaySummarySubtitle.innerText = `${dayOfWeekName} ${dayNumber} de ${monthName} • ${activeCount} ${activeCount === 1 ? 'turno agendado' : 'turnos agendados'}`;
     }
 
-    // Renderizar píldoras de especialidad
     if (todaySpecialtyPills) {
       const specialties = ['all', ...new Set(todayAppts.map(a => a.service_name).filter(Boolean))];
       
@@ -293,7 +327,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Ordenar por horario ascendente
     filtered.sort((a, b) => (a.time_str || '').localeCompare(b.time_str || ''));
 
     todayAppointmentsTbody.innerHTML = filtered.map(a => {
@@ -321,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
-  // 8. Renderizar Vista Normal (Tarjetas y Tabla con Ventana de 7 Días y Buscador)
+  // 8. Renderizar Vista Normal (Tarjetas y Tabla)
   function renderTimeline() {
     if (!agendaContainer) return;
 
@@ -343,7 +376,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let filtered = allAppointments.filter(a => {
       if (!a.start_time) return false;
       const d = new Date(a.start_time);
-      // Turnos futuros o de los últimos 7 días
       return d >= sevenDaysAgo;
     });
 
@@ -364,7 +396,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Modo Vista Tabla
     if (currentViewMode === 'table') {
       agendaContainer.innerHTML = `
         <div class="overflow-x-auto">
@@ -400,7 +431,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Modo Vista Tarjetas
     agendaContainer.innerHTML = filtered.map(a => `
       <div class="p-3.5 bg-white rounded-xl border border-slate-200 flex items-center justify-between gap-3 shadow-xs">
         <div>
@@ -415,11 +445,10 @@ document.addEventListener('DOMContentLoaded', () => {
     `).join('');
   }
 
-  // 9. Renderizar Grilla Diaria con Filtros de Disponibilidad y Navegación de Mes/Semanas
+  // 9. Renderizar Grilla Diaria de Agenda
   function renderWeeklyAgenda() {
     if (!agendaDayPillsContainer || !agendaSlotsSheet) return;
 
-    // Calcular días a renderizar: 6 días consecutivos desde la fecha base
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
@@ -433,7 +462,6 @@ document.addEventListener('DOMContentLoaded', () => {
       temp.setDate(temp.getDate() + 1);
     }
 
-    // Actualizar etiqueta de Mes y Año en la cabecera (ej: "Agosto / Septiembre 2026")
     if (agendaWeekLabel && daysToRender.length > 0) {
       const firstD = daysToRender[0];
       const lastD = daysToRender[daysToRender.length - 1];
@@ -448,7 +476,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Si la fecha seleccionada no está en los 6 días visibles, seleccionar el primero
     let selectedIso = formatLocalDate(selectedAgendaDate);
     const visibleIsos = daysToRender.map(d => formatLocalDate(d));
     if (!visibleIsos.includes(selectedIso)) {
@@ -456,7 +483,6 @@ document.addEventListener('DOMContentLoaded', () => {
       selectedIso = formatLocalDate(selectedAgendaDate);
     }
 
-    // Renderizar Selector de Días
     agendaDayPillsContainer.innerHTML = daysToRender.map(d => {
       const dIso = formatLocalDate(d);
       const isSelected = (dIso === selectedIso);
@@ -490,7 +516,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // Encabezado del Día
     const dayOfWeekName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][selectedAgendaDate.getDay()];
     const dayNumber = selectedAgendaDate.getDate();
     const monthName = monthsFull[selectedAgendaDate.getMonth()];
@@ -517,7 +542,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentHour = now.getHours();
     const currentMin = now.getMinutes();
 
-    // Filtrar Horarios según disponibilidad y tiempo real
     let visibleSlots = defaultSlotsTimes.map(timeSlot => {
       const [hStr, mStr] = timeSlot.split(':');
       const slotH = parseInt(hStr, 10);
@@ -528,17 +552,14 @@ document.addEventListener('DOMContentLoaded', () => {
       return { timeSlot, appt, isPastSlot };
     });
 
-    // Ocultar slots libres que ya pasaron
     visibleSlots = visibleSlots.filter(s => s.appt || !s.isPastSlot);
 
     if (selectedAvailabilityFilter === 'free') {
-      // Solo turnos que NO tienen cita y que NO han pasado
       visibleSlots = visibleSlots.filter(s => !s.appt && !s.isPastSlot);
     } else if (selectedAvailabilityFilter === 'occupied') {
       visibleSlots = visibleSlots.filter(s => !!s.appt);
     }
 
-    // Filtro por Buscador de Agenda
     const searchVal = (agendaSearchInput ? agendaSearchInput.value : '').toLowerCase().trim();
     if (searchVal) {
       visibleSlots = visibleSlots.filter(s => {
@@ -560,7 +581,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Grilla Horaria (Depurada: sin redundancia 'Disponible' y con alto contraste en 'Ocupado')
     agendaSlotsSheet.innerHTML = visibleSlots.map(({ timeSlot, appt }) => {
       if (appt) {
         const cleanPhone = (appt.patient_whatsapp || '').replace(/\D/g, '');
@@ -595,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
-  // Listeners de Navegación Semanal / Mes (< / >)
+  // Listeners de Navegación Semanal en Agenda
   if (btnPrevWeek) {
     btnPrevWeek.addEventListener('click', () => {
       currentAgendaWeekOffset--;
@@ -610,7 +630,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Listener de Buscador de Agenda
   if (agendaSearchInput) {
     agendaSearchInput.addEventListener('input', () => {
       if (currentViewMode === 'agenda') {
@@ -621,7 +640,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Listeners de Filtros de Disponibilidad
   function setAvailabilityFilter(filter) {
     selectedAvailabilityFilter = filter;
     [btnFilterAll, btnFilterFree, btnFilterOccupied].forEach(b => {
@@ -645,7 +663,316 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnFilterFree) btnFilterFree.addEventListener('click', () => setAvailabilityFilter('free'));
   if (btnFilterOccupied) btnFilterOccupied.addEventListener('click', () => setAvailabilityFilter('occupied'));
 
-  // 10. Renderizar Turnos Reprogramados
+  // 10. MÓDULO ADMINISTRATIVO: ASIGNAR NUEVO TURNO
+  function renderAdminNuevoTurno() {
+    renderAdminServices();
+    renderAdminBookingCalendar();
+  }
+
+  function renderAdminServices() {
+    if (!nuevoTurnoServicesGrid) return;
+    nuevoTurnoServicesGrid.innerHTML = dentalServices.map(srv => {
+      const isSelected = selectedAdminService.id === srv.id;
+      return `
+        <button type="button" data-srv-id="${srv.id}" class="admin-srv-btn p-3 rounded-xl border text-left transition-all ${isSelected ? 'bg-navy text-white border-navy shadow-xs' : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'}">
+          <div class="text-xs font-bold font-display truncate ${isSelected ? 'text-amber-400' : 'text-navy'}">${srv.name}</div>
+          <div class="flex items-center justify-between mt-1 text-[10px] font-mono ${isSelected ? 'text-slate-300' : 'text-slate-500'}">
+            <span>${srv.duration} min</span>
+            <span class="font-bold">${srv.price}</span>
+          </div>
+        </button>
+      `;
+    }).join('');
+
+    nuevoTurnoServicesGrid.querySelectorAll('.admin-srv-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-srv-id');
+        selectedAdminService = dentalServices.find(s => s.id === id) || dentalServices[0];
+        if (summaryServiceName) summaryServiceName.innerText = selectedAdminService.name;
+        renderAdminServices();
+        renderAdminBookingCalendar();
+      });
+    });
+  }
+
+  function renderAdminBookingCalendar() {
+    if (!adminBookingDaysContainer || !adminBookingSlotsGrid) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const baseStart = new Date(today);
+    baseStart.setDate(today.getDate() + (adminWeekOffset * 6));
+
+    const daysToRender = [];
+    let temp = new Date(baseStart);
+    for (let i = 0; i < 6; i++) {
+      daysToRender.push(new Date(temp));
+      temp.setDate(temp.getDate() + 1);
+    }
+
+    if (adminBookingWeekLabel && daysToRender.length > 0) {
+      const firstD = daysToRender[0];
+      const lastD = daysToRender[daysToRender.length - 1];
+      const firstM = monthsFull[firstD.getMonth()];
+      const lastM = monthsFull[lastD.getMonth()];
+      const year = lastD.getFullYear();
+      adminBookingWeekLabel.innerText = firstM === lastM ? `${firstM} ${year}` : `${firstM} / ${lastM} ${year}`;
+    }
+
+    let selectedIso = formatLocalDate(selectedAdminDate);
+    const visibleIsos = daysToRender.map(d => formatLocalDate(d));
+    if (!visibleIsos.includes(selectedIso)) {
+      selectedAdminDate = daysToRender[0];
+      selectedIso = formatLocalDate(selectedAdminDate);
+    }
+
+    // Render días
+    adminBookingDaysContainer.innerHTML = daysToRender.map(d => {
+      const dIso = formatLocalDate(d);
+      const isSelected = (dIso === selectedIso);
+      const dayName = daysShort[d.getDay()];
+      const dayNum = String(d.getDate()).padStart(2, '0');
+      const monthNum = String(d.getMonth() + 1).padStart(2, '0');
+
+      const dayAppts = allAppointments.filter(a => {
+        if (!a.start_time || a.status === 'CANCELLED') return false;
+        return a.start_time.startsWith(dIso);
+      });
+
+      const occupiedTimes = dayAppts.map(a => a.time_str);
+      const now = new Date();
+      const todayIso = formatLocalDate(now);
+      const isPastDay = dIso < todayIso;
+      const isToday = dIso === todayIso;
+      const currentHour = now.getHours();
+      const currentMin = now.getMinutes();
+
+      const freeCount = defaultSlotsTimes.filter(t => {
+        if (occupiedTimes.includes(t)) return false;
+        const [h, m] = t.split(':').map(Number);
+        if (isPastDay || (isToday && (h < currentHour || (h === currentHour && m <= currentMin)))) return false;
+        return true;
+      }).length;
+
+      return `
+        <button type="button" data-admin-day-iso="${dIso}" class="admin-day-btn p-2 rounded-xl flex flex-col items-center justify-center text-center transition-all ${isSelected ? 'bg-navy text-white shadow-xs font-bold' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'}">
+          <span class="text-[9px] font-bold uppercase font-mono ${isSelected ? 'text-amber-400' : 'text-slate-500'}">${dayName}</span>
+          <span class="text-xs font-bold font-display my-0.5">${dayNum}/${monthNum}</span>
+          <span class="text-[8px] font-semibold font-mono ${isSelected ? 'text-slate-300' : (freeCount > 0 ? 'text-emerald-700 font-bold' : 'text-slate-400')}">${freeCount} libres</span>
+        </button>
+      `;
+    }).join('');
+
+    adminBookingDaysContainer.querySelectorAll('.admin-day-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const iso = btn.getAttribute('data-admin-day-iso');
+        const [y, m, d] = iso.split('-').map(Number);
+        selectedAdminDate = new Date(y, m - 1, d);
+        renderAdminBookingCalendar();
+      });
+    });
+
+    // Render Slots Libres
+    const dayOfWeekName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][selectedAdminDate.getDay()];
+    const dayNumber = selectedAdminDate.getDate();
+    const monthName = monthsFull[selectedAdminDate.getMonth()];
+
+    if (adminBookingSelectedDayTitle) {
+      adminBookingSelectedDayTitle.innerText = `${dayOfWeekName} ${dayNumber} de ${monthName}`;
+    }
+    if (summaryBookingDate) {
+      summaryBookingDate.innerText = `${dayOfWeekName} ${dayNumber}/${String(selectedAdminDate.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    const dayAppts = allAppointments.filter(a => {
+      if (!a.start_time || a.status === 'CANCELLED') return false;
+      return a.start_time.startsWith(selectedIso);
+    });
+    const occupiedTimes = dayAppts.map(a => a.time_str);
+
+    const now = new Date();
+    const todayIso = formatLocalDate(now);
+    const isPastDay = selectedIso < todayIso;
+    const isToday = selectedIso === todayIso;
+    const currentHour = now.getHours();
+    const currentMin = now.getMinutes();
+
+    const freeSlots = defaultSlotsTimes.filter(t => {
+      if (occupiedTimes.includes(t)) return false;
+      const [h, m] = t.split(':').map(Number);
+      if (isPastDay || (isToday && (h < currentHour || (h === currentHour && m <= currentMin)))) return false;
+      return true;
+    });
+
+    if (adminBookingFreeCountBadge) {
+      adminBookingFreeCountBadge.innerText = `${freeSlots.length} ${freeSlots.length === 1 ? 'horario libre' : 'horarios libres'}`;
+    }
+
+    if (freeSlots.length === 0) {
+      adminBookingSlotsGrid.innerHTML = `
+        <div class="col-span-full p-4 text-center bg-slate-50 rounded-xl border border-slate-200">
+          <p class="text-xs text-slate-500 font-sans">No hay horarios libres disponibles para este día.</p>
+        </div>
+      `;
+      selectedAdminSlot = null;
+      if (summaryBookingTime) summaryBookingTime.innerText = "Sin seleccionar";
+      return;
+    }
+
+    if (!freeSlots.includes(selectedAdminSlot)) {
+      selectedAdminSlot = freeSlots[0];
+    }
+    if (summaryBookingTime) summaryBookingTime.innerText = `${selectedAdminSlot} hs`;
+
+    adminBookingSlotsGrid.innerHTML = freeSlots.map(timeStr => {
+      const isSelected = selectedAdminSlot === timeStr;
+      return `
+        <button type="button" data-admin-slot="${timeStr}" class="admin-slot-btn py-2 px-1 rounded-xl text-xs font-mono font-bold transition-all ${isSelected ? 'bg-navy text-white shadow-xs ring-2 ring-amber-400' : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'}">
+          ${timeStr} hs
+        </button>
+      `;
+    }).join('');
+
+    adminBookingSlotsGrid.querySelectorAll('.admin-slot-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedAdminSlot = btn.getAttribute('data-admin-slot');
+        if (summaryBookingTime) summaryBookingTime.innerText = `${selectedAdminSlot} hs`;
+        renderAdminBookingCalendar();
+      });
+    });
+  }
+
+  if (btnAdminPrevWeek) {
+    btnAdminPrevWeek.addEventListener('click', () => {
+      adminWeekOffset--;
+      renderAdminBookingCalendar();
+    });
+  }
+  if (btnAdminNextWeek) {
+    btnAdminNextWeek.addEventListener('click', () => {
+      adminWeekOffset++;
+      renderAdminBookingCalendar();
+    });
+  }
+
+  // Autocompletado de pacientes frecuentes
+  let searchTimeout = null;
+  if (adminPatientPhone) {
+    adminPatientPhone.addEventListener('input', () => {
+      clearTimeout(searchTimeout);
+      const val = adminPatientPhone.value.trim();
+      if (val.length < 3) {
+        if (adminPatientSuggestions) adminPatientSuggestions.classList.add('hidden');
+        return;
+      }
+
+      searchTimeout = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/v1/booking/patients-search?q=${encodeURIComponent(val)}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.patients && data.patients.length > 0 && adminPatientSuggestions) {
+              adminPatientSuggestions.innerHTML = data.patients.map(p => `
+                <div data-patient-name="${p.full_name}" data-patient-phone="${p.whatsapp_phone}" class="patient-sugg-item p-2.5 hover:bg-slate-100 cursor-pointer border-b border-slate-100 text-xs">
+                  <div class="font-bold text-navy">${p.full_name}</div>
+                  <div class="text-[10px] text-slate-500 font-mono">${p.whatsapp_phone}</div>
+                </div>
+              `).join('');
+              adminPatientSuggestions.classList.remove('hidden');
+
+              adminPatientSuggestions.querySelectorAll('.patient-sugg-item').forEach(item => {
+                item.addEventListener('click', () => {
+                  adminPatientName.value = item.getAttribute('data-patient-name');
+                  adminPatientPhone.value = item.getAttribute('data-patient-phone');
+                  adminPatientSuggestions.classList.add('hidden');
+                });
+              });
+            } else if (adminPatientSuggestions) {
+              adminPatientSuggestions.classList.add('hidden');
+            }
+          }
+        } catch (e) {}
+      }, 250);
+    });
+  }
+
+  // Envío de la reserva administrativa
+  if (btnAdminSubmitBooking) {
+    btnAdminSubmitBooking.addEventListener('click', async () => {
+      const patientName = adminPatientName ? adminPatientName.value.trim() : '';
+      const patientPhone = adminPatientPhone ? adminPatientPhone.value.trim() : '';
+
+      if (!patientName) {
+        showToast('Por favor, ingresá el nombre completo del paciente', 'error');
+        if (adminPatientName) adminPatientName.focus();
+        return;
+      }
+
+      if (!patientPhone || patientPhone.length < 6) {
+        showToast('Por favor, ingresá un número de celular válido', 'error');
+        if (adminPatientPhone) adminPatientPhone.focus();
+        return;
+      }
+
+      if (!selectedAdminSlot) {
+        showToast('Por favor, seleccioná un horario libre disponible', 'error');
+        return;
+      }
+
+      const selectedIso = formatLocalDate(selectedAdminDate);
+      const startTimeIso = `${selectedIso}T${selectedAdminSlot}:00`;
+
+      btnAdminSubmitBooking.disabled = true;
+      btnAdminSubmitBooking.innerHTML = `
+        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span>Agendando cita...</span>
+      `;
+
+      try {
+        const payload = {
+          tenant_id: "demo-tenant-citaly-001",
+          service_id: selectedAdminService.id,
+          patient_name: patientName,
+          patient_whatsapp: patientPhone,
+          start_time: startTimeIso
+        };
+
+        const res = await fetch('/api/v1/booking/appointments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          showToast(`¡Turno agendado con éxito para ${patientName}! WhatsApp oficial enviado.`, 'success');
+          
+          if (adminPatientName) adminPatientName.value = '';
+          if (adminPatientPhone) adminPatientPhone.value = '';
+
+          await fetchDashboardAppointments();
+          setTimeout(() => switchTab('reservas'), 1200);
+        } else {
+          showToast(data.detail || 'No se pudo reservar el turno. Verificá la disponibilidad.', 'error');
+        }
+      } catch (err) {
+        showToast('Error de conexión al agendar el turno.', 'error');
+      } finally {
+        btnAdminSubmitBooking.disabled = false;
+        btnAdminSubmitBooking.innerHTML = `
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Confirmar y Agendar Turno</span>
+        `;
+      }
+    });
+  }
+
+  // 11. Renderizar Turnos Reprogramados
   function renderReprogramados() {
     if (!reprogramadosListContainer) return;
 
@@ -702,16 +1029,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
-  // 11. Actualizar Métricas Bento (7 días corridos / 30 días con Ocupación Real de Agenda)
+  // 12. Actualizar Métricas Bento
   function updateMetrics() {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
 
     let periodAppointments = [];
-    let totalSlotsCapacity = 108; // 6 días de atención * 18 slots = 108 slots
+    let totalSlotsCapacity = 108;
 
     if (currentMetricsPeriod === 'week') {
-      // 7 días corridos a partir de hoy (incluye días subsiguientes de la próxima semana)
       const endOfRollingWeek = new Date(now);
       endOfRollingWeek.setDate(now.getDate() + 6);
       endOfRollingWeek.setHours(23, 59, 59, 999);
@@ -722,9 +1048,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return d >= now && d <= endOfRollingWeek;
       });
 
-      totalSlotsCapacity = 6 * defaultSlotsTimes.length; // 108 slots
+      totalSlotsCapacity = 6 * defaultSlotsTimes.length;
     } else {
-      // 30 días corridos a partir de hoy
       const endOfRollingMonth = new Date(now);
       endOfRollingMonth.setDate(now.getDate() + 29);
       endOfRollingMonth.setHours(23, 59, 59, 999);
@@ -735,14 +1060,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return d >= now && d <= endOfRollingMonth;
       });
 
-      totalSlotsCapacity = 26 * defaultSlotsTimes.length; // ~468 slots hábiles
+      totalSlotsCapacity = 26 * defaultSlotsTimes.length;
     }
 
     const total = periodAppointments.length;
     const cancelados = periodAppointments.filter(a => a.status === 'CANCELLED').length;
     const activos = periodAppointments.filter(a => a.status !== 'CANCELLED').length;
     
-    // Reprogramados activos en el período
     const reprogramados = allAppointments.filter(a => {
       if (!a.was_rescheduled || a.status === 'CANCELLED' || a.is_past) return false;
       if (!a.start_time) return false;
@@ -764,14 +1088,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (metricCanceladosCount) metricCanceladosCount.innerText = cancelados;
     if (metricReprogramadosCount) metricReprogramadosCount.innerText = reprogramados;
     
-    // Ocupación Real del Consultorio (Opción A): (Turnos Activos / Capacidad Total de Slots) * 100
     if (metricOcupacion) {
       const rate = totalSlotsCapacity > 0 ? Math.round((activos / totalSlotsCapacity) * 100) : 0;
       metricOcupacion.innerText = `${rate}%`;
     }
   }
 
-  // Listeners de Período (Semana / Mes)
   if (btnPeriodWeek && btnPeriodMonth) {
     btnPeriodWeek.addEventListener('click', () => {
       currentMetricsPeriod = 'week';
@@ -788,22 +1110,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 12. Listeners de Modo de Vista
+  // 13. Listeners de Modo de Vista en Agenda
   function setViewMode(mode) {
     currentViewMode = mode;
 
     [btnViewCards, btnViewTable, btnViewAgenda].forEach(b => {
       if (b) {
-        b.className = 'px-3 py-1.5 text-slate-700 hover:bg-slate-100 rounded-lg transition-all font-semibold';
+        b.className = 'px-3.5 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-all font-semibold';
       }
     });
 
     if (mode === 'cards' && btnViewCards) {
-      btnViewCards.className = 'px-3 py-1.5 bg-navy text-white rounded-lg transition-all shadow-xs font-bold';
+      btnViewCards.className = 'px-3.5 py-2 bg-navy text-white rounded-lg transition-all shadow-xs font-bold';
     } else if (mode === 'table' && btnViewTable) {
-      btnViewTable.className = 'px-3 py-1.5 bg-navy text-white rounded-lg transition-all shadow-xs font-bold';
+      btnViewTable.className = 'px-3.5 py-2 bg-navy text-white rounded-lg transition-all shadow-xs font-bold';
     } else if (mode === 'agenda' && btnViewAgenda) {
-      btnViewAgenda.className = 'px-3 py-1.5 bg-navy text-white rounded-lg transition-all shadow-xs font-bold';
+      btnViewAgenda.className = 'px-3.5 py-2 bg-navy text-white rounded-lg transition-all shadow-xs font-bold';
     }
 
     if (mode === 'agenda') {
@@ -819,7 +1141,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnViewTable) btnViewTable.addEventListener('click', () => setViewMode('table'));
   if (btnViewAgenda) btnViewAgenda.addEventListener('click', () => setViewMode('agenda'));
 
-  // 13. Inicialización
+  // 14. Inicialización
   fetchDashboardAppointments();
   startDashboardAutoSync();
 });

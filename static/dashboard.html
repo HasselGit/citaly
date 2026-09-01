@@ -80,7 +80,7 @@
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- SideNavBar (Desktop - Limpio y sin tarjeta duplicada) -->
+  <!-- SideNavBar (Desktop - Con + Nuevo Turno y Agenda renombrada) -->
   <aside class="hidden md:flex flex-col fixed left-0 top-0 h-full w-64 bg-white p-5 z-40">
     
     <!-- Logo Minimalista Citaly -->
@@ -101,9 +101,16 @@
         <span>Panel General</span>
       </button>
 
+      <!-- Nuevo Botón Destacado: + Nuevo Turno -->
+      <button data-tab="nuevo-turno" class="desktop-tab-btn w-full flex items-center gap-3 text-slate-600 hover:bg-slate-100 hover:text-navy transition-all rounded-xl px-3.5 py-2.5 font-semibold text-xs">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+        <span>+ Nuevo Turno</span>
+      </button>
+
+      <!-- Renombrado: Agenda -->
       <button data-tab="reservas" class="desktop-tab-btn w-full flex items-center gap-3 text-slate-600 hover:bg-slate-100 hover:text-navy transition-all rounded-xl px-3.5 py-2.5 font-semibold text-xs">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-        <span>Turnos & Agenda</span>
+        <span>Agenda</span>
       </button>
 
       <button data-tab="reprogramados" class="desktop-tab-btn w-full flex items-center justify-between text-slate-600 hover:bg-slate-100 hover:text-navy transition-all rounded-xl px-3.5 py-2.5 font-semibold text-xs">
@@ -130,7 +137,7 @@
     <!-- TopNavBar Minimalista con Tarjeta Ejecutiva del Doctor de Gran Presencia -->
     <header class="fixed top-0 left-0 md:left-64 right-0 z-30 h-20 bg-[#F8FAFC]/95 backdrop-blur-sm flex justify-between items-center px-4 md:px-10">
       
-      <!-- Tarjeta Ejecutiva del Consultorio (Alta Presencia en TopBar) -->
+      <!-- Tarjeta Ejecutiva del Consultorio -->
       <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-slate-200/90 shadow-xs">
         <div class="w-10 h-10 rounded-xl bg-navy text-white flex items-center justify-center font-display font-bold text-sm shadow-xs flex-shrink-0">
           AP
@@ -258,7 +265,118 @@
 
       </div>
 
-      <!-- ================= PESTAÑA 2: DESGLOSE DE TURNOS & AGENDA ================= -->
+      <!-- ================= PESTAÑA NUEVA: ASIGNAR NUEVO TURNO ================= -->
+      <div id="view-nuevo-turno" class="tab-content-anim" style="display: none;">
+        
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-xl md:text-2xl font-bold text-navy tracking-tight font-display">Asignar Nuevo Turno</h2>
+            <p class="text-xs text-slate-muted mt-0.5">Agendá una cita rápidamente y enviá la confirmación oficial por WhatsApp.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          
+          <!-- Columna 1 y 2: Selección de Servicio y Horario Libre -->
+          <div class="lg:col-span-2 space-y-4">
+            
+            <!-- 1. Selección de Especialidad / Servicio -->
+            <div class="citaly-card p-4 sm:p-5">
+              <span class="text-[11px] font-semibold text-slate-muted uppercase tracking-wider font-mono block mb-3">1. Seleccioná el Tratamiento</span>
+              <div id="nuevo-turno-services-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                <!-- Dinámico: 6 servicios -->
+              </div>
+            </div>
+
+            <!-- 2. Selección de Día y Horario Libre -->
+            <div class="citaly-card p-4 sm:p-5">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-[11px] font-semibold text-slate-muted uppercase tracking-wider font-mono">2. Elegí el Día y Horario Libre</span>
+                
+                <!-- Selector Mes (< / >) -->
+                <div class="flex items-center gap-1.5">
+                  <button id="btn-admin-prev-week" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all flex items-center justify-center">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                  </button>
+                  <span id="admin-booking-week-label" class="text-xs font-bold text-navy font-display px-1">Agosto / Septiembre 2026</span>
+                  <button id="btn-admin-next-week" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all flex items-center justify-center">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Píldoras de Días con contador de slots libres -->
+              <div id="admin-booking-days-container" class="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-4">
+                <!-- Dinámico -->
+              </div>
+
+              <!-- Horarios 100% Libres para este día -->
+              <div class="border-t border-slate-100 pt-3.5">
+                <div class="flex items-center justify-between mb-2.5">
+                  <span id="admin-booking-selected-day-title" class="text-xs font-bold text-navy font-display">Horarios Disponibles</span>
+                  <span id="admin-booking-free-count-badge" class="text-[11px] font-mono text-emerald-600 font-semibold">18 horarios libres</span>
+                </div>
+
+                <div id="admin-booking-slots-grid" class="grid grid-cols-3 sm:grid-cols-6 gap-2 max-h-56 overflow-y-auto pr-1">
+                  <!-- Dinámico: Slots libres -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Columna 3: Datos del Paciente y Confirmación -->
+          <div class="space-y-4">
+            
+            <div class="citaly-card p-4 sm:p-5">
+              <span class="text-[11px] font-semibold text-slate-muted uppercase tracking-wider font-mono block mb-3">3. Datos del Paciente</span>
+              
+              <div class="space-y-3">
+                <!-- Nombre del Paciente -->
+                <div>
+                  <label class="block text-xs font-semibold text-navy mb-1">Nombre Completo</label>
+                  <input type="text" id="admin-patient-name" placeholder="Ej: Hassel Espinosa" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-navy placeholder:text-slate-400 focus:outline-none focus:border-navy focus:ring-1 focus:ring-navy shadow-2xs">
+                </div>
+
+                <!-- Celular WhatsApp con Autocompletado -->
+                <div class="relative">
+                  <label class="block text-xs font-semibold text-navy mb-1">Celular / WhatsApp (con código de área)</label>
+                  <input type="tel" id="admin-patient-phone" placeholder="Ej: 2302351341 o 1155769048" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-navy placeholder:text-slate-400 focus:outline-none focus:border-navy focus:ring-1 focus:ring-navy shadow-2xs">
+                  <!-- Lista desplegable de sugerencias de pacientes -->
+                  <div id="admin-patient-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-30 hidden max-h-36 overflow-y-auto"></div>
+                </div>
+
+                <!-- Resumen de la Cita Seleccionada -->
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1.5 text-xs font-sans mt-3">
+                  <div class="flex justify-between text-slate-500">
+                    <span>Tratamiento:</span>
+                    <span id="summary-service-name" class="font-bold text-navy">Ortodoncia / Control</span>
+                  </div>
+                  <div class="flex justify-between text-slate-500">
+                    <span>Fecha:</span>
+                    <span id="summary-booking-date" class="font-mono font-bold text-navy">Lunes 31/08</span>
+                  </div>
+                  <div class="flex justify-between text-slate-500">
+                    <span>Horario:</span>
+                    <span id="summary-booking-time" class="font-mono font-bold text-navy">09:00 hs</span>
+                  </div>
+                </div>
+
+                <!-- Botón de Agendamiento -->
+                <button type="button" id="btn-admin-submit-booking" class="w-full py-3 bg-navy hover:bg-slate-800 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md mt-2">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Confirmar y Agendar Turno</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ================= PESTAÑA 2: AGENDA ================= -->
       <div id="view-reservas" class="tab-content-anim" style="display: none;">
         
         <!-- Header de Agenda con Buscador Ampliado y Switcher de Vistas -->
@@ -379,24 +497,30 @@
     </div>
   </main>
 
-  <!-- BottomNavBar (Mobile - Cápsula suave sin bloques oscuros toscos) -->
-  <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2.5 bg-[#F8FAFC]/95 backdrop-blur-md shadow-lg border-t border-slate-200/60" id="mobile-nav-container">
-    <button data-tab="panel" class="mobile-tab-btn flex flex-col items-center px-4 py-1 rounded-full text-navy font-bold transition-all bg-slate-200/80">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-      <span class="text-[10px] mt-0.5 font-mono">Panel</span>
+  <!-- BottomNavBar (Mobile - Con 4 accesos directos equilibrados) -->
+  <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-2 bg-[#F8FAFC]/95 backdrop-blur-md shadow-lg border-t border-slate-200/60" id="mobile-nav-container">
+    <button data-tab="panel" class="mobile-tab-btn flex flex-col items-center px-3 py-1 rounded-full text-navy font-bold transition-all bg-slate-200/80">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+      <span class="text-[9px] mt-0.5 font-mono">Panel</span>
     </button>
 
-    <button data-tab="reservas" class="mobile-tab-btn flex flex-col items-center px-4 py-1 rounded-full text-slate-500 font-medium transition-all">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-      <span class="text-[10px] mt-0.5 font-mono">Agenda</span>
+    <!-- Nuevo Acceso Rápido Móvil: + Nuevo -->
+    <button data-tab="nuevo-turno" class="mobile-tab-btn flex flex-col items-center px-3 py-1 rounded-full text-slate-500 font-medium transition-all">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      <span class="text-[9px] mt-0.5 font-mono">+ Nuevo</span>
     </button>
 
-    <button data-tab="reprogramados" class="mobile-tab-btn relative flex flex-col items-center px-4 py-1 rounded-full text-slate-500 font-medium transition-all">
+    <button data-tab="reservas" class="mobile-tab-btn flex flex-col items-center px-3 py-1 rounded-full text-slate-500 font-medium transition-all">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      <span class="text-[9px] mt-0.5 font-mono">Agenda</span>
+    </button>
+
+    <button data-tab="reprogramados" class="mobile-tab-btn relative flex flex-col items-center px-3 py-1 rounded-full text-slate-500 font-medium transition-all">
       <div class="relative flex items-center justify-center">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
-        <span id="mobile-badge-reprogramados" class="absolute -top-1.5 -right-2.5 min-w-[16px] h-[16px] px-1 bg-navy text-white text-[9px] font-mono font-bold rounded-full flex items-center justify-center hidden shadow-xs">0</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
+        <span id="mobile-badge-reprogramados" class="absolute -top-1.5 -right-2.5 min-w-[15px] h-[15px] px-1 bg-navy text-white text-[8px] font-mono font-bold rounded-full flex items-center justify-center hidden shadow-xs">0</span>
       </div>
-      <span class="text-[10px] mt-0.5 font-mono">Reprog.</span>
+      <span class="text-[9px] mt-0.5 font-mono">Reprog.</span>
     </button>
   </nav>
 

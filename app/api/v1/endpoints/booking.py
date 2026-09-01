@@ -535,3 +535,30 @@ def cancel_appointment(token: str, db: Session = Depends(get_db)):
         "success": True,
         "message": "Turno cancelado exitosamente."
     }
+
+@router.get("/patients-search")
+def search_patients(q: str = "", db: Session = Depends(get_db)):
+    """
+    Búsqueda rápida de pacientes frecuentes para autocompletado en el módulo de asignación de turnos.
+    """
+    query = (q or "").strip()
+    if not query or len(query) < 2:
+        return {"patients": []}
+
+    tenant = get_or_create_primary_tenant(db)
+    all_patients = db.query(Patient).filter(Patient.tenant_id == tenant.id).all()
+
+    matches = []
+    for p in all_patients:
+        name_match = query.lower() in p.full_name.lower()
+        phone_match = query in (p.whatsapp_phone or "")
+        if name_match or phone_match:
+            matches.append({
+                "id": p.id,
+                "full_name": p.full_name,
+                "whatsapp_phone": p.whatsapp_phone
+            })
+            if len(matches) >= 5:
+                break
+
+    return {"patients": matches}
