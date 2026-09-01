@@ -2,7 +2,7 @@
 
 Este documento contiene las reglas de arquitectura, infraestructura, base de datos, UX/UI, endpoints backend y flujos de trabajo necesarias para que cualquier Agente de IA pueda reproducir, mantener o extender este proyecto hasta el más mínimo detalle desde el principio sin introducir regresiones.
 
-**Última actualización:** 2026-08-30 (guarda-todo - Cierre de Sesión)
+**Última actualización:** 2026-08-31 (guarda-todo - Cierre de Sesión)
 
 ---
 
