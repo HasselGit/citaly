@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v56-guarda-todo-complete';
+const CACHE_NAME = 'citaly-v57-clean-nav-selected-shadow';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
