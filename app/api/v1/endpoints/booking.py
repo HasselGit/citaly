@@ -226,7 +226,31 @@ async def create_appointment(
             db.commit()
             db.refresh(patient)
 
-        # 3. Si es una reprogramación, cancelar el turno anterior para LIBERAR su horario en la base de datos
+        # 3. Si NO es reprogramación, verificar si el paciente ya tiene un turno activo para este MISMO servicio
+        now_dt = datetime.utcnow()
+        if not payload.reschedule_from_token and not payload.reschedule_from_id and patient:
+            existing_same_service_appt = db.query(Appointment).filter(
+                Appointment.patient_id == patient.id,
+                Appointment.service_id == service.id,
+                Appointment.status != "CANCELLED",
+                Appointment.start_time >= now_dt
+            ).order_by(Appointment.start_time.asc()).first()
+
+            if existing_same_service_appt:
+                existing_date_str = existing_same_service_appt.start_time.strftime('%d/%m a las %H:%M hs')
+                return JSONResponse(
+                    status_code=409,
+                    content={
+                        "success": False,
+                        "has_existing_same_service": True,
+                        "existing_appointment_id": existing_same_service_appt.id,
+                        "existing_service_name": service.name,
+                        "existing_date_str": existing_date_str,
+                        "detail": f"Ya tenés un turno de {service.name} para el {existing_date_str}. ¿Deseás reprogramarlo por este nuevo horario?"
+                    }
+                )
+
+        # 3.1. Si es una reprogramación, cancelar el turno anterior para LIBERAR su horario en la base de datos
         was_rescheduled = False
         old_appt = None
         if payload.reschedule_from_token:

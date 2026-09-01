@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v50-solid-bars-no-bleed';
+const CACHE_NAME = 'citaly-v52-anti-duplicate-service-rule';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

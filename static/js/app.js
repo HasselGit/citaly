@@ -513,22 +513,34 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn('Respuesta de texto recibida:', jsonErr);
       }
 
+      if (res.status === 409 && result && result.has_existing_same_service) {
+        if (modalOverlay) modalOverlay.classList.remove('active');
+        if (existingApptInfo) {
+          existingApptInfo.innerText = `Ya tenés un turno de ${result.existing_service_name} el ${result.existing_date_str}. ¿Deseás cambiarlo por este nuevo horario?`;
+        }
+        window._pendingRescheduleApptId = result.existing_appointment_id;
+        window._pendingPatientName = name;
+        window._pendingPatientPhone = phone;
+        if (existingModal) existingModal.classList.add('active');
+        return;
+      }
+
       if ((res.ok && result && result.success) || res.status === 200) {
         const timeStr = selectedTimeSlot ? selectedTimeSlot.split('T')[1].substring(0, 5) : '10:00';
         const dayNum = selectedDate.getDate();
         const monthName = monthsName[selectedDate.getMonth()];
         const dayOfWeekName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][selectedDate.getDay()];
-        const formattedDateText = `${dayOfWeekName} ${dayNum} de ${monthName} a las ${timeStr} hs`;
+        const formattedDateText = `${dayOfWeekName} ${dayNum} de ${monthName} — ${timeStr} hs`;
 
         const titleEl = document.getElementById('success-modal-title');
         const descEl = document.getElementById('success-modal-desc');
 
         if (result && result.was_rescheduled) {
           if (titleEl) titleEl.innerText = '¡Turno Reprogramado con Éxito!';
-          if (descEl) descEl.innerText = 'Los datos de tu nuevo turno fueron actualizados correctamente.';
+          if (descEl) descEl.innerText = 'Tu nuevo turno fue registrado con éxito.';
         } else {
           if (titleEl) titleEl.innerText = '¡Turno Agendado con Éxito!';
-          if (descEl) descEl.innerText = 'Te enviamos la confirmación por WhatsApp. Te esperamos en el consultorio.';
+          if (descEl) descEl.innerText = 'Te esperamos en el consultorio.';
         }
 
         document.getElementById('success-service-name').innerText = selectedServiceName || 'Ortodoncia / Control';
@@ -541,6 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Limpiar estado de reprogramación y horario seleccionado
         window._rescheduleToken = null;
         window._rescheduleApptId = null;
+        window._pendingRescheduleApptId = null;
         selectedTimeSlot = null;
         if (btnOpenModal) btnOpenModal.disabled = true;
 
@@ -548,7 +561,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchAvailability();
       } else {
         const errDetail = (result && result.detail) ? result.detail : 'Por favor intenta nuevamente en unos momentos.';
-        showModalError('No se pudo confirmar la reserva: ' + errDetail);
+        showModalError(errDetail);
       }
     } catch (err) {
       console.error('Error al crear reserva:', err);
@@ -561,42 +574,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 7. Acciones de Reprogramación y Cancelación Instantánea
   if (btnRescheduleExisting) {
     btnRescheduleExisting.addEventListener('click', async () => {
-      if (!activePatientAppt || !selectedTimeSlot) {
-        alert('Por favor selecciona primero un nuevo día y horario disponible en el calendario.');
+      const apptId = window._pendingRescheduleApptId || (activePatientAppt ? activePatientAppt.id : null);
+      if (!apptId || !selectedTimeSlot) {
         if (existingModal) existingModal.classList.remove('active');
         return;
       }
 
-      try {
-        btnRescheduleExisting.innerText = 'Reprogramando...';
-        btnRescheduleExisting.disabled = true;
+      const pName = window._pendingPatientName || (activePatientAppt ? activePatientAppt.patient_name : '');
+      const pPhone = window._pendingPatientPhone || (activePatientAppt ? activePatientAppt.patient_whatsapp : '');
 
-        const res = await fetch('/api/v1/booking/reschedule', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            appointment_id: activePatientAppt.id,
-            new_start_time: selectedTimeSlot
-          })
-        });
-
-        const result = await res.json();
-        if (result.success) {
-          existingModal.classList.remove('active');
-          fetchAvailability();
-          alert(result.message || 'Turno reprogramado exitosamente.');
-        } else {
-          alert(result.detail || 'No se pudo reprogramar la cita.');
-        }
-      } catch (e) {
-        alert('Error al reprogramar la cita.');
-      } finally {
-        btnRescheduleExisting.innerText = 'Reprogramar para la nueva fecha';
-        btnRescheduleExisting.disabled = false;
-      }
+      window._rescheduleApptId = apptId;
+      if (existingModal) existingModal.classList.remove('active');
+      createAppointmentCall(pName, pPhone, null);
     });
   }
 

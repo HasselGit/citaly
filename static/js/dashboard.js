@@ -950,6 +950,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const data = await res.json();
 
+        if (res.status === 409 && data && data.has_existing_same_service) {
+          const userConfirm = confirm(`El paciente ya tiene un turno de ${data.existing_service_name} el ${data.existing_date_str}.\n\n¿Deseás reprogramarlo y cambiarlo por este nuevo horario?`);
+          if (userConfirm) {
+            payload.reschedule_from_id = data.existing_appointment_id;
+            const retryRes = await fetch('/api/v1/booking/appointments', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            const retryData = await retryRes.json();
+            if (retryRes.ok && retryData.success) {
+              showToast(`¡Turno reprogramado con éxito para ${patientName}!`, 'success');
+              if (adminPatientName) adminPatientName.value = '';
+              if (adminPatientPhone) adminPatientPhone.value = '';
+              await fetchDashboardAppointments();
+              setTimeout(() => switchTab('reservas'), 600);
+              return;
+            } else {
+              showToast(retryData.detail || 'No se pudo reprogramar.', 'error');
+              return;
+            }
+          } else {
+            showToast('Operación cancelada. Se conserva el turno original del paciente.');
+            return;
+          }
+        }
+
         if (res.ok && data.success) {
           showToast(`¡Turno agendado con éxito para ${patientName}!`, 'success');
           
