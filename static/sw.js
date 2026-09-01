@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v55-large-icons-elevation-shadow';
+const CACHE_NAME = 'citaly-v56-guarda-todo-complete';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
