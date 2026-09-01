@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v53-admin-duplicate-modal-ui';
+const CACHE_NAME = 'citaly-v54-pure-seamless-bottom-nav';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

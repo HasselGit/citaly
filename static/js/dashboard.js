@@ -160,11 +160,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Actualizar botones móviles
+    // Actualizar botones móviles (sin fondos grises, color puro)
     mobileTabBtns.forEach(btn => {
       if (btn.getAttribute('data-tab') === tabId) {
-        btn.classList.add('text-navy', 'font-bold', 'bg-slate-200/80');
-        btn.classList.remove('text-slate-500', 'font-medium');
+        btn.classList.add('text-navy', 'font-bold');
+        btn.classList.remove('text-slate-500', 'font-medium', 'bg-slate-200/80');
       } else {
         btn.classList.remove('text-navy', 'font-bold', 'bg-slate-200/80');
         btn.classList.add('text-slate-500', 'font-medium');
