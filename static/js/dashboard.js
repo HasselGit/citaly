@@ -153,10 +153,10 @@ document.addEventListener('DOMContentLoaded', () => {
     desktopTabBtns.forEach(btn => {
       if (btn.getAttribute('data-tab') === tabId) {
         btn.classList.add('bg-navy', 'text-white', 'font-bold', 'shadow-xs');
-        btn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+        btn.classList.remove('text-slate-600', 'hover:bg-slate-100', 'hover:text-navy');
       } else {
         btn.classList.remove('bg-navy', 'text-white', 'font-bold', 'shadow-xs');
-        btn.classList.add('text-slate-600', 'hover:bg-slate-100');
+        btn.classList.add('text-slate-600', 'hover:bg-slate-100', 'hover:text-navy');
       }
     });
 
@@ -759,7 +759,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <button type="button" data-admin-day-iso="${dIso}" class="admin-day-btn p-2 rounded-xl flex flex-col items-center justify-center text-center transition-all ${isSelected ? 'bg-navy text-white shadow-xs font-bold' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'}">
           <span class="text-[9px] font-bold uppercase font-mono ${isSelected ? 'text-amber-400' : 'text-slate-500'}">${dayName}</span>
           <span class="text-xs font-bold font-display my-0.5">${dayNum}/${monthNum}</span>
-          <span class="text-[8px] font-semibold font-mono ${isSelected ? 'text-slate-300' : (freeCount > 0 ? 'text-emerald-700 font-bold' : 'text-slate-400')}">${freeCount} libres</span>
+          <span class="text-[8px] font-semibold font-mono ${isSelected ? 'text-slate-300' : 'text-slate-500'}">${freeCount} libres</span>
         </button>
       `;
     }).join('');
@@ -828,7 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
     adminBookingSlotsGrid.innerHTML = freeSlots.map(timeStr => {
       const isSelected = selectedAdminSlot === timeStr;
       return `
-        <button type="button" data-admin-slot="${timeStr}" class="admin-slot-btn py-2 px-1 rounded-xl text-xs font-mono font-bold transition-all ${isSelected ? 'bg-navy text-white shadow-xs ring-2 ring-amber-400' : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'}">
+        <button type="button" data-admin-slot="${timeStr}" class="admin-slot-btn py-2 px-1 rounded-xl text-xs font-mono font-bold transition-all ${isSelected ? 'bg-navy text-white shadow-xs border-navy' : 'bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-400 border border-slate-200 shadow-2xs'}">
           ${timeStr} hs
         </button>
       `;
