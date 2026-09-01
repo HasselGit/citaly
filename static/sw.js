@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v54-pure-seamless-bottom-nav';
+const CACHE_NAME = 'citaly-v55-large-icons-elevation-shadow';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
