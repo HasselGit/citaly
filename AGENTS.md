@@ -81,13 +81,20 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 - **Cuerpo, Formularios y Botones (`font-sans`):** `Inter` (Pesos: 400, 500, 600)
 - **Fechas, Horarios y Badges (`font-mono`):** `JetBrains Mono` (Pesos: 500, 600, 700)
 
-### Frontend Paciente (PWA)
-1. **Live Slot Refresh en Tiempo Real:**
-   - La PWA consulta la disponibilidad en segundo plano cada 5 segundos y ante eventos de `visibilitychange`.
+### Frontend Paciente (PWA) & Dashboard Ejecutivo
+1. **Regla de Negocio Anti-Duplicados por Especialidad:**
+   - Un paciente **SÍ** puede tener turnos activos para **diferentes especialidades** (ej: *Ortodoncia* y *Limpieza*).
+   - Un paciente **NO** puede tener dos turnos activos para el **mismo servicio**.
+   - Si intenta agendar un segundo turno para el mismo servicio, el backend responde `409 Conflict` (`has_existing_same_service: true`).
+   - Tanto en la PWA de pacientes como en el Dashboard administrativo, se abre un **Modal Ejecutivo de Detección de Turno Existente**:
+     - `[ Sí, Reprogramar por esta nueva fecha ]`: Cancela el turno viejo, libera su horario en PostgreSQL de inmediato y confirma el nuevo de forma atómica.
+     - `[ Conservar turno original (Sin cambios) ]`: Cierra el aviso y mantiene la cita original 100% intacta.
+2. **Live Slot Refresh en Tiempo Real:**
+   - La PWA consulta la disponibilidad en segundo plano cada 4 segundos y ante eventos de `visibilitychange`.
    - Si otro paciente reserva o cancela, los botones de horarios se deshabilitan/habilitan automáticamente en pantalla **sin recargar la página**.
-2. **Protección Anti-Colisión Atómica (HTTP 409):**
+3. **Protección Anti-Colisión Atómica (HTTP 409):**
    - El backend valida solapamientos antes de insertar en base de datos. Si ocurre un intento simultáneo en el mismo milisegundo, responde `409 Conflict` evitando duplicaciones.
-3. **Reserva y Reprogramación Atómica:**
+4. **Reserva y Reprogramación Atómica:**
    - Al reprogramar, la cita anterior pasa a `status = 'CANCELLED'` en la misma transacción de PostgreSQL, liberando de inmediato el horario viejo.
    - Autocompletado de datos del paciente (`patient_name`, `patient_whatsapp`).
 4. **Consulta de Turnos por Celular (`.active-appt-card`):**
