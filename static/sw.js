@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v49-qr-size-update';
+const CACHE_NAME = 'citaly-v50-solid-bars-no-bleed';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

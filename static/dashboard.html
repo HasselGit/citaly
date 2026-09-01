@@ -135,7 +135,7 @@
   <main class="flex-1 md:ml-64 min-h-screen w-full flex flex-col">
     
     <!-- TopNavBar Minimalista con Tarjeta Ejecutiva del Doctor de Gran Presencia -->
-    <header class="fixed top-0 left-0 md:left-64 right-0 z-30 h-20 bg-[#F8FAFC]/95 backdrop-blur-sm flex justify-between items-center px-4 md:px-10">
+    <header class="fixed top-0 left-0 md:left-64 right-0 z-30 h-20 bg-[#F8FAFC] flex justify-between items-center px-4 md:px-10">
       
       <!-- Tarjeta Ejecutiva del Consultorio -->
       <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-slate-200/90 shadow-xs">
@@ -496,8 +496,8 @@
     </div>
   </main>
 
-  <!-- BottomNavBar (Mobile - Con 4 accesos directos equilibrados, sin línea divisoria y logos más grandes) -->
-  <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-3 py-2.5 bg-[#F8FAFC]/98 backdrop-blur-md shadow-lg" id="mobile-nav-container">
+  <!-- BottomNavBar (Mobile - Con 4 accesos directos equilibrados, 100% SÓLIDA y opaca, sin transparencias) -->
+  <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-3 py-2.5 bg-[#F8FAFC] shadow-[0_-4px_20px_rgba(15,23,42,0.08)]" id="mobile-nav-container">
     <button data-tab="panel" class="mobile-tab-btn flex flex-col items-center px-3.5 py-1.5 rounded-full text-navy font-bold transition-all bg-slate-200/80">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
       <span class="text-[10px] mt-1 font-mono">Panel</span>
