@@ -269,31 +269,27 @@ async def create_appointment(
         db.commit()
         db.refresh(appointment)
 
-        # 5. Enviar mensaje de WhatsApp vía Meta Cloud API
-        start_time_str = appointment.start_time.strftime('%d/%m a las %H:%M hs')
-        pwa_url = "https://citaly-six.vercel.app"
+        # 5. Enviar mensaje de WhatsApp oficial vía Meta Cloud API
+        date_param = appointment.start_time.strftime('%d/%m')
+        time_param = appointment.start_time.strftime('%H:%M')
 
-        if was_rescheduled:
-            wa_text = (
-                f"Hola {patient.full_name}, te confirmamos que tu turno en {tenant.business_name} "
-                f"para {service.name} fue REPROGRAMADO para el día {start_time_str}.\n\n"
-                f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
-                f"• Para reprogramar ingresá a: {pwa_url}"
-            )
-        else:
-            wa_text = (
-                f"Hola {patient.full_name}, te confirmamos tu turno en {tenant.business_name} "
-                f"para {service.name} el día {start_time_str}.\n\n"
-                f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
-                f"• Para reprogramar ingresá a: {pwa_url}"
-            )
+        template_params = [
+            {"type": "text", "text": patient.full_name},
+            {"type": "text", "text": tenant.business_name},
+            {"type": "text", "text": service.name},
+            {"type": "text", "text": date_param},
+            {"type": "text", "text": time_param}
+        ]
 
-        # Enviar mensaje de texto personalizado con número de producción real al paciente.
-        meta_result = await whatsapp_service.send_text_message(
+        template_name = "citaly_reprogramacion_v1" if was_rescheduled else "citaly_confirmacion_v1"
+
+        meta_result = await whatsapp_service.send_template_message(
             to_phone=patient.whatsapp_phone,
-            text_body=wa_text
+            template_name=template_name,
+            language_code="es_AR",
+            parameters=template_params
         )
-        print(f"[WHATSAPP META RESULT] {meta_result}")
+        print(f"[WHATSAPP META TEMPLATE RESULT] {meta_result}")
 
         # Si fue reprogramado, notificar también a la administración/dueño si tiene número activo
         if was_rescheduled and tenant.whatsapp_number and "000000" not in tenant.whatsapp_number and tenant.whatsapp_number != patient.whatsapp_phone:
@@ -324,6 +320,8 @@ async def create_appointment(
         db.add(wa_log)
         db.commit()
 
+        start_time_str = f"{date_param} a las {time_param} hs"
+        wa_text = f"Plantilla oficial {template_name} enviada a {patient.whatsapp_phone}"
         msg_title = "¡Turno Reprogramado con Éxito!" if was_rescheduled else "¡Turno Agendado con Éxito!"
         msg_body = f"Tu nuevo turno para {service.name} fue registrado para el {start_time_str}." if was_rescheduled else f"Tu turno para {service.name} fue registrado para el {start_time_str}."
 

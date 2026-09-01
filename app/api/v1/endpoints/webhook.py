@@ -135,8 +135,20 @@ async def receive_meta_webhook(request: Request, db: Session = Depends(get_db)):
                                 date_str = start_dt.strftime("%d/%m")
                                 time_str = start_dt.strftime("%H:%M")
 
-                                reply_msg = f"Tu turno del {date_str} a las {time_str} hs fue cancelado. ¡Gracias por avisarnos!"
-                                result = await whatsapp_service.send_text_message(to_phone=sender_phone, text_body=reply_msg)
+                                patient = db.query(Patient).filter(Patient.id == appt_to_cancel.patient_id).first()
+                                tenant = db.query(Tenant).filter(Tenant.id == appt_to_cancel.tenant_id).first()
+                                service = db.query(Service).filter(Service.id == appt_to_cancel.service_id).first()
+
+                                result = await whatsapp_service.send_template_message(
+                                    to_phone=sender_phone,
+                                    template_name="citaly_cancelacion_v1",
+                                    language_code="es_AR",
+                                    parameters=[
+                                        {"type": "text", "text": patient.full_name if patient else "Paciente"},
+                                        {"type": "text", "text": tenant.business_name if tenant else "Consultorio"},
+                                        {"type": "text", "text": service.name if service else "Tratamiento"}
+                                    ]
+                                )
                                 
                                 meta_id = None
                                 if isinstance(result, dict) and "messages" in result and len(result["messages"]) > 0:
