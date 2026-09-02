@@ -457,22 +457,29 @@ document.addEventListener('DOMContentLoaded', () => {
       submitBtn.disabled = true;
     }
 
+    if (modalErrorBanner) modalErrorBanner.style.display = 'none';
+
     try {
       const checkRes = await fetch(`/api/v1/booking/check-patient?phone=${encodeURIComponent(phone)}&service_id=${selectedServiceId}`);
-      const checkData = await checkRes.json();
+      if (checkRes.ok) {
+        const checkData = await checkRes.json();
+        if (checkData.has_active_appointment && checkData.appointment) {
+          activePatientAppt = checkData.appointment;
+          window._pendingRescheduleApptId = checkData.appointment.id;
+          window._pendingPatientName = name;
+          window._pendingPatientPhone = phone;
 
-      if (checkData.has_active_appointment && checkData.appointment) {
-        activePatientAppt = checkData.appointment;
-        if (modalOverlay) modalOverlay.classList.remove('active');
-        if (existingApptInfo) {
-          existingApptInfo.innerText = `Hola ${name}, detectamos que ya tienes una cita de ${checkData.appointment.service_name} el ${checkData.appointment.start_time_formatted}. ¿Deseas reprogramarla o cancelarla?`;
+          if (modalOverlay) modalOverlay.classList.remove('active');
+          if (existingApptInfo) {
+            existingApptInfo.innerText = `Hola ${name}, detectamos que ya tenés un turno de ${checkData.appointment.service_name} el ${checkData.appointment.start_time_formatted}. ¿Deseás cambiarlo por este nuevo horario o cancelarlo?`;
+          }
+          if (existingModal) existingModal.classList.add('active');
+          if (submitBtn) {
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+          }
+          return;
         }
-        if (existingModal) existingModal.classList.add('active');
-        if (submitBtn) {
-          submitBtn.classList.remove('loading');
-          submitBtn.disabled = false;
-        }
-        return;
       }
     } catch (e) {
       console.warn('Check paciente omitido:', e);
@@ -483,13 +490,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function showModalError(msg) {
     if (modalErrorBanner && modalErrorText) {
-      modalErrorText.innerText = msg;
+      let cleanMsg = 'Hubo un inconveniente al procesar la reserva. Por favor intenta nuevamente.';
+      if (typeof msg === 'string') {
+        cleanMsg = msg;
+      } else if (Array.isArray(msg) && msg.length > 0) {
+        cleanMsg = msg[0].msg || (typeof msg[0] === 'string' ? msg[0] : JSON.stringify(msg[0]));
+      } else if (typeof msg === 'object' && msg !== null) {
+        if (typeof msg.detail === 'string') {
+          cleanMsg = msg.detail;
+        } else if (Array.isArray(msg.detail) && msg.detail.length > 0) {
+          cleanMsg = msg.detail[0].msg || JSON.stringify(msg.detail[0]);
+        } else if (typeof msg.message === 'string') {
+          cleanMsg = msg.message;
+        } else {
+          cleanMsg = JSON.stringify(msg);
+        }
+      }
+      modalErrorText.innerText = cleanMsg;
       modalErrorBanner.style.display = 'block';
     }
   }
 
   async function createAppointmentCall(name, phone, submitBtn) {
     try {
+      if (modalErrorBanner) modalErrorBanner.style.display = 'none';
+
       const payload = {
         tenant_id: 'demo-tenant-citaly-001',
         service_id: selectedServiceId,
@@ -510,7 +535,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         result = await res.json();
       } catch (jsonErr) {
-        console.warn('Respuesta de texto recibida:', jsonErr);
+        console.warn('Respuesta no JSON recibida:', jsonErr);
       }
 
       if (res.status === 409 && result && result.has_existing_same_service) {
@@ -560,8 +585,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Actualizar disponibilidad inmediatamente en vivo
         fetchAvailability();
       } else {
-        const errDetail = (result && result.detail) ? result.detail : 'Por favor intenta nuevamente en unos momentos.';
+        let errDetail = 'Por favor selecciona otro horario o intenta nuevamente.';
+        if (result && result.detail) {
+          errDetail = result.detail;
+        }
         showModalError(errDetail);
+        fetchAvailability();
       }
     } catch (err) {
       console.error('Error al crear reserva:', err);

@@ -137,6 +137,55 @@ def get_services(request: Request, db: Session = Depends(get_db)):
         for s in existing_services
     ]
 
+@router.get("/check-patient")
+def check_patient(phone: str, service_id: Optional[str] = None, db: Session = Depends(get_db)):
+    """
+    Verifica si un paciente ya cuenta con un turno activo para el mismo servicio.
+    """
+    tenant = get_or_create_primary_tenant(db)
+    target_digits = clean_phone_digits(phone)
+    if not target_digits:
+        return {"has_active_appointment": False}
+
+    patients = db.query(Patient).filter(Patient.tenant_id == tenant.id).all()
+    patient = None
+    for p in patients:
+        if clean_phone_digits(p.whatsapp_phone) == target_digits:
+            patient = p
+            break
+
+    if not patient:
+        return {"has_active_appointment": False}
+
+    now_dt = datetime.utcnow()
+    query = db.query(Appointment).filter(
+        Appointment.patient_id == patient.id,
+        Appointment.status != "CANCELLED",
+        Appointment.start_time >= now_dt
+    )
+
+    if service_id:
+        query = query.filter(Appointment.service_id == service_id)
+
+    appt = query.order_by(Appointment.start_time.asc()).first()
+    if not appt:
+        return {"has_active_appointment": False}
+
+    srv = db.query(Service).filter(Service.id == appt.service_id).first()
+    return {
+        "has_active_appointment": True,
+        "appointment": {
+            "id": appt.id,
+            "patient_name": patient.full_name,
+            "patient_whatsapp": patient.whatsapp_phone,
+            "service_id": appt.service_id,
+            "service_name": srv.name if srv else "Consulta",
+            "start_time_iso": appt.start_time.isoformat(),
+            "start_time_formatted": appt.start_time.strftime('%d/%m a las %H:%M hs'),
+            "token_cancellation": appt.token_cancellation
+        }
+    }
+
 @router.get("/availability")
 def get_availability(
     service_id: str,

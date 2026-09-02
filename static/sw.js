@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v58-agenda-blocks-and-direct-management';
+const CACHE_NAME = 'citaly-v59-clean-error-banner-and-check-patient';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
