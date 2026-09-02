@@ -155,11 +155,12 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 - **Token:** Long-lived user token, 59 días, **vence 26/10/2026**
 - **URL Base:** `https://graph.facebook.com/v18.0/{PHONE_NUMBER_ID}/messages`
 
-### Estado de Plantillas en Meta (WABA: `1006525879102174`)
-- `citaly_confirmacion_v1` (`es_AR`): ⏳ `PENDING` (En revisión de Meta)
-- `citaly_recordatorio_24h_v1` (`es_AR`): ⏳ `PENDING` (En revisión de Meta)
-- `citaly_recordatorio_2h_v1` (`es_AR`): ⏳ `PENDING` (En revisión de Meta)
-- `hello_world` (`en_US`): ✅ `APPROVED` (Aprobada)
+### Estado de Plantillas en Meta (WABA: `1006525879102174` / `985775717869143`)
+- `citaly_confirmacion_v1` (`es_AR`): ✅ `APPROVED` (Verificado en producción con estado `DELIVERED`)
+- `citaly_recordatorio_24h_v1` (`es_AR`): ✅ `APPROVED` (Envíos automáticos vía cron cada 15 min)
+- `citaly_cancelacion_v1` (`es_AR`): ✅ `APPROVED` (Auto-respuesta cuando el paciente cancela por WhatsApp)
+- `citaly_recordatorio_2h_v1`: Descartado por regla de negocio (no se utiliza)
+- **Facturación WABA:** Método de pago validado y conectado en WABA `985775717869143` (`health_status: AVAILABLE`)
 
 ---
 
