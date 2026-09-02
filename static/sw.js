@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v66-compact-2row-slot-cards';
+const CACHE_NAME = 'citaly-v67-fix-dashboard-syntax-unblock';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

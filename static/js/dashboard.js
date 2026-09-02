@@ -1459,6 +1459,7 @@ document.addEventListener('DOMContentLoaded', () => {
         statusBadge = `<span class="px-2.5 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold font-mono rounded-lg">Finalizado</span>`;
       } else {
         statusBadge = `<span class="px-2.5 py-1 bg-navy text-white text-[10px] font-bold font-mono rounded-lg shadow-xs">Activo</span>`;
+      }
       return `
         <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex flex-col gap-2 shadow-2xs">
           <!-- Fila 1: Fecha/Hora + Nombre Completo + Estado -->
