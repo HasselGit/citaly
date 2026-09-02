@@ -224,22 +224,6 @@ async def receive_meta_webhook(request: Request, db: Session = Depends(get_db)):
                                 db.add(log)
                                 db.commit()
                                 print(f"[AUTO CONFIRMED VIA WHATSAPP] Appointment {appt_to_confirm.id} confirmed by patient {sender_phone}")
-                                result = await whatsapp_service.send_text_message(to_phone=sender_phone, text_body=reply_msg)
-                                
-                                meta_id = None
-                                if isinstance(result, dict) and "messages" in result and len(result["messages"]) > 0:
-                                    meta_id = result["messages"][0].get("id")
-
-                                log = WhatsAppLog(
-                                    id=str(uuid.uuid4()),
-                                    appointment_id=appt_to_confirm.id,
-                                    message_type="AUTO_CONFIRM_REPLY",
-                                    status="SENT" if result.get("status") != "ERROR" else "FAILED",
-                                    meta_message_id=meta_id
-                                )
-                                db.add(log)
-                                db.commit()
-                                print(f"[AUTO CONFIRMED VIA WHATSAPP] Appointment {appt_to_confirm.id} confirmed by patient {sender_phone}")
     except Exception as e:
         print(f"[ERROR WEBHOOK PROCESS]: {e}")
 
