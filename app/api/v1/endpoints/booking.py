@@ -222,10 +222,28 @@ async def create_appointment(
         tenant = get_or_create_primary_tenant(db)
 
         # 1. Resolver el servicio solicitado
-        service = db.query(Service).filter(
-            Service.tenant_id == tenant.id,
-            Service.id == payload.service_id
-        ).first()
+        service = None
+        if payload.service_id:
+            service = db.query(Service).filter(
+                Service.tenant_id == tenant.id,
+                Service.id == payload.service_id
+            ).first()
+
+            if not service:
+                slug_map = {
+                    "srv-ortodoncia": "Ortodoncia / Control",
+                    "srv-limpieza": "Limpieza & Blanqueamiento",
+                    "srv-endodoncia": "Endodoncia / Conducto",
+                    "srv-implante": "Implante Dental & Cirugía",
+                    "srv-extraccion": "Extracción Muela de Juicio",
+                    "srv-consulta": "Consulta & Diagnóstico"
+                }
+                target_name = slug_map.get(payload.service_id)
+                if target_name:
+                    service = db.query(Service).filter(
+                        Service.tenant_id == tenant.id,
+                        Service.name.ilike(f"%{target_name}%")
+                    ).first()
 
         if not service:
             service = db.query(Service).filter(Service.tenant_id == tenant.id).first()

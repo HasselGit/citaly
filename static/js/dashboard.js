@@ -77,14 +77,39 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnAdminSubmitBooking = document.getElementById('btn-admin-submit-booking');
 
   // Servicios Oficiales
-  const dentalServices = [
-    { id: "srv-ortodoncia", name: "Ortodoncia / Control", duration: 120, price: "$25.000", desc: "Alineación y controles" },
-    { id: "srv-limpieza", name: "Limpieza & Blanqueamiento", duration: 45, price: "$18.000", desc: "Profilaxis y estética" },
-    { id: "srv-endodoncia", name: "Endodoncia / Conducto", duration: 45, price: "$32.000", desc: "Tratamiento de conducto" },
-    { id: "srv-implante", name: "Implante Dental & Cirugía", duration: 60, price: "$55.000", desc: "Cirugía especializada" },
-    { id: "srv-extraccion", name: "Extracción Muela de Juicio", duration: 30, price: "$20.000", desc: "Extracciones simples y complejas" },
-    { id: "srv-consulta", name: "Consulta & Diagnóstico", duration: 30, price: "$12.000", desc: "Evaluación integral" }
+  // Servicios Oficiales (Con UUIDs reales de PostgreSQL)
+  let dentalServices = [
+    { id: "4b98fe07-1d50-49d0-9c75-d3483a572896", name: "Ortodoncia / Control", duration: 120, price: "$25.000", desc: "Alineación y controles" },
+    { id: "c555b0b2-5edc-4078-b25e-1d9cee908954", name: "Limpieza & Blanqueamiento", duration: 45, price: "$18.000", desc: "Profilaxis y estética" },
+    { id: "f5a291e5-70a9-431e-8376-ae9cd50a529c", name: "Endodoncia / Conducto", duration: 45, price: "$32.000", desc: "Tratamiento de conducto" },
+    { id: "e0ffdf4c-ed17-4f44-8546-deceac61fc65", name: "Implante Dental & Cirugía", duration: 60, price: "$55.000", desc: "Cirugía especializada" },
+    { id: "03416f5d-fd1f-49d7-810e-0b11a7dfb419", name: "Extracción Muela de Juicio", duration: 30, price: "$20.000", desc: "Extracciones simples y complejas" },
+    { id: "4fb9a174-1682-40fa-8fa0-579bda631ef4", name: "Consulta & Diagnóstico", duration: 30, price: "$12.000", desc: "Evaluación integral" }
   ];
+
+  async function fetchServices() {
+    try {
+      const res = await fetch('/api/v1/booking/services');
+      if (res.ok) {
+        const list = await res.json();
+        if (Array.isArray(list) && list.length > 0) {
+          dentalServices = list.map(s => ({
+            id: s.id,
+            name: s.name,
+            duration: s.duration_minutes || 30,
+            price: s.price ? `$${Number(s.price).toLocaleString('es-AR')}` : '$0',
+            desc: s.name
+          }));
+          if (!selectedAdminService || !dentalServices.some(s => s.id === selectedAdminService.id)) {
+            selectedAdminService = dentalServices[0];
+          }
+          renderAdminServices();
+        }
+      }
+    } catch (e) {
+      console.warn('Error al cargar servicios dinámicos:', e);
+    }
+  }
 
   // Estado Local
   let allAppointments = [];
@@ -1585,6 +1610,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 14. Inicialización
+  fetchServices();
   fetchDashboardAppointments();
   startDashboardAutoSync();
 });

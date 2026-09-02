@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v60-harmonized-agenda-and-global-search';
+const CACHE_NAME = 'citaly-v61-dynamic-services-and-real-service-matching';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
