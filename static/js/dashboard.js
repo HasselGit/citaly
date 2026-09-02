@@ -618,9 +618,25 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    agendaSlotsSheet.innerHTML = visibleSlots.map(({ timeSlot, appt, timeBlock }) => {
+    agendaSlotsSheet.innerHTML = visibleSlots.map(({ timeSlot, appt, timeBlock, isPastSlot }) => {
       if (appt) {
         const cleanPhone = (appt.patient_whatsapp || '').replace(/\D/g, '');
+        let actionBadge = '';
+        if (isPastSlot) {
+          actionBadge = `<span class="px-2.5 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold font-mono rounded-lg">Finalizado</span>`;
+        } else {
+          actionBadge = `
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+              <button type="button" data-action="admin-cancel-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-slot-info="${timeSlot} hs (${dayOfWeekName} ${dayNumber} de ${monthName})" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-navy border border-slate-200 rounded-lg text-[10px] font-bold font-mono transition-all" title="Cancelar este turno y liberar el horario">
+                Cancelar
+              </button>
+              <span class="px-2.5 py-1 bg-navy text-white text-[10px] font-bold font-mono rounded-lg shadow-xs">
+                Ocupado
+              </span>
+            </div>
+          `;
+        }
+
         return `
           <div class="p-3 bg-slate-50/90 rounded-xl border border-slate-200 flex items-center justify-between gap-3 shadow-2xs">
             <div class="flex items-center gap-3 overflow-hidden">
@@ -632,30 +648,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="text-[11px] text-slate-500 font-sans truncate">${appt.service_name} ${cleanPhone ? `• ${appt.patient_whatsapp}` : ''}</div>
               </div>
             </div>
-            <div class="flex items-center gap-2 flex-shrink-0">
-              <button type="button" data-action="admin-cancel-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-slot-info="${timeSlot} hs" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200/80 rounded-lg text-[10px] font-bold font-mono flex items-center gap-1 transition-all shadow-2xs" title="Cancelar este turno y liberar el horario">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                <span>Cancelar</span>
-              </button>
-              <span class="px-2.5 py-1 bg-navy text-white text-[10px] font-bold font-mono rounded-lg shadow-xs">
-                Ocupado
-              </span>
-            </div>
+            ${actionBadge}
           </div>
         `;
       } else if (timeBlock) {
         return `
-          <div class="p-3 bg-amber-50/80 rounded-xl border border-amber-200 flex items-center justify-between gap-3 shadow-2xs">
+          <div class="p-3 bg-slate-100/80 rounded-xl border border-slate-300 flex items-center justify-between gap-3 shadow-2xs">
             <div class="flex items-center gap-3 overflow-hidden">
-              <span class="px-2.5 py-1 bg-amber-200 text-amber-900 text-xs font-bold font-mono rounded-lg flex-shrink-0 shadow-xs">
+              <span class="px-2.5 py-1 bg-slate-200 text-slate-800 text-xs font-bold font-mono rounded-lg flex-shrink-0">
                 ${timeSlot} hs
               </span>
               <div class="overflow-hidden">
-                <div class="text-xs font-bold text-amber-900 font-display truncate">🔒 ${timeBlock.reason || 'Agenda Bloqueada'}</div>
-                <div class="text-[11px] text-amber-700 font-sans truncate">No disponible para turnos</div>
+                <div class="text-xs font-bold text-navy font-display truncate">🔒 ${timeBlock.reason || 'Agenda Bloqueada'}</div>
+                <div class="text-[11px] text-slate-500 font-sans truncate">No disponible para turnos</div>
               </div>
             </div>
-            <button type="button" data-action="admin-delete-block" data-block-id="${timeBlock.id}" class="px-2.5 py-1 bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-[10px] font-bold font-mono transition-all shadow-2xs">
+            <button type="button" data-action="admin-delete-block" data-block-id="${timeBlock.id}" class="px-2.5 py-1 bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg text-[10px] font-bold font-mono transition-all shadow-2xs">
               Desbloquear
             </button>
           </div>
@@ -668,7 +676,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${timeSlot} hs
               </span>
             </div>
-            <span class="text-[11px] font-semibold text-emerald-600 font-mono">● Libre</span>
+            <span class="text-[11px] font-semibold text-slate-500 font-mono">● Disponible</span>
           </div>
         `;
       }
@@ -1302,6 +1310,125 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
           showToast('Error de conexión al eliminar bloqueo', 'error');
         }
+      }
+    });
+  }
+
+  // 13.6. Búsqueda Global de Pacientes en la Agenda (Multi-Fecha)
+  const agendaSearchResultsPanel = document.getElementById('agenda-search-results-panel');
+  const agendaSearchResultsList = document.getElementById('agenda-search-results-list');
+  const searchResultsPatientTitle = document.getElementById('search-results-patient-title');
+  const searchResultsCount = document.getElementById('search-results-count');
+  const btnCloseSearchResults = document.getElementById('btn-close-search-results');
+
+  function handleAgendaGlobalSearch() {
+    if (!agendaSearchInput || !agendaSearchResultsPanel || !agendaSearchResultsList) return;
+    const query = agendaSearchInput.value.trim().toLowerCase();
+
+    if (query.length < 2) {
+      agendaSearchResultsPanel.classList.add('hidden');
+      agendaSearchResultsList.innerHTML = '';
+      return;
+    }
+
+    const matches = allAppointments.filter(a => {
+      const name = (a.patient_name || '').toLowerCase();
+      const phone = (a.patient_whatsapp || '').toLowerCase();
+      return name.includes(query) || phone.includes(query);
+    });
+
+    matches.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+
+    agendaSearchResultsPanel.classList.remove('hidden');
+    if (searchResultsPatientTitle) {
+      searchResultsPatientTitle.innerText = `Turnos de "${agendaSearchInput.value.trim()}"`;
+    }
+    if (searchResultsCount) {
+      searchResultsCount.innerText = `${matches.length} ${matches.length === 1 ? 'turno registrado' : 'turnos registrados'} en todo el calendario`;
+    }
+
+    if (matches.length === 0) {
+      agendaSearchResultsList.innerHTML = `
+        <div class="col-span-full p-4 text-center text-xs text-slate-500 font-sans">
+          No se encontraron turnos agendados para este paciente.
+        </div>
+      `;
+      return;
+    }
+
+    const nowTime = new Date();
+    agendaSearchResultsList.innerHTML = matches.map(appt => {
+      const aDate = new Date(appt.start_time);
+      const isPast = aDate < nowTime;
+      const cleanPhone = (appt.patient_whatsapp || '').replace(/\D/g, '');
+      const dayStr = `${daysShort[aDate.getDay()]} ${aDate.getDate()}/${aDate.getMonth() + 1}`;
+      const timeStr = `${String(aDate.getHours()).padStart(2, '0')}:${String(aDate.getMinutes()).padStart(2, '0')} hs`;
+
+      let statusBadge = '';
+      let cancelBtn = '';
+
+      if (appt.status === 'CANCELLED') {
+        statusBadge = `<span class="px-2.5 py-1 bg-slate-200 text-slate-600 text-[10px] font-bold font-mono rounded-lg">Cancelado</span>`;
+      } else if (isPast) {
+        statusBadge = `<span class="px-2.5 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold font-mono rounded-lg">Finalizado</span>`;
+      } else {
+        statusBadge = `<span class="px-2.5 py-1 bg-navy text-white text-[10px] font-bold font-mono rounded-lg shadow-xs">Activo</span>`;
+        cancelBtn = `
+          <button type="button" data-action="admin-cancel-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-slot-info="${dayStr} a las ${timeStr}" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-navy border border-slate-200 rounded-lg text-[10px] font-bold font-mono transition-all" title="Cancelar este turno">
+            Cancelar
+          </button>
+        `;
+      }
+
+      return `
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-3 shadow-2xs">
+          <div class="flex items-center gap-2.5 overflow-hidden">
+            <div class="px-2 py-1 bg-white border border-slate-200 rounded-lg text-center flex-shrink-0 shadow-2xs">
+              <div class="text-[10px] font-bold text-slate-500 font-mono">${dayStr}</div>
+              <div class="text-xs font-bold text-navy font-mono">${timeStr}</div>
+            </div>
+            <div class="overflow-hidden">
+              <div class="text-xs font-bold text-navy font-display truncate">${appt.patient_name}</div>
+              <div class="text-[11px] text-slate-500 font-sans truncate">${appt.service_name} ${cleanPhone ? `• ${appt.patient_whatsapp}` : ''}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            ${cancelBtn}
+            ${statusBadge}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  if (agendaSearchInput) {
+    agendaSearchInput.addEventListener('input', () => {
+      handleAgendaGlobalSearch();
+      renderWeeklyAgenda();
+    });
+  }
+
+  if (btnCloseSearchResults) {
+    btnCloseSearchResults.addEventListener('click', () => {
+      if (agendaSearchInput) agendaSearchInput.value = '';
+      if (agendaSearchResultsPanel) agendaSearchResultsPanel.classList.add('hidden');
+      renderWeeklyAgenda();
+    });
+  }
+
+  if (agendaSearchResultsList) {
+    agendaSearchResultsList.addEventListener('click', (e) => {
+      const btnCancel = e.target.closest('[data-action="admin-cancel-appt"]');
+      if (btnCancel) {
+        _pendingAdminCancelApptId = btnCancel.getAttribute('data-appt-id');
+        const pName = btnCancel.getAttribute('data-patient-name') || 'el paciente';
+        const sInfo = btnCancel.getAttribute('data-slot-info') || 'este horario';
+        const cancelDesc = document.getElementById('admin-cancel-modal-desc');
+        if (cancelDesc) {
+          cancelDesc.innerText = `¿Confirmás la cancelación del turno de ${pName} (${sInfo})? Esta acción liberará el horario de inmediato en la base de datos.`;
+        }
+        const cancelModal = document.getElementById('admin-cancel-appt-modal');
+        if (cancelModal) cancelModal.classList.remove('hidden');
       }
     });
   }

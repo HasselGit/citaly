@@ -113,30 +113,33 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 
 ### Dashboard Ejecutivo (`/dashboard`)
 1. **Estética Minimalista High-End (Stitch MCP):**
-   - Paleta: Titanium Navy (`#0F172A`), Soft Canvas (`#F8FAFC`), Tarjetas Blancas (`#FFFFFF`), Acentos Ámbar (`#D97706`).
-   - Sin líneas divisorias duras en la barra superior, lateral o inferior móvil.
+   - Paleta: Titanium Navy (`#0F172A`), Soft Canvas (`#F8FAFC`), Tarjetas Blancas (`#FFFFFF`), Acentos Ámbar (`#D97706`), Neutral Slate (`#64748B`).
+   - Sin líneas divisorias duras ni contrastes estridentes (sin verdes chillones ni rojos agresivos).
 2. **Gestión Directa en la Agenda y Bloqueo de Disponibilidad:**
-   - En cada turno ocupado de la Agenda, el médico dispone de un botón `[ ❌ Cancelar ]` que libera el slot al instante.
+   - En turnos activos futuros, el médico dispone de un botón sobrio `[ Cancelar ]` con modal de confirmación (`#admin-cancel-appt-modal`) que libera el slot al instante.
+   - En turnos que ya ocurrieron (`start_time < now`), el botón de cancelación se inhabilita automáticamente y se exhibe el badge neutral `Finalizado`.
    - **Módulo de Bloqueos (`#admin-block-modal`):** Permite inhabilitar días completos (ej. *Vacaciones del 15 al 21 de octubre*) o franjas horarias específicas, reflejándose en tiempo real en la web de pacientes y en la grilla de agenda con opción de `[ Desbloquear ]`.
-3. **Cálculo Continuo por Duración de Tratamiento:**
+3. **Búsqueda Global Multi-Fecha de Pacientes:**
+   - Al tipear en el buscador de la Agenda, se despliega el panel superior `#agenda-search-results-panel` listando todos los turnos del paciente en cualquier fecha (historial y futuros) con acceso a gestión directa.
+4. **Cálculo Continuo por Duración de Tratamiento:**
    - La grilla de la agenda y el motor de disponibilidad validan solapamiento de intervalos (`slotStart < apptEnd && slotEnd > apptStart`), bloqueando todos los slots que abarque el tratamiento (ej. 60 min -> 2 slots de 30 min).
-4. **Módulo "+ Nuevo Turno":**
+5. **Módulo "+ Nuevo Turno":**
    - Permite a la administrativa o dueño agendar citas seleccionando servicio, día y slot disponible en tiempo real con autocompletado predictivo de pacientes (`/api/v1/booking/patients-search`).
    - Modal ejecutivo de detección de turno previo si el paciente ya posee cita para la misma especialidad (`#admin-duplicate-modal`).
-5. **Barra Móvil Inferior Optimizada:**
+6. **Barra Móvil Inferior Optimizada:**
    - 4 accesos rápidos (`Panel`, `+ Nuevo`, `Agenda`, `Reprog.`).
    - Íconos amplios de `26px × 26px` con tipografía clara `text-[11px] font-mono`.
    - Fondo `#F8FAFC` idéntico al lienzo, 100% sólido y opaco con micro-sombra en el botón activo.
-6. **Módulo de Reprogramados Minimalista:**
+7. **Módulo de Reprogramados Minimalista:**
    - Tarjetas individuales de un solo marco minimalista (`rounded-2xl border border-slate-200 shadow-2xs`), alineadas con los márgenes del resto de los módulos.
-7. **Sticky Headers (Encabezados Adhesivos):**
+8. **Sticky Headers (Encabezados Adhesivos):**
    - La cabecera de "Turnos del Día" y la de la "Agenda" se clavan en `sticky top-16 z-20 bg-white` al deslizar la página, manteniendo visible el contexto en todo momento.
-8. **Depuración y Filtro de Horarios Pasados en Agenda:**
+9. **Depuración y Filtro de Horarios Pasados en Agenda:**
    - Los horarios pasados que nadie reservó hoy **no se renderizan**, dejando la grilla limpia.
    - El filtro `[ Libres ]` solo muestra slots verdaderamente reservables de ahora en adelante.
-9. **Ventana de Historial de Turnos Pasados (Últimos 7 Días):**
+10. **Ventana de Historial de Turnos Pasados (Últimos 7 Días):**
    - Las vistas de `Tarjetas` y `Tabla` solo listan turnos pasados de los últimos 7 días hacia atrás para consultas médicas recientes. Turnos anteriores quedan archivados.
-10. **Métricas Bento con Selector de Período:**
+11. **Métricas Bento con Selector de Período:**
    - `[ Esta Semana ]` (7 días corridos) / `[ Este Mes ]` (30 días corridos).
    - Medición de Ocupación Real (`Turnos Activos / Capacidad Total * 100`) y tarjeta de Cancelados.
 

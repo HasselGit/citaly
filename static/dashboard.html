@@ -413,6 +413,27 @@
 
         <!-- Vista Agenda Diaria & Semanal -->
         <div id="reservas-agenda-view" class="space-y-4">
+          <!-- Panel de Resultados de Búsqueda Global de Paciente (Multi-Fecha) -->
+          <div id="agenda-search-results-panel" class="citaly-card p-4 sm:p-5 border-2 border-slate-300 hidden">
+            <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-200">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 bg-slate-100 text-navy rounded-xl flex items-center justify-center font-bold text-sm border border-slate-200 shadow-2xs">
+                  🔍
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-navy font-display" id="search-results-patient-title">Turnos Encontrados</h4>
+                  <span class="text-[11px] text-slate-500 font-mono" id="search-results-count">0 turnos en total</span>
+                </div>
+              </div>
+              <button id="btn-close-search-results" class="text-xs text-slate-500 hover:text-navy font-mono font-semibold px-2.5 py-1 rounded-lg hover:bg-slate-100 transition-all border border-slate-200">
+                Cerrar Búsqueda ✕
+              </button>
+            </div>
+            <div id="agenda-search-results-list" class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              <!-- Dinámico: Resultados del paciente en todas las fechas -->
+            </div>
+          </div>
+
           <!-- Selector de Días Horizontal con Navegación Natural de Mes (< / >) -->
           <div class="citaly-card p-3.5">
             <div class="flex items-center justify-between mb-3 px-1">
@@ -632,20 +653,20 @@
   <!-- Modal Confirmación de Cancelación Directa de Turno -->
   <div id="admin-cancel-appt-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden">
     <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-sm w-full p-6 text-center">
-      <div class="w-12 h-12 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-3.5 border border-red-200 text-xl shadow-xs">
+      <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-3.5 border border-amber-200 text-xl shadow-xs">
         ⚠️
       </div>
-      <h3 class="text-base font-bold text-navy font-display mb-1.5">¿Dar de Baja este Turno?</h3>
+      <h3 class="text-base font-bold text-navy font-display mb-1.5">¿Confirmás cancelar este turno?</h3>
       <p id="admin-cancel-modal-desc" class="text-xs text-slate-600 font-sans leading-relaxed mb-5">
-        El horario quedará liberado de inmediato en la agenda.
+        Esta acción liberará el horario de inmediato en la base de datos.
       </p>
 
       <div class="flex flex-col gap-2">
-        <button type="button" id="btn-confirm-admin-cancel" class="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs transition-all shadow-sm">
-          Sí, Cancelar Turno
+        <button type="button" id="btn-confirm-admin-cancel" class="w-full py-3 bg-navy hover:bg-slate-800 text-white rounded-xl font-bold text-xs transition-all shadow-md flex items-center justify-center gap-1.5">
+          <span>Sí, Cancelar Turno y Liberar Horario</span>
         </button>
-        <button type="button" id="btn-abort-admin-cancel" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold text-xs transition-all">
-          Conservar Turno
+        <button type="button" id="btn-abort-admin-cancel" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold text-xs transition-all">
+          Volver / Conservar Turno
         </button>
       </div>
     </div>
