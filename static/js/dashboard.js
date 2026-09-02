@@ -88,6 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Estado Local
   let allAppointments = [];
+  let allTimeBlocks = [];
+  let _pendingAdminCancelApptId = null;
   let currentMetricsPeriod = 'week';
   let currentViewMode = 'agenda';
   let selectedTodaySpecialty = 'all';
@@ -218,15 +220,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 5. Cargar Turnos desde la API Backend
+  // 5. Cargar Turnos y Bloqueos de Agenda desde la API Backend
   async function fetchDashboardAppointments() {
     try {
       if (syncIcon) syncIcon.classList.add('animate-spin');
-      const res = await fetch('/api/v1/booking/appointments', { cache: 'no-store' });
-      if (!res.ok) throw new Error('Error al consultar turnos');
-      const data = await res.json();
+      const [resAppts, resBlocks] = await Promise.all([
+        fetch('/api/v1/booking/appointments', { cache: 'no-store' }),
+        fetch('/api/v1/booking/time-blocks', { cache: 'no-store' }).catch(() => null)
+      ]);
 
+      if (!resAppts.ok) throw new Error('Error al consultar turnos');
+      const data = await resAppts.json();
       allAppointments = Array.isArray(data) ? data : (data.appointments || []);
+
+      if (resBlocks && resBlocks.ok) {
+        const blockData = await resBlocks.json();
+        allTimeBlocks = blockData.time_blocks || [];
+      } else {
+        allTimeBlocks = [];
+      }
+
       if (allAppointments) {
         const now = new Date();
         const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -547,17 +560,41 @@ document.addEventListener('DOMContentLoaded', () => {
       const slotH = parseInt(hStr, 10);
       const slotM = parseInt(mStr, 10);
 
+      const slotStart = new Date(selectedAgendaDate.getFullYear(), selectedAgendaDate.getMonth(), selectedAgendaDate.getDate(), slotH, slotM, 0);
+      const slotEnd = new Date(slotStart.getTime() + 30 * 60000);
+
       const isPastSlot = isPastDay || (isToday && (slotH < currentHour || (slotH === currentHour && slotM <= currentMin)));
-      const appt = dayAppointments.find(a => a.time_str === timeSlot);
-      return { timeSlot, appt, isPastSlot };
+
+      // Solapamiento exacto de intervalo con citas agendadas (duración real del tratamiento)
+      const appt = dayAppointments.find(a => {
+        const aStart = new Date(a.start_time);
+        let aEnd;
+        if (a.end_time) {
+          aEnd = new Date(a.end_time);
+        } else {
+          const srv = dentalServices.find(s => s.id === a.service_id || s.name === a.service_name);
+          const durMin = srv ? srv.duration : 30;
+          aEnd = new Date(aStart.getTime() + durMin * 60000);
+        }
+        return slotStart < aEnd && slotEnd > aStart;
+      });
+
+      // Solapamiento con bloqueos de agenda
+      const timeBlock = allTimeBlocks.find(b => {
+        const bStart = new Date(b.start_time);
+        const bEnd = new Date(b.end_time);
+        return slotStart < bEnd && slotEnd > bStart;
+      });
+
+      return { timeSlot, appt, timeBlock, isPastSlot };
     });
 
-    visibleSlots = visibleSlots.filter(s => s.appt || !s.isPastSlot);
+    visibleSlots = visibleSlots.filter(s => s.appt || s.timeBlock || !s.isPastSlot);
 
     if (selectedAvailabilityFilter === 'free') {
-      visibleSlots = visibleSlots.filter(s => !s.appt && !s.isPastSlot);
+      visibleSlots = visibleSlots.filter(s => !s.appt && !s.timeBlock && !s.isPastSlot);
     } else if (selectedAvailabilityFilter === 'occupied') {
-      visibleSlots = visibleSlots.filter(s => !!s.appt);
+      visibleSlots = visibleSlots.filter(s => !!s.appt || !!s.timeBlock);
     }
 
     const searchVal = (agendaSearchInput ? agendaSearchInput.value : '').toLowerCase().trim();
@@ -581,7 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    agendaSlotsSheet.innerHTML = visibleSlots.map(({ timeSlot, appt }) => {
+    agendaSlotsSheet.innerHTML = visibleSlots.map(({ timeSlot, appt, timeBlock }) => {
       if (appt) {
         const cleanPhone = (appt.patient_whatsapp || '').replace(/\D/g, '');
         return `
@@ -595,9 +632,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="text-[11px] text-slate-500 font-sans truncate">${appt.service_name} ${cleanPhone ? `• ${appt.patient_whatsapp}` : ''}</div>
               </div>
             </div>
-            <span class="px-2.5 py-1 bg-navy text-white text-[10px] font-bold font-mono rounded-lg flex-shrink-0 shadow-xs">
-              Ocupado
-            </span>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <button type="button" data-action="admin-cancel-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-slot-info="${timeSlot} hs" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200/80 rounded-lg text-[10px] font-bold font-mono flex items-center gap-1 transition-all shadow-2xs" title="Cancelar este turno y liberar el horario">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                <span>Cancelar</span>
+              </button>
+              <span class="px-2.5 py-1 bg-navy text-white text-[10px] font-bold font-mono rounded-lg shadow-xs">
+                Ocupado
+              </span>
+            </div>
+          </div>
+        `;
+      } else if (timeBlock) {
+        return `
+          <div class="p-3 bg-amber-50/80 rounded-xl border border-amber-200 flex items-center justify-between gap-3 shadow-2xs">
+            <div class="flex items-center gap-3 overflow-hidden">
+              <span class="px-2.5 py-1 bg-amber-200 text-amber-900 text-xs font-bold font-mono rounded-lg flex-shrink-0 shadow-xs">
+                ${timeSlot} hs
+              </span>
+              <div class="overflow-hidden">
+                <div class="text-xs font-bold text-amber-900 font-display truncate">🔒 ${timeBlock.reason || 'Agenda Bloqueada'}</div>
+                <div class="text-[11px] text-amber-700 font-sans truncate">No disponible para turnos</div>
+              </div>
+            </div>
+            <button type="button" data-action="admin-delete-block" data-block-id="${timeBlock.id}" class="px-2.5 py-1 bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-[10px] font-bold font-mono transition-all shadow-2xs">
+              Desbloquear
+            </button>
           </div>
         `;
       } else {
@@ -1205,6 +1265,197 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnViewCards) btnViewCards.addEventListener('click', () => setViewMode('cards'));
   if (btnViewTable) btnViewTable.addEventListener('click', () => setViewMode('table'));
   if (btnViewAgenda) btnViewAgenda.addEventListener('click', () => setViewMode('agenda'));
+
+  // 13.5. Manejo de Acciones en la Agenda y Bloqueos de Disponibilidad
+  if (agendaSlotsSheet) {
+    agendaSlotsSheet.addEventListener('click', async (e) => {
+      const btnCancel = e.target.closest('[data-action="admin-cancel-appt"]');
+      const btnDeleteBlock = e.target.closest('[data-action="admin-delete-block"]');
+
+      if (btnCancel) {
+        _pendingAdminCancelApptId = btnCancel.getAttribute('data-appt-id');
+        const pName = btnCancel.getAttribute('data-patient-name') || 'el paciente';
+        const sInfo = btnCancel.getAttribute('data-slot-info') || 'este horario';
+        const cancelDesc = document.getElementById('admin-cancel-modal-desc');
+        if (cancelDesc) {
+          cancelDesc.innerText = `¿Confirmás la cancelación del turno de ${pName} (${sInfo})? El horario quedará libre de inmediato en la agenda.`;
+        }
+        const cancelModal = document.getElementById('admin-cancel-appt-modal');
+        if (cancelModal) cancelModal.classList.remove('hidden');
+      }
+
+      if (btnDeleteBlock) {
+        const blockId = btnDeleteBlock.getAttribute('data-block-id');
+        if (!blockId) return;
+        try {
+          btnDeleteBlock.innerText = 'Liberando...';
+          const res = await fetch(`/api/v1/booking/time-blocks/${blockId}`, {
+            method: 'DELETE'
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            showToast('Bloqueo eliminado y horarios liberados.', 'success');
+            fetchDashboardAppointments();
+          } else {
+            showToast(data.detail || 'Error al eliminar bloqueo', 'error');
+          }
+        } catch (err) {
+          showToast('Error de conexión al eliminar bloqueo', 'error');
+        }
+      }
+    });
+  }
+
+  // Modal Cancelación Directa de Turno (Admin)
+  const adminCancelModal = document.getElementById('admin-cancel-appt-modal');
+  const btnConfirmAdminCancel = document.getElementById('btn-confirm-admin-cancel');
+  const btnAbortAdminCancel = document.getElementById('btn-abort-admin-cancel');
+
+  if (btnAbortAdminCancel && adminCancelModal) {
+    btnAbortAdminCancel.addEventListener('click', () => {
+      adminCancelModal.classList.add('hidden');
+      _pendingAdminCancelApptId = null;
+    });
+  }
+
+  if (btnConfirmAdminCancel && adminCancelModal) {
+    btnConfirmAdminCancel.addEventListener('click', async () => {
+      if (!_pendingAdminCancelApptId) {
+        adminCancelModal.classList.add('hidden');
+        return;
+      }
+      try {
+        btnConfirmAdminCancel.innerText = 'Cancelando...';
+        btnConfirmAdminCancel.disabled = true;
+
+        const res = await fetch('/api/v1/booking/cancel-by-id', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ appointment_id: _pendingAdminCancelApptId })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          adminCancelModal.classList.add('hidden');
+          _pendingAdminCancelApptId = null;
+          showToast('Turno cancelado y horario liberado exitosamente.', 'success');
+          fetchDashboardAppointments();
+        } else {
+          showToast(data.detail || 'No se pudo cancelar el turno', 'error');
+        }
+      } catch (err) {
+        showToast('Error al procesar la cancelación', 'error');
+      } finally {
+        btnConfirmAdminCancel.innerText = 'Sí, Cancelar Turno';
+        btnConfirmAdminCancel.disabled = false;
+      }
+    });
+  }
+
+  // Modal de Bloqueo de Disponibilidad (Admin)
+  const btnOpenBlockModal = document.getElementById('btn-open-block-modal');
+  const adminBlockModal = document.getElementById('admin-block-modal');
+  const btnCloseBlockModal = document.getElementById('btn-close-block-modal');
+  const formCreateTimeBlock = document.getElementById('form-create-time-block');
+  const blockStartDate = document.getElementById('block-start-date');
+  const blockEndDate = document.getElementById('block-end-date');
+  const blockHoursContainer = document.getElementById('block-hours-container');
+  const blockStartTime = document.getElementById('block-start-time');
+  const blockEndTime = document.getElementById('block-end-time');
+  const blockReason = document.getElementById('block-reason');
+  const blockTypeRadios = document.querySelectorAll('input[name="block-type"]');
+
+  if (btnOpenBlockModal && adminBlockModal) {
+    btnOpenBlockModal.addEventListener('click', () => {
+      const todayIso = formatLocalDate(new Date());
+      if (blockStartDate) blockStartDate.value = todayIso;
+      if (blockEndDate) blockEndDate.value = todayIso;
+      adminBlockModal.classList.remove('hidden');
+    });
+  }
+
+  if (btnCloseBlockModal && adminBlockModal) {
+    btnCloseBlockModal.addEventListener('click', () => {
+      adminBlockModal.classList.add('hidden');
+    });
+  }
+
+  blockTypeRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      if (e.target.value === 'hours') {
+        if (blockHoursContainer) blockHoursContainer.classList.remove('hidden');
+      } else {
+        if (blockHoursContainer) blockHoursContainer.classList.add('hidden');
+      }
+    });
+  });
+
+  if (formCreateTimeBlock && adminBlockModal) {
+    formCreateTimeBlock.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const sDate = blockStartDate.value;
+      const eDate = blockEndDate.value;
+      const reason = (blockReason.value || '').trim();
+      const isHours = document.querySelector('input[name="block-type"]:checked')?.value === 'hours';
+
+      if (!sDate || !eDate) {
+        showToast('Por favor seleccioná las fechas de inicio y fin.', 'error');
+        return;
+      }
+
+      let startIso, endIso, isAllDay;
+      if (isHours) {
+        const sTime = blockStartTime.value || '09:00';
+        const eTime = blockEndTime.value || '18:00';
+        startIso = `${sDate}T${sTime}:00`;
+        endIso = `${eDate}T${eTime}:00`;
+        isAllDay = false;
+      } else {
+        startIso = `${sDate}T00:00:00`;
+        endIso = `${eDate}T23:59:59`;
+        isAllDay = true;
+      }
+
+      const submitBtn = document.getElementById('btn-submit-time-block');
+      try {
+        if (submitBtn) {
+          submitBtn.innerText = 'Aplicando bloqueo...';
+          submitBtn.disabled = true;
+        }
+
+        const res = await fetch('/api/v1/booking/time-blocks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            start_time: startIso,
+            end_time: endIso,
+            reason: reason,
+            is_all_day: isAllDay
+          })
+        });
+
+        const result = await res.json();
+        if (res.ok && result.success) {
+          adminBlockModal.classList.add('hidden');
+          formCreateTimeBlock.reset();
+          showToast('Bloqueo de agenda aplicado exitosamente.', 'success');
+          fetchDashboardAppointments();
+        } else {
+          showToast(result.detail || 'No se pudo aplicar el bloqueo', 'error');
+        }
+      } catch (err) {
+        showToast('Error de conexión al aplicar el bloqueo', 'error');
+      } finally {
+        if (submitBtn) {
+          submitBtn.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>Aplicar Bloqueo de Agenda</span>
+          `;
+          submitBtn.disabled = false;
+        }
+      }
+    });
+  }
 
   // 14. Inicialización
   fetchDashboardAppointments();

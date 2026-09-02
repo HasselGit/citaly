@@ -72,6 +72,15 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 - `meta_message_id` (VARCHAR 100)
 - `sent_at` (TIMESTAMP)
 
+### `time_blocks`
+- `id` (VARCHAR 36, PK)
+- `tenant_id` (VARCHAR 36, FK -> `tenants.id`)
+- `start_time` (TIMESTAMP, INDEX)
+- `end_time` (TIMESTAMP, INDEX)
+- `reason` (VARCHAR 100, opcional, ej: *"Vacaciones Dr. Pérez"*)
+- `is_all_day` (BOOLEAN)
+- `created_at` (TIMESTAMP)
+
 ---
 
 ## 🎨 3. Reglas de UX/UI, Concurrencia y Sincronización en Vivo
@@ -88,7 +97,8 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
    - Si intenta agendar un segundo turno para el mismo servicio, el backend responde `409 Conflict` (`has_existing_same_service: true`).
    - Tanto en la PWA de pacientes como en el Dashboard administrativo, se abre un **Modal Ejecutivo de Detección de Turno Existente**:
      - `[ Sí, Reprogramar por esta nueva fecha ]`: Cancela el turno viejo, libera su horario en PostgreSQL de inmediato y confirma el nuevo de forma atómica.
-     - `[ Conservar turno original (Sin cambios) ]`: Cierra el aviso y mantiene la cita original 100% intacta.
+     - `[ Cancelar mi turno actual ]`: Da de baja la cita previa liberando el slot.
+     - `[ Conservar mi turno (Volver) ]`: Cierra el aviso y mantiene la cita original 100% intacta.
 2. **Live Slot Refresh en Tiempo Real:**
    - La PWA consulta la disponibilidad en segundo plano cada 4 segundos y ante eventos de `visibilitychange`.
    - Si otro paciente reserva o cancela, los botones de horarios se deshabilitan/habilitan automáticamente en pantalla **sin recargar la página**.
@@ -105,23 +115,28 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 1. **Estética Minimalista High-End (Stitch MCP):**
    - Paleta: Titanium Navy (`#0F172A`), Soft Canvas (`#F8FAFC`), Tarjetas Blancas (`#FFFFFF`), Acentos Ámbar (`#D97706`).
    - Sin líneas divisorias duras en la barra superior, lateral o inferior móvil.
-2. **Módulo "+ Nuevo Turno":**
+2. **Gestión Directa en la Agenda y Bloqueo de Disponibilidad:**
+   - En cada turno ocupado de la Agenda, el médico dispone de un botón `[ ❌ Cancelar ]` que libera el slot al instante.
+   - **Módulo de Bloqueos (`#admin-block-modal`):** Permite inhabilitar días completos (ej. *Vacaciones del 15 al 21 de octubre*) o franjas horarias específicas, reflejándose en tiempo real en la web de pacientes y en la grilla de agenda con opción de `[ Desbloquear ]`.
+3. **Cálculo Continuo por Duración de Tratamiento:**
+   - La grilla de la agenda y el motor de disponibilidad validan solapamiento de intervalos (`slotStart < apptEnd && slotEnd > apptStart`), bloqueando todos los slots que abarque el tratamiento (ej. 60 min -> 2 slots de 30 min).
+4. **Módulo "+ Nuevo Turno":**
    - Permite a la administrativa o dueño agendar citas seleccionando servicio, día y slot disponible en tiempo real con autocompletado predictivo de pacientes (`/api/v1/booking/patients-search`).
    - Modal ejecutivo de detección de turno previo si el paciente ya posee cita para la misma especialidad (`#admin-duplicate-modal`).
-3. **Barra Móvil Inferior Optimizada:**
+5. **Barra Móvil Inferior Optimizada:**
    - 4 accesos rápidos (`Panel`, `+ Nuevo`, `Agenda`, `Reprog.`).
    - Íconos amplios de `26px × 26px` con tipografía clara `text-[11px] font-mono`.
-   - Fondo `#F8FAFC` idéntico al lienzo, 100% sólido y opaco con elevación de sombra visible (`box-shadow: 0 -6px 20px rgba(15, 23, 42, 0.10)`).
-4. **Módulo de Reprogramados Minimalista:**
+   - Fondo `#F8FAFC` idéntico al lienzo, 100% sólido y opaco con micro-sombra en el botón activo.
+6. **Módulo de Reprogramados Minimalista:**
    - Tarjetas individuales de un solo marco minimalista (`rounded-2xl border border-slate-200 shadow-2xs`), alineadas con los márgenes del resto de los módulos.
-5. **Sticky Headers (Encabezados Adhesivos):**
+7. **Sticky Headers (Encabezados Adhesivos):**
    - La cabecera de "Turnos del Día" y la de la "Agenda" se clavan en `sticky top-16 z-20 bg-white` al deslizar la página, manteniendo visible el contexto en todo momento.
-6. **Depuración y Filtro de Horarios Pasados en Agenda:**
+8. **Depuración y Filtro de Horarios Pasados en Agenda:**
    - Los horarios pasados que nadie reservó hoy **no se renderizan**, dejando la grilla limpia.
    - El filtro `[ Libres ]` solo muestra slots verdaderamente reservables de ahora en adelante.
-7. **Ventana de Historial de Turnos Pasados (Últimos 7 Días):**
+9. **Ventana de Historial de Turnos Pasados (Últimos 7 Días):**
    - Las vistas de `Tarjetas` y `Tabla` solo listan turnos pasados de los últimos 7 días hacia atrás para consultas médicas recientes. Turnos anteriores quedan archivados.
-8. **Métricas Bento con Selector de Período:**
+10. **Métricas Bento con Selector de Período:**
    - `[ Esta Semana ]` (7 días corridos) / `[ Este Mes ]` (30 días corridos).
    - Medición de Ocupación Real (`Turnos Activos / Capacidad Total * 100`) y tarjeta de Cancelados.
 

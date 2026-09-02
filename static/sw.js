@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v57-clean-nav-selected-shadow';
+const CACHE_NAME = 'citaly-v58-agenda-blocks-and-direct-management';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

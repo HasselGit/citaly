@@ -593,28 +593,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnCancelExisting) {
     btnCancelExisting.addEventListener('click', async () => {
-      if (!activePatientAppt) return;
+      const apptId = window._pendingRescheduleApptId || (activePatientAppt ? activePatientAppt.id : null);
+      if (!apptId) {
+        if (existingModal) existingModal.classList.remove('active');
+        return;
+      }
 
       try {
-        btnCancelExisting.innerText = 'Cancelando...';
+        btnCancelExisting.innerText = 'Cancelando turno...';
         btnCancelExisting.disabled = true;
 
-        const res = await fetch(`/api/v1/booking/cancel/${activePatientAppt.token_cancellation}`, {
-          method: 'POST'
+        const res = await fetch('/api/v1/booking/cancel-by-id', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ appointment_id: apptId })
         });
 
         const result = await res.json();
-        if (result.success) {
-          existingModal.classList.remove('active');
+        if (res.ok && result.success) {
+          if (existingModal) existingModal.classList.remove('active');
+          window._pendingRescheduleApptId = null;
+          activePatientAppt = null;
           fetchAvailability();
-          alert('Tu cita fue cancelada exitosamente.');
+          alert('Tu turno anterior fue cancelado exitosamente. El horario quedó liberado.');
         } else {
-          alert(result.detail || 'No se pudo cancelar la cita.');
+          alert(result.detail || 'No se pudo cancelar el turno.');
         }
       } catch (e) {
-        alert('Error al cancelar la cita.');
+        alert('Error al cancelar el turno. Por favor intenta nuevamente.');
       } finally {
-        btnCancelExisting.innerText = 'Cancelar';
+        btnCancelExisting.innerText = '❌ Cancelar mi turno actual';
         btnCancelExisting.disabled = false;
       }
     });

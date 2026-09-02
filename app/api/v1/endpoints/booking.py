@@ -13,6 +13,7 @@ from app.models.service import Service
 from app.models.patient import Patient
 from app.models.appointment import Appointment
 from app.models.whatsapp_log import WhatsAppLog
+from app.models.time_block import TimeBlock
 from app.services.booking import calculate_available_slots
 from app.services.whatsapp import whatsapp_service
 
@@ -307,7 +308,7 @@ async def create_appointment(
             {"type": "text", "text": time_param}
         ]
 
-        template_name = "citaly_reprogramacion_v1" if was_rescheduled else "citaly_confirmacion_v1"
+        template_name = "citaly_confirmacion_v1"
 
         meta_result = await whatsapp_service.send_template_message(
             to_phone=patient.whatsapp_phone,
@@ -588,3 +589,107 @@ def search_patients(q: str = "", db: Session = Depends(get_db)):
                 break
 
     return {"patients": matches}
+
+class CancelByIdRequest(BaseModel):
+    appointment_id: str
+
+@router.post("/cancel-by-id")
+def cancel_appointment_by_id(payload: CancelByIdRequest, db: Session = Depends(get_db)):
+    """
+    Cancelación directa de cita por ID (usado desde la PWA del paciente y Dashboard).
+    """
+    appointment = db.query(Appointment).filter(Appointment.id == payload.appointment_id).first()
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Turno no encontrado o ya fue cancelado")
+
+    appointment.status = "CANCELLED"
+    db.commit()
+
+    return {
+        "success": True,
+        "message": "Turno cancelado exitosamente."
+    }
+
+class TimeBlockCreateRequest(BaseModel):
+    tenant_id: Optional[str] = None
+    start_time: str
+    end_time: str
+    reason: Optional[str] = None
+    is_all_day: Optional[bool] = False
+
+@router.get("/time-blocks")
+def get_time_blocks(db: Session = Depends(get_db)):
+    """
+    Lista todos los bloqueos de agenda activos del consultorio.
+    """
+    tenant = get_or_create_primary_tenant(db)
+    blocks = db.query(TimeBlock).filter(TimeBlock.tenant_id == tenant.id).order_by(TimeBlock.start_time.asc()).all()
+    res = []
+    for b in blocks:
+        res.append({
+            "id": b.id,
+            "tenant_id": b.tenant_id,
+            "start_time": b.start_time.isoformat(),
+            "end_time": b.end_time.isoformat(),
+            "start_formatted": b.start_time.strftime("%d/%m/%Y"),
+            "end_formatted": b.end_time.strftime("%d/%m/%Y"),
+            "reason": b.reason or "Bloqueo de Agenda",
+            "is_all_day": b.is_all_day,
+            "created_at": b.created_at.isoformat() if b.created_at else None
+        })
+    return {"time_blocks": res}
+
+@router.post("/time-blocks")
+def create_time_block(payload: TimeBlockCreateRequest, db: Session = Depends(get_db)):
+    """
+    Crea un nuevo bloqueo de agenda (días completos o franja horaria).
+    """
+    tenant = get_or_create_primary_tenant(db)
+    try:
+        start_clean = payload.start_time.replace("Z", "").split(".")[0]
+        end_clean = payload.end_time.replace("Z", "").split(".")[0]
+        start_dt = datetime.fromisoformat(start_clean)
+        end_dt = datetime.fromisoformat(end_clean)
+    except Exception as parse_err:
+        raise HTTPException(status_code=400, detail=f"Formato de fecha inválido: {parse_err}")
+
+    block = TimeBlock(
+        id=str(uuid.uuid4()),
+        tenant_id=tenant.id,
+        start_time=start_dt,
+        end_time=end_dt,
+        reason=payload.reason.strip() if payload.reason else "Horario Bloqueado",
+        is_all_day=payload.is_all_day or False
+    )
+    db.add(block)
+    db.commit()
+    db.refresh(block)
+
+    return {
+        "success": True,
+        "message": "Bloqueo de agenda creado exitosamente",
+        "block": {
+            "id": block.id,
+            "start_time": block.start_time.isoformat(),
+            "end_time": block.end_time.isoformat(),
+            "reason": block.reason,
+            "is_all_day": block.is_all_day
+        }
+    }
+
+@router.delete("/time-blocks/{block_id}")
+def delete_time_block(block_id: str, db: Session = Depends(get_db)):
+    """
+    Elimina/desbloquea un período de agenda.
+    """
+    block = db.query(TimeBlock).filter(TimeBlock.id == block_id).first()
+    if not block:
+        raise HTTPException(status_code=404, detail="Bloqueo no encontrado")
+
+    db.delete(block)
+    db.commit()
+
+    return {
+        "success": True,
+        "message": "Bloqueo eliminado exitosamente."
+    }

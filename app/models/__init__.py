@@ -4,5 +4,6 @@ from app.models.service import Service
 from app.models.patient import Patient
 from app.models.appointment import Appointment
 from app.models.whatsapp_log import WhatsAppLog
+from app.models.time_block import TimeBlock
 
-__all__ = ["Base", "Tenant", "Service", "Patient", "Appointment", "WhatsAppLog"]
+__all__ = ["Base", "Tenant", "Service", "Patient", "Appointment", "WhatsAppLog", "TimeBlock"]

@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.models.service import Service
 from app.models.appointment import Appointment
+from app.models.time_block import TimeBlock
 
 
 # Horario comercial por defecto: 09:00 a 18:00
@@ -20,7 +21,7 @@ def calculate_available_slots(
 ) -> List[Dict[str, Any]]:
     """
     Calcula los slots del día diferenciando entre DISPONIBLE y OCUPADO
-    según la duración exacta del tratamiento.
+    según la duración exacta del tratamiento y bloqueos de agenda.
     """
     # 1. Obtener el servicio para saber su duración (con fallback robusto)
     service = db.query(Service).filter(
@@ -43,6 +44,13 @@ def calculate_available_slots(
         Appointment.start_time <= end_of_day
     ).all()
 
+    # 2.5 Obtener bloqueos de agenda activos para el día
+    active_time_blocks = db.query(TimeBlock).filter(
+        TimeBlock.tenant_id == tenant_id,
+        TimeBlock.start_time <= end_of_day,
+        TimeBlock.end_time >= start_of_day
+    ).all()
+
     # 3. Generar slots desde las 09:00 hasta las 18:00 en intervalos de 30 minutos
     slots = []
     current_time = datetime.combine(target_date, time(DEFAULT_START_HOUR, 0))
@@ -60,14 +68,22 @@ def calculate_available_slots(
         # Verificar si la hora ya pasó en la fecha local real
         is_past = (target_date < today_local) or ((target_date == today_local) and (slot_start <= now_naive))
 
-        # Verificar si solapa con alguna cita existente
+        # Verificar si solapa con alguna cita existente o bloqueo de agenda
         is_occupied = False
+        block_reason = None
         if not is_past:
             for appt in existing_appointments:
                 # Hay solapamiento si: slot_start < appt.end_time AND slot_end > appt.start_time
                 if slot_start < appt.end_time and slot_end > appt.start_time:
                     is_occupied = True
                     break
+
+            if not is_occupied:
+                for block in active_time_blocks:
+                    if slot_start < block.end_time and slot_end > block.start_time:
+                        is_occupied = True
+                        block_reason = block.reason or "Horario Bloqueado"
+                        break
 
         slots.append({
             "time_str": slot_start.strftime("%H:%M"),

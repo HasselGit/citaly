@@ -240,30 +240,28 @@
     </div>
   </div>
 
-  <!-- Modal de Auto-Gestión / Cita Existente -->
+  <!-- Modal Ejecutivo de Turno Existente / Auto-Gestión -->
   <div class="modal-overlay" id="existing-appointment-modal">
-    <div class="modal-card" style="border-top: 4px solid #D97706;">
-      <div style="width: 52px; height: 52px; background: #FEF3C7; color: #D97706; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 14px auto;">
+    <div class="modal-card" style="border-radius: 24px; box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18); border: 1.5px solid #E2E8F0; padding: 26px 20px; text-align: center;">
+      <div style="width: 54px; height: 54px; background: #FEF3C7; color: #D97706; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 14px auto; border: 1.5px solid #FDE68A;">
         📅
       </div>
-      <h3 style="font-family: 'Hanken Grotesk', sans-serif; font-size: 19px; font-weight: 800; text-align: center; color: #0F172A; margin-bottom: 8px;">Ya tienes una cita agendada</h3>
-      <p style="color: #475569; font-size: 13.5px; text-align: center; line-height: 1.5; margin-bottom: 20px;" id="existing-appt-info">
-        Detectamos un turno activo a tu nombre. ¿Deseas reprogramarlo para el nuevo día y horario elegido o cancelarlo?
+      <h3 style="font-family: 'Montserrat', sans-serif; font-size: 19px; font-weight: 800; color: #0F172A; margin-bottom: 6px;">Turno Existente Detectado</h3>
+      <p style="font-family: 'Inter', sans-serif; color: #475569; font-size: 13px; line-height: 1.5; margin-bottom: 18px;" id="existing-appt-info">
+        Detectamos que ya tenés un turno activo agendado para este tratamiento.
       </p>
 
       <div style="display: flex; flex-direction: column; gap: 10px;">
-        <button type="button" id="btn-reschedule-existing" class="btn-modal-action btn-reschedule">
-          <span>🔄</span>
-          <span>Reprogramar para la nueva fecha</span>
+        <button type="button" id="btn-reschedule-existing" class="btn-primary-sticky" style="position: static; width: 100%; background: #0F172A; color: white; border-radius: 14px; padding: 13px; font-size: 13px; font-weight: 700; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);">
+          <span>🔄 Sí, Reprogramar por esta nueva fecha</span>
         </button>
         
-        <button type="button" id="btn-cancel-existing" class="btn-modal-action btn-cancel-appt">
-          <span>❌</span>
-          <span>Cancelar</span>
+        <button type="button" id="btn-cancel-existing" style="width: 100%; background: #FEF2F2; color: #DC2626; border: 1.5px solid #FECACA; border-radius: 14px; padding: 11px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+          <span>❌ Cancelar mi turno actual</span>
         </button>
         
-        <button type="button" id="btn-close-existing-modal" style="width: 100%; background: none; border: none; padding: 12px; color: #64748B; font-weight: 600; cursor: pointer; font-size: 14px; margin-top: 4px;">
-          Volver sin cambios
+        <button type="button" id="btn-close-existing-modal" style="width: 100%; background: none; border: none; padding: 10px; color: #64748B; font-weight: 600; cursor: pointer; font-size: 13px;">
+          Conservar mi turno (Volver)
         </button>
       </div>
     </div>
