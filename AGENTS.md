@@ -142,6 +142,9 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 11. **Métricas Bento con Selector de Período:**
    - `[ Esta Semana ]` (7 días corridos) / `[ Este Mes ]` (30 días corridos).
    - Medición de Ocupación Real (`Turnos Activos / Capacidad Total * 100`) y tarjeta de Cancelados.
+12. **Grilla de Agenda en Columnas Verticales Continuas:**
+   - Los slots del día se renderizan divididos en **2 columnas verticales continuas** (Columna Izquierda: primera mitad cronológica; Columna Derecha: segunda mitad cronológica).
+   - Esto garantiza que los tratamientos con múltiples slots (ej: Ortodoncia de 120 min) aparezcan agrupados de forma **consecutiva vertical**, facilitando la lectura natural como en un libro de citas médico sin saltos en zig-zag.
 
 ---
 
