@@ -757,8 +757,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnFilterOccupied) btnFilterOccupied.addEventListener('click', () => setAvailabilityFilter('occupied'));
 
   // 10. MÓDULO ADMINISTRATIVO: ASIGNAR NUEVO TURNO
-  function renderAdminNuevoTurno() {
+  async function renderAdminNuevoTurno() {
     renderAdminServices();
+    renderAdminBookingCalendar();
+    // Refrescar turnos reales antes de mostrar slots — evita mostrar horarios ya ocupados
+    await fetchDashboardAppointments();
     renderAdminBookingCalendar();
   }
 
@@ -833,7 +836,20 @@ document.addEventListener('DOMContentLoaded', () => {
         return a.start_time.startsWith(dIso);
       });
 
-      const occupiedTimes = dayAppts.map(a => a.time_str);
+      // Bloquear todos los slots cubiertos por la duracion del turno (no solo el inicio)
+      const occupiedSlotsDayBtn = new Set();
+      dayAppts.forEach(a => {
+        const dur = a.duration_minutes || 30;
+        const parts = (a.time_str || '').split(':').map(Number);
+        if (parts.length < 2 || isNaN(parts[0])) return;
+        const startMin = parts[0] * 60 + parts[1];
+        const endMin = startMin + dur;
+        defaultSlotsTimes.forEach(t => {
+          const tp = t.split(':').map(Number);
+          const slotMin = tp[0] * 60 + tp[1];
+          if (slotMin >= startMin && slotMin < endMin) occupiedSlotsDayBtn.add(t);
+        });
+      });
       const now = new Date();
       const todayIso = formatLocalDate(now);
       const isPastDay = dIso < todayIso;
@@ -842,7 +858,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const currentMin = now.getMinutes();
 
       const freeCount = defaultSlotsTimes.filter(t => {
-        if (occupiedTimes.includes(t)) return false;
+        if (occupiedSlotsDayBtn.has(t)) return false;
         const [h, m] = t.split(':').map(Number);
         if (isPastDay || (isToday && (h < currentHour || (h === currentHour && m <= currentMin)))) return false;
         return true;
@@ -882,7 +898,24 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!a.start_time || a.status === 'CANCELLED') return false;
       return a.start_time.startsWith(selectedIso);
     });
-    const occupiedTimes = dayAppts.map(a => a.time_str);
+
+    // Bloquear todos los slots cubiertos por la duracion del turno
+    const occupiedSlotsGrid = new Set();
+    dayAppts.forEach(a => {
+      const dur = a.duration_minutes || 30;
+      const parts = (a.time_str || '').split(':').map(Number);
+      if (parts.length < 2 || isNaN(parts[0])) return;
+      const startMin = parts[0] * 60 + parts[1];
+      const endMin = startMin + dur;
+      defaultSlotsTimes.forEach(t => {
+        const tp = t.split(':').map(Number);
+        const slotMin = tp[0] * 60 + tp[1];
+        if (slotMin >= startMin && slotMin < endMin) occupiedSlotsGrid.add(t);
+      });
+    });
+
+    // Si el nuevo turno seleccionado tiene duracion > 30min, bloquear tambien los siguientes
+    const selectedDur = (selectedAdminService && selectedAdminService.duration) ? selectedAdminService.duration : 30;
 
     const now = new Date();
     const todayIso = formatLocalDate(now);
@@ -892,9 +925,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentMin = now.getMinutes();
 
     const freeSlots = defaultSlotsTimes.filter(t => {
-      if (occupiedTimes.includes(t)) return false;
+      if (occupiedSlotsGrid.has(t)) return false;
       const [h, m] = t.split(':').map(Number);
       if (isPastDay || (isToday && (h < currentHour || (h === currentHour && m <= currentMin)))) return false;
+      // Verificar que caben todos los slots del turno nuevo sin colisionar
+      const slotStartMin = h * 60 + m;
+      const slotEndMin = slotStartMin + selectedDur;
+      for (const occupied of occupiedSlotsGrid) {
+        const op = occupied.split(':').map(Number);
+        const oMin = op[0] * 60 + op[1];
+        if (slotStartMin < oMin + 30 && slotEndMin > oMin) return false;
+      }
       return true;
     });
 
@@ -1362,7 +1403,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return name.includes(query) || phone.includes(query);
     });
 
-    matches.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+    matches.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
 
     agendaSearchResultsPanel.classList.remove('hidden');
     if (searchResultsPatientTitle) {

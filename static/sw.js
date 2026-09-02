@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v61-dynamic-services-and-real-service-matching';
+const CACHE_NAME = 'citaly-v62-slot-duration-sort-fix';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

@@ -61,7 +61,7 @@ def health_check(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/api/debug-whatsapp")
 async def debug_whatsapp():
-    """Diagnóstico temporal: verifica token y envía hello_world a número de prueba."""
+    """Diagnóstico: verifica token y envía plantilla REAL citaly_confirmacion_v1."""
     import httpx, re
     token = settings.WHATSAPP_TOKEN
     phone_id = settings.WHATSAPP_PHONE_NUMBER_ID
@@ -77,23 +77,54 @@ async def debug_whatsapp():
         "token_preview": token_preview,
         "has_valid_token": has_token,
         "clean_phone_to_send": clean_phone,
-        "meta_response": None
+        "template_tested": "citaly_confirmacion_v1",
+        "meta_response_template": None,
+        "meta_response_hello": None
     }
 
     if has_token:
         url = f"https://graph.facebook.com/v18.0/{phone_id}/messages"
         headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-        payload = {
+
+        # Test 1: plantilla real de producción
+        payload_real = {
+            "messaging_product": "whatsapp",
+            "to": clean_phone,
+            "type": "template",
+            "template": {
+                "name": "citaly_confirmacion_v1",
+                "language": {"code": "es_AR"},
+                "components": [{
+                    "type": "body",
+                    "parameters": [
+                        {"type": "text", "text": "Hassel Test"},
+                        {"type": "text", "text": "Citaly Odontología"},
+                        {"type": "text", "text": "Consulta & Diagnóstico"},
+                        {"type": "text", "text": "07/09"},
+                        {"type": "text", "text": "09:00"}
+                    ]
+                }]
+            }
+        }
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(url, headers=headers, json=payload_real)
+            result["meta_response_template"] = {
+                "status_code": resp.status_code,
+                "body": resp.json() if resp.content else {}
+            }
+
+        # Test 2: hello_world (solo funciona con números de prueba, para diagnóstico)
+        payload_hello = {
             "messaging_product": "whatsapp",
             "to": clean_phone,
             "type": "template",
             "template": {"name": "hello_world", "language": {"code": "en_US"}}
         }
         async with httpx.AsyncClient() as client:
-            resp = await client.post(url, headers=headers, json=payload)
-            result["meta_response"] = {
-                "status_code": resp.status_code,
-                "body": resp.json() if resp.content else {}
+            resp2 = await client.post(url, headers=headers, json=payload_hello)
+            result["meta_response_hello"] = {
+                "status_code": resp2.status_code,
+                "body": resp2.json() if resp2.content else {}
             }
 
     return result
