@@ -643,7 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    agendaSlotsSheet.innerHTML = visibleSlots.map(({ timeSlot, appt, timeBlock, isPastSlot }) => {
+    function renderAgendaSlotItem({ timeSlot, appt, timeBlock, isPastSlot }) {
       if (appt) {
         const cleanPhone = (appt.patient_whatsapp || '').replace(/\D/g, '');
         let actionBadge = '';
@@ -708,7 +708,22 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         `;
       }
-    }).join('');
+    }
+
+    const half = Math.ceil(visibleSlots.length / 2);
+    const col1Slots = visibleSlots.slice(0, half);
+    const col2Slots = visibleSlots.slice(half);
+
+    agendaSlotsSheet.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 items-start">
+        <div class="space-y-2.5">
+          ${col1Slots.map(renderAgendaSlotItem).join('')}
+        </div>
+        <div class="space-y-2.5">
+          ${col2Slots.map(renderAgendaSlotItem).join('')}
+        </div>
+      </div>
+    `;
   }
 
   // Listeners de Navegación Semanal en Agenda

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v64-admin-direct-reschedule';
+const CACHE_NAME = 'citaly-v65-vertical-columns-agenda';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
