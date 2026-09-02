@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v65-vertical-columns-agenda';
+const CACHE_NAME = 'citaly-v66-compact-2row-slot-cards';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

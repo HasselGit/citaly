@@ -646,37 +646,39 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderAgendaSlotItem({ timeSlot, appt, timeBlock, isPastSlot }) {
       if (appt) {
         const cleanPhone = (appt.patient_whatsapp || '').replace(/\D/g, '');
-        let actionBadge = '';
-        if (isPastSlot) {
-          actionBadge = `<span class="px-2.5 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold font-mono rounded-lg">Finalizado</span>`;
-        } else {
-          actionBadge = `
-            <div class="flex items-center gap-1.5 flex-shrink-0">
-              <button type="button" data-action="admin-reschedule-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-patient-phone="${cleanPhone || ''}" data-service-id="${appt.service_id || ''}" data-service-name="${appt.service_name || 'Especialidad'}" data-duration="${appt.duration_minutes || 30}" data-slot-info="${timeSlot} hs (${dayOfWeekName} ${dayNumber} de ${monthName})" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-navy border border-slate-300 rounded-lg text-[10px] font-bold font-mono transition-all shadow-2xs" title="Reprogramar fecha y horario">
-                Reprogramar
-              </button>
-              <button type="button" data-action="admin-cancel-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-slot-info="${timeSlot} hs (${dayOfWeekName} ${dayNumber} de ${monthName})" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-navy border border-slate-200 rounded-lg text-[10px] font-bold font-mono transition-all" title="Cancelar este turno y liberar el horario">
-                Cancelar
-              </button>
-              <span class="px-2.5 py-1 bg-navy text-white text-[10px] font-bold font-mono rounded-lg shadow-xs">
+        return `
+          <div class="p-3 bg-slate-50/90 rounded-xl border border-slate-200 flex flex-col gap-2 shadow-2xs">
+            <!-- Fila 1: Hora + Nombre Completo + Estado -->
+            <div class="flex items-center justify-between gap-2.5">
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                <span class="px-2.5 py-1 bg-navy text-white text-xs font-bold font-mono rounded-lg flex-shrink-0 shadow-xs">
+                  ${timeSlot} hs
+                </span>
+                <div class="min-w-0 flex-1">
+                  <div class="text-xs font-bold text-navy font-display truncate">${appt.patient_name}</div>
+                  <div class="text-[11px] text-slate-500 font-sans truncate">${appt.service_name} ${cleanPhone ? `• ${appt.patient_whatsapp}` : ''}</div>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 bg-navy/10 text-navy text-[10px] font-bold font-mono rounded-md flex-shrink-0">
                 Ocupado
               </span>
             </div>
-          `;
-        }
 
-        return `
-          <div class="p-3 bg-slate-50/90 rounded-xl border border-slate-200 flex items-center justify-between gap-3 shadow-2xs">
-            <div class="flex items-center gap-3 overflow-hidden">
-              <span class="px-2.5 py-1 bg-navy text-white text-xs font-bold font-mono rounded-lg flex-shrink-0 shadow-xs">
-                ${timeSlot} hs
-              </span>
-              <div class="overflow-hidden">
-                <div class="text-xs font-bold text-navy font-display truncate">${appt.patient_name}</div>
-                <div class="text-[11px] text-slate-500 font-sans truncate">${appt.service_name} ${cleanPhone ? `• ${appt.patient_whatsapp}` : ''}</div>
+            <!-- Fila 2: Botones de Acción -->
+            ${isPastSlot ? `
+              <div class="flex items-center justify-end pt-1 border-t border-slate-200/50">
+                <span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold font-mono rounded-md">Finalizado</span>
               </div>
-            </div>
-            ${actionBadge}
+            ` : `
+              <div class="flex items-center justify-end gap-1.5 pt-1.5 border-t border-slate-200/60">
+                <button type="button" data-action="admin-reschedule-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-patient-phone="${cleanPhone || ''}" data-service-id="${appt.service_id || ''}" data-service-name="${appt.service_name || 'Especialidad'}" data-duration="${appt.duration_minutes || 30}" data-slot-info="${timeSlot} hs (${dayOfWeekName} ${dayNumber} de ${monthName})" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-navy border border-slate-300 rounded-lg text-[10px] font-bold font-mono transition-all shadow-2xs" title="Reprogramar fecha y horario">
+                  Reprogramar
+                </button>
+                <button type="button" data-action="admin-cancel-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-slot-info="${timeSlot} hs (${dayOfWeekName} ${dayNumber} de ${monthName})" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-navy border border-slate-200 rounded-lg text-[10px] font-bold font-mono transition-all" title="Cancelar este turno y liberar el horario">
+                  Cancelar
+                </button>
+              </div>
+            `}
           </div>
         `;
       } else if (timeBlock) {
@@ -1457,32 +1459,34 @@ document.addEventListener('DOMContentLoaded', () => {
         statusBadge = `<span class="px-2.5 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold font-mono rounded-lg">Finalizado</span>`;
       } else {
         statusBadge = `<span class="px-2.5 py-1 bg-navy text-white text-[10px] font-bold font-mono rounded-lg shadow-xs">Activo</span>`;
-        cancelBtn = `
-          <button type="button" data-action="admin-reschedule-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-patient-phone="${cleanPhone || ''}" data-service-id="${appt.service_id || ''}" data-service-name="${appt.service_name || 'Especialidad'}" data-duration="${appt.duration_minutes || 30}" data-slot-info="${dayStr} a las ${timeStr}" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-navy border border-slate-300 rounded-lg text-[10px] font-bold font-mono transition-all shadow-2xs" title="Reprogramar este turno">
-            Reprogramar
-          </button>
-          <button type="button" data-action="admin-cancel-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-slot-info="${dayStr} a las ${timeStr}" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-navy border border-slate-200 rounded-lg text-[10px] font-bold font-mono transition-all" title="Cancelar este turno">
-            Cancelar
-          </button>
-        `;
-      }
-
       return `
-        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-3 shadow-2xs">
-          <div class="flex items-center gap-2.5 overflow-hidden">
-            <div class="px-2 py-1 bg-white border border-slate-200 rounded-lg text-center flex-shrink-0 shadow-2xs">
-              <div class="text-[10px] font-bold text-slate-500 font-mono">${dayStr}</div>
-              <div class="text-xs font-bold text-navy font-mono">${timeStr}</div>
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex flex-col gap-2 shadow-2xs">
+          <!-- Fila 1: Fecha/Hora + Nombre Completo + Estado -->
+          <div class="flex items-center justify-between gap-2.5">
+            <div class="flex items-center gap-2.5 min-w-0 flex-1">
+              <div class="px-2 py-1 bg-white border border-slate-200 rounded-lg text-center flex-shrink-0 shadow-2xs">
+                <div class="text-[10px] font-bold text-slate-500 font-mono">${dayStr}</div>
+                <div class="text-xs font-bold text-navy font-mono">${timeStr}</div>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-bold text-navy font-display truncate">${appt.patient_name}</div>
+                <div class="text-[11px] text-slate-500 font-sans truncate">${appt.service_name} ${cleanPhone ? `• ${appt.patient_whatsapp}` : ''}</div>
+              </div>
             </div>
-            <div class="overflow-hidden">
-              <div class="text-xs font-bold text-navy font-display truncate">${appt.patient_name}</div>
-              <div class="text-[11px] text-slate-500 font-sans truncate">${appt.service_name} ${cleanPhone ? `• ${appt.patient_whatsapp}` : ''}</div>
-            </div>
-          </div>
-          <div class="flex items-center gap-1.5 flex-shrink-0">
-            ${cancelBtn}
             ${statusBadge}
           </div>
+
+          <!-- Fila 2: Botones de Acción -->
+          ${!isPast && appt.status !== 'CANCELLED' ? `
+            <div class="flex items-center justify-end gap-1.5 pt-1.5 border-t border-slate-200/60">
+              <button type="button" data-action="admin-reschedule-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-patient-phone="${cleanPhone || ''}" data-service-id="${appt.service_id || ''}" data-service-name="${appt.service_name || 'Especialidad'}" data-duration="${appt.duration_minutes || 30}" data-slot-info="${dayStr} a las ${timeStr}" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-navy border border-slate-300 rounded-lg text-[10px] font-bold font-mono transition-all shadow-2xs" title="Reprogramar este turno">
+                Reprogramar
+              </button>
+              <button type="button" data-action="admin-cancel-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-slot-info="${dayStr} a las ${timeStr}" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-navy border border-slate-200 rounded-lg text-[10px] font-bold font-mono transition-all" title="Cancelar este turno">
+                Cancelar
+              </button>
+            </div>
+          ` : ''}
         </div>
       `;
     }).join('');
