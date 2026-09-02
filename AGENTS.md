@@ -157,6 +157,7 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 
 ### Estado de Plantillas en Meta (WABA: `1006525879102174` / `985775717869143`)
 - `citaly_confirmacion_v1` (`es_AR`): ✅ `APPROVED` (Verificado en producción con estado `DELIVERED`)
+- `citaly_reprogramacion_v1` (`es_AR`): ✅ `APPROVED` (Enviado automáticamente cuando el paciente o admin reprograma)
 - `citaly_recordatorio_24h_v1` (`es_AR`): ✅ `APPROVED` (Envíos automáticos vía cron cada 15 min)
 - `citaly_cancelacion_v1` (`es_AR`): ✅ `APPROVED` (Auto-respuesta cuando el paciente cancela por WhatsApp)
 - `citaly_recordatorio_2h_v1`: Descartado por regla de negocio (no se utiliza)

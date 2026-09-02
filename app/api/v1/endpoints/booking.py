@@ -366,6 +366,7 @@ async def create_appointment(
         # 5. Enviar mensaje de WhatsApp oficial vía Meta Cloud API
         date_param = appointment.start_time.strftime('%d/%m')
         time_param = appointment.start_time.strftime('%H:%M')
+        start_time_str = f"{date_param} a las {time_param} hs"
 
         template_params = [
             {"type": "text", "text": patient.full_name},
@@ -375,7 +376,7 @@ async def create_appointment(
             {"type": "text", "text": time_param}
         ]
 
-        template_name = "citaly_confirmacion_v1"
+        template_name = "citaly_reprogramacion_v1" if was_rescheduled else "citaly_confirmacion_v1"
 
         meta_result = await whatsapp_service.send_template_message(
             to_phone=patient.whatsapp_phone,
@@ -414,7 +415,6 @@ async def create_appointment(
         db.add(wa_log)
         db.commit()
 
-        start_time_str = f"{date_param} a las {time_param} hs"
         wa_text = f"Plantilla oficial {template_name} enviada a {patient.whatsapp_phone}"
         msg_title = "¡Turno Reprogramado con Éxito!" if was_rescheduled else "¡Turno Agendado con Éxito!"
         msg_body = f"Tu nuevo turno para {service.name} fue registrado para el {start_time_str}." if was_rescheduled else f"Tu turno para {service.name} fue registrado para el {start_time_str}."
