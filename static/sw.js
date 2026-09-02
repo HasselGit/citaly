@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v62-slot-duration-sort-fix';
+const CACHE_NAME = 'citaly-v64-admin-direct-reschedule';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

@@ -462,6 +462,7 @@ def get_appointments(request: Request, db: Session = Depends(get_db)):
         
         result.append({
             "id": a.id,
+            "service_id": a.service_id,
             "patient_name": patient.full_name if patient else "Paciente",
             "patient_whatsapp": patient.whatsapp_phone if patient else "",
             "service_name": service.name if service else "Especialidad",

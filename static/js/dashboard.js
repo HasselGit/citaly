@@ -652,6 +652,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           actionBadge = `
             <div class="flex items-center gap-1.5 flex-shrink-0">
+              <button type="button" data-action="admin-reschedule-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-patient-phone="${cleanPhone || ''}" data-service-id="${appt.service_id || ''}" data-service-name="${appt.service_name || 'Especialidad'}" data-duration="${appt.duration_minutes || 30}" data-slot-info="${timeSlot} hs (${dayOfWeekName} ${dayNumber} de ${monthName})" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-navy border border-slate-300 rounded-lg text-[10px] font-bold font-mono transition-all shadow-2xs" title="Reprogramar fecha y horario">
+                Reprogramar
+              </button>
               <button type="button" data-action="admin-cancel-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-slot-info="${timeSlot} hs (${dayOfWeekName} ${dayNumber} de ${monthName})" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-navy border border-slate-200 rounded-lg text-[10px] font-bold font-mono transition-all" title="Cancelar este turno y liberar el horario">
                 Cancelar
               </button>
@@ -1440,6 +1443,9 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         statusBadge = `<span class="px-2.5 py-1 bg-navy text-white text-[10px] font-bold font-mono rounded-lg shadow-xs">Activo</span>`;
         cancelBtn = `
+          <button type="button" data-action="admin-reschedule-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-patient-phone="${cleanPhone || ''}" data-service-id="${appt.service_id || ''}" data-service-name="${appt.service_name || 'Especialidad'}" data-duration="${appt.duration_minutes || 30}" data-slot-info="${dayStr} a las ${timeStr}" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-navy border border-slate-300 rounded-lg text-[10px] font-bold font-mono transition-all shadow-2xs" title="Reprogramar este turno">
+            Reprogramar
+          </button>
           <button type="button" data-action="admin-cancel-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-slot-info="${dayStr} a las ${timeStr}" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-navy border border-slate-200 rounded-lg text-[10px] font-bold font-mono transition-all" title="Cancelar este turno">
             Cancelar
           </button>
@@ -1544,6 +1550,328 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // ==========================================
+  // 13.7. MÓDULO EJECUTIVO: REPROGRAMACIÓN DIRECTA (Admin & Médico)
+  // ==========================================
+  const adminRescheduleModal = document.getElementById('admin-reschedule-modal');
+  const btnCloseAdminReschedule = document.getElementById('btn-close-admin-reschedule');
+  const btnAbortAdminReschedule = document.getElementById('btn-abort-admin-reschedule');
+  const btnConfirmAdminReschedule = document.getElementById('btn-confirm-admin-reschedule');
+  const btnReschedulePrevWeek = document.getElementById('btn-reschedule-prev-week');
+  const btnRescheduleNextWeek = document.getElementById('btn-reschedule-next-week');
+  const rescheduleWeekLabel = document.getElementById('reschedule-week-label');
+  const rescheduleDaysContainer = document.getElementById('reschedule-days-container');
+  const rescheduleSelectedDayTitle = document.getElementById('reschedule-selected-day-title');
+  const rescheduleFreeCountBadge = document.getElementById('reschedule-free-count-badge');
+  const rescheduleSlotsGrid = document.getElementById('reschedule-slots-grid');
+  const rescheduleSummaryTime = document.getElementById('reschedule-summary-time');
+  const rescheduleModalPatientName = document.getElementById('reschedule-modal-patient-name');
+  const rescheduleModalServiceName = document.getElementById('reschedule-modal-service-name');
+  const rescheduleModalCurrentSlot = document.getElementById('reschedule-modal-current-slot');
+
+  let _targetRescheduleAppt = null;
+  let selectedRescheduleDate = new Date();
+  let selectedRescheduleSlot = null;
+  let rescheduleWeekOffset = 0;
+
+  function openAdminRescheduleModal(apptData) {
+    if (!adminRescheduleModal) return;
+    _targetRescheduleAppt = apptData;
+    rescheduleWeekOffset = 0;
+    selectedRescheduleDate = new Date();
+    selectedRescheduleSlot = null;
+
+    if (rescheduleModalPatientName) rescheduleModalPatientName.innerText = apptData.patient_name || 'Paciente';
+    if (rescheduleModalServiceName) rescheduleModalServiceName.innerText = `${apptData.service_name || 'Especialidad'} • ${apptData.duration_minutes || 30} min`;
+    if (rescheduleModalCurrentSlot) rescheduleModalCurrentSlot.innerText = apptData.slot_info || 'Turno actual';
+
+    renderRescheduleCalendar();
+    adminRescheduleModal.classList.remove('hidden');
+  }
+
+  function closeAdminRescheduleModal() {
+    if (!adminRescheduleModal) return;
+    adminRescheduleModal.classList.add('hidden');
+    _targetRescheduleAppt = null;
+    selectedRescheduleSlot = null;
+  }
+
+  if (btnCloseAdminReschedule) btnCloseAdminReschedule.addEventListener('click', closeAdminRescheduleModal);
+  if (btnAbortAdminReschedule) btnAbortAdminReschedule.addEventListener('click', closeAdminRescheduleModal);
+
+  if (btnReschedulePrevWeek) {
+    btnReschedulePrevWeek.addEventListener('click', () => {
+      rescheduleWeekOffset--;
+      renderRescheduleCalendar();
+    });
+  }
+  if (btnRescheduleNextWeek) {
+    btnRescheduleNextWeek.addEventListener('click', () => {
+      rescheduleWeekOffset++;
+      renderRescheduleCalendar();
+    });
+  }
+
+  function renderRescheduleCalendar() {
+    if (!rescheduleDaysContainer || !rescheduleSlotsGrid || !_targetRescheduleAppt) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const baseStart = new Date(today);
+    baseStart.setDate(today.getDate() + (rescheduleWeekOffset * 6));
+
+    const daysToRender = [];
+    let temp = new Date(baseStart);
+    for (let i = 0; i < 6; i++) {
+      daysToRender.push(new Date(temp));
+      temp.setDate(temp.getDate() + 1);
+    }
+
+    if (rescheduleWeekLabel && daysToRender.length > 0) {
+      const firstD = daysToRender[0];
+      const lastD = daysToRender[daysToRender.length - 1];
+      const firstM = monthsFull[firstD.getMonth()];
+      const lastM = monthsFull[lastD.getMonth()];
+      const year = lastD.getFullYear();
+      rescheduleWeekLabel.innerText = firstM === lastM ? `${firstM} ${year}` : `${firstM} / ${lastM} ${year}`;
+    }
+
+    let selectedIso = formatLocalDate(selectedRescheduleDate);
+    const visibleIsos = daysToRender.map(d => formatLocalDate(d));
+    if (!visibleIsos.includes(selectedIso)) {
+      selectedRescheduleDate = daysToRender[0];
+      selectedIso = formatLocalDate(selectedRescheduleDate);
+    }
+
+    const targetDuration = Number(_targetRescheduleAppt.duration_minutes) || 30;
+
+    // Render Días
+    rescheduleDaysContainer.innerHTML = daysToRender.map(d => {
+      const dIso = formatLocalDate(d);
+      const isSelected = (dIso === selectedIso);
+      const dayName = daysShort[d.getDay()];
+      const dayNum = String(d.getDate()).padStart(2, '0');
+      const monthNum = String(d.getMonth() + 1).padStart(2, '0');
+
+      // Filtrar citas del día excluyendo la cita actual que se está reprogramando
+      const dayAppts = allAppointments.filter(a => {
+        if (!a.start_time || a.status === 'CANCELLED' || a.id === _targetRescheduleAppt.id) return false;
+        return a.start_time.startsWith(dIso);
+      });
+
+      const occupiedSlotsDayBtn = new Set();
+      dayAppts.forEach(a => {
+        const dur = a.duration_minutes || 30;
+        const parts = (a.time_str || '').split(':').map(Number);
+        if (parts.length < 2 || isNaN(parts[0])) return;
+        const startMin = parts[0] * 60 + parts[1];
+        const endMin = startMin + dur;
+        defaultSlotsTimes.forEach(t => {
+          const tp = t.split(':').map(Number);
+          const slotMin = tp[0] * 60 + tp[1];
+          if (slotMin >= startMin && slotMin < endMin) occupiedSlotsDayBtn.add(t);
+        });
+      });
+
+      const now = new Date();
+      const todayIso = formatLocalDate(now);
+      const isPastDay = dIso < todayIso;
+      const isToday = dIso === todayIso;
+      const currentHour = now.getHours();
+      const currentMin = now.getMinutes();
+
+      const freeCount = defaultSlotsTimes.filter(t => {
+        if (occupiedSlotsDayBtn.has(t)) return false;
+        const [h, m] = t.split(':').map(Number);
+        if (isPastDay || (isToday && (h < currentHour || (h === currentHour && m <= currentMin)))) return false;
+        return true;
+      }).length;
+
+      return `
+        <button type="button" data-reschedule-day-iso="${dIso}" class="reschedule-day-btn p-2 rounded-xl flex flex-col items-center justify-center text-center transition-all ${isSelected ? 'bg-navy text-white shadow-xs font-bold' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'}">
+          <span class="text-[9px] font-bold uppercase font-mono ${isSelected ? 'text-amber-400' : 'text-slate-500'}">${dayName}</span>
+          <span class="text-xs font-bold font-display my-0.5">${dayNum}/${monthNum}</span>
+          <span class="text-[8px] font-semibold font-mono ${isSelected ? 'text-slate-300' : 'text-slate-500'}">${freeCount} libres</span>
+        </button>
+      `;
+    }).join('');
+
+    rescheduleDaysContainer.querySelectorAll('.reschedule-day-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const iso = btn.getAttribute('data-reschedule-day-iso');
+        const [y, m, d] = iso.split('-').map(Number);
+        selectedRescheduleDate = new Date(y, m - 1, d);
+        renderRescheduleCalendar();
+      });
+    });
+
+    // Render Slots
+    const dayOfWeekName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][selectedRescheduleDate.getDay()];
+    const dayNumber = selectedRescheduleDate.getDate();
+    const monthName = monthsFull[selectedRescheduleDate.getMonth()];
+
+    if (rescheduleSelectedDayTitle) {
+      rescheduleSelectedDayTitle.innerText = `2. Horarios Libres (${dayOfWeekName} ${dayNumber} de ${monthName})`;
+    }
+
+    const dayAppts = allAppointments.filter(a => {
+      if (!a.start_time || a.status === 'CANCELLED' || a.id === _targetRescheduleAppt.id) return false;
+      return a.start_time.startsWith(selectedIso);
+    });
+
+    const occupiedSlotsGrid = new Set();
+    dayAppts.forEach(a => {
+      const dur = a.duration_minutes || 30;
+      const parts = (a.time_str || '').split(':').map(Number);
+      if (parts.length < 2 || isNaN(parts[0])) return;
+      const startMin = parts[0] * 60 + parts[1];
+      const endMin = startMin + dur;
+      defaultSlotsTimes.forEach(t => {
+        const tp = t.split(':').map(Number);
+        const slotMin = tp[0] * 60 + tp[1];
+        if (slotMin >= startMin && slotMin < endMin) occupiedSlotsGrid.add(t);
+      });
+    });
+
+    const now = new Date();
+    const todayIso = formatLocalDate(now);
+    const isPastDay = selectedIso < todayIso;
+    const isToday = selectedIso === todayIso;
+    const currentHour = now.getHours();
+    const currentMin = now.getMinutes();
+
+    const freeSlots = defaultSlotsTimes.filter(t => {
+      if (occupiedSlotsGrid.has(t)) return false;
+      const [h, m] = t.split(':').map(Number);
+      if (isPastDay || (isToday && (h < currentHour || (h === currentHour && m <= currentMin)))) return false;
+      const slotStartMin = h * 60 + m;
+      const slotEndMin = slotStartMin + targetDuration;
+      for (const occupied of occupiedSlotsGrid) {
+        const op = occupied.split(':').map(Number);
+        const oMin = op[0] * 60 + op[1];
+        if (slotStartMin < oMin + 30 && slotEndMin > oMin) return false;
+      }
+      return true;
+    });
+
+    if (rescheduleFreeCountBadge) {
+      rescheduleFreeCountBadge.innerText = `${freeSlots.length} ${freeSlots.length === 1 ? 'horario libre' : 'horarios libres'}`;
+    }
+
+    if (freeSlots.length === 0) {
+      rescheduleSlotsGrid.innerHTML = `
+        <div class="col-span-full p-4 text-center bg-slate-50 rounded-xl border border-slate-200">
+          <p class="text-xs text-slate-500 font-sans">No hay horarios disponibles para este día.</p>
+        </div>
+      `;
+      selectedRescheduleSlot = null;
+      if (rescheduleSummaryTime) rescheduleSummaryTime.innerText = 'Sin horario seleccionado';
+      return;
+    }
+
+    if (!freeSlots.includes(selectedRescheduleSlot)) {
+      selectedRescheduleSlot = freeSlots[0];
+    }
+
+    const sDayNum = String(selectedRescheduleDate.getDate()).padStart(2, '0');
+    const sMonthNum = String(selectedRescheduleDate.getMonth() + 1).padStart(2, '0');
+    if (rescheduleSummaryTime) {
+      rescheduleSummaryTime.innerText = `${dayOfWeekName} ${sDayNum}/${sMonthNum} a las ${selectedRescheduleSlot} hs`;
+    }
+
+    rescheduleSlotsGrid.innerHTML = freeSlots.map(timeStr => {
+      const isSelected = selectedRescheduleSlot === timeStr;
+      return `
+        <button type="button" data-reschedule-slot="${timeStr}" class="reschedule-slot-btn py-2 px-1 rounded-xl text-xs font-mono font-bold transition-all ${isSelected ? 'bg-navy text-white shadow-xs border-navy' : 'bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-400 border border-slate-200 shadow-2xs'}">
+          ${timeStr} hs
+        </button>
+      `;
+    }).join('');
+
+    rescheduleSlotsGrid.querySelectorAll('.reschedule-slot-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedRescheduleSlot = btn.getAttribute('data-reschedule-slot');
+        renderRescheduleCalendar();
+      });
+    });
+  }
+
+  // Confirmar Reprogramación
+  if (btnConfirmAdminReschedule) {
+    btnConfirmAdminReschedule.addEventListener('click', async () => {
+      if (!_targetRescheduleAppt || !selectedRescheduleSlot) {
+        showToast('Por favor seleccioná un día y horario válido.', 'error');
+        return;
+      }
+
+      const isoDate = formatLocalDate(selectedRescheduleDate);
+      const newStartTimeIso = `${isoDate}T${selectedRescheduleSlot}:00`;
+
+      try {
+        btnConfirmAdminReschedule.innerText = 'Reprogramando...';
+        btnConfirmAdminReschedule.disabled = true;
+
+        const res = await fetch('/api/v1/booking/appointments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            service_id: _targetRescheduleAppt.service_id,
+            start_time: newStartTimeIso,
+            patient_full_name: _targetRescheduleAppt.patient_name,
+            patient_whatsapp: _targetRescheduleAppt.patient_phone,
+            reschedule_from_id: _targetRescheduleAppt.id
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          const sDayNum = String(selectedRescheduleDate.getDate()).padStart(2, '0');
+          const sMonthNum = String(selectedRescheduleDate.getMonth() + 1).padStart(2, '0');
+          const pName = _targetRescheduleAppt.patient_name;
+          const sTime = selectedRescheduleSlot;
+          closeAdminRescheduleModal();
+          showToast(`Turno de ${pName} reprogramado para el ${sDayNum}/${sMonthNum} a las ${sTime} hs y notificado por WhatsApp.`, 'success');
+          await fetchDashboardAppointments();
+          if (agendaSearchResultsPanel && !agendaSearchResultsPanel.classList.contains('hidden')) {
+            handleAgendaGlobalSearch();
+          }
+        } else {
+          showToast(data.detail || 'No se pudo reprogramar el turno.', 'error');
+        }
+      } catch (err) {
+        showToast('Error de conexión al reprogramar el turno.', 'error');
+      } finally {
+        btnConfirmAdminReschedule.innerText = 'Confirmar Reprogramación';
+        btnConfirmAdminReschedule.disabled = false;
+      }
+    });
+  }
+
+  // Delegación de eventos para data-action="admin-reschedule-appt"
+  document.addEventListener('click', (e) => {
+    const btnReschedule = e.target.closest('[data-action="admin-reschedule-appt"]');
+    if (btnReschedule) {
+      const apptId = btnReschedule.getAttribute('data-appt-id');
+      const pName = btnReschedule.getAttribute('data-patient-name') || 'Paciente';
+      const pPhone = btnReschedule.getAttribute('data-patient-phone') || '';
+      const sId = btnReschedule.getAttribute('data-service-id') || '';
+      const sName = btnReschedule.getAttribute('data-service-name') || 'Especialidad';
+      const dur = Number(btnReschedule.getAttribute('data-duration')) || 30;
+      const sInfo = btnReschedule.getAttribute('data-slot-info') || '';
+
+      openAdminRescheduleModal({
+        id: apptId,
+        patient_name: pName,
+        patient_phone: pPhone,
+        service_id: sId,
+        service_name: sName,
+        duration_minutes: dur,
+        slot_info: sInfo
+      });
+    }
+  });
 
   // Modal de Bloqueo de Disponibilidad (Admin)
   const btnOpenBlockModal = document.getElementById('btn-open-block-modal');
