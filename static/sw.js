@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v68-cancel-wa-mobile-reschedule-sidebar-pill';
+const CACHE_NAME = 'citaly-v69-remove-brown-badge-reprogramados';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

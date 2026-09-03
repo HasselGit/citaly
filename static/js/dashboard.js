@@ -1200,10 +1200,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const count = reprogramados.length;
-    if (reprogramadosCounterBadge) {
-      reprogramadosCounterBadge.innerText = `${count} ${count === 1 ? 'Activo' : 'Activos'}`;
-    }
-
     if (badgeCountReprogramados) {
       badgeCountReprogramados.innerText = count;
       badgeCountReprogramados.style.display = count > 0 ? 'inline-block' : 'none';

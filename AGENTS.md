@@ -232,7 +232,7 @@ Citaly/
 │   ├── css/styles.css                           # Estilos globales unificados (Montserrat + Inter)
 │   ├── js/app.js                                # Lógica PWA paciente (Live slot sync en 2do plano)
 │   ├── js/dashboard.js                          # Lógica dashboard (métricas, sticky, filtros, 7d history window)
-│   └── sw.js                                    # Service Worker PWA (cache: citaly-v68-cancel-wa-mobile-reschedule-sidebar-pill)
+│   └── sw.js                                    # Service Worker PWA (cache: citaly-v69-remove-brown-badge-reprogramados)
 ├── scratch/
 │   ├── check_templates_status.py                # Consulta de plantillas en Meta Cloud API
 │   ├── create_word_guide.py                     # Generador de guía de arquitectura Multi-Tenant
