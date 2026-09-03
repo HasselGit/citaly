@@ -67,12 +67,51 @@ class WhatsAppService:
             if response.status_code == 200:
                 return response.json()
             else:
-                print(f"[ERROR WHATSAPP API] Status: {response.status_code}, Body: {response.text}")
+                print(f"[WARN WHATSAPP TEMPLATE] Template '{template_name}' status: {response.status_code}. Executing fallback...")
+                fallback_text = self._build_template_fallback_text(template_name, parameters)
+                if fallback_text:
+                    fallback_res = await self.send_text_message(to_phone=to_phone, text_body=fallback_text)
+                    if fallback_res.get("status") != "ERROR" and "messages" in fallback_res:
+                        print(f"[FALLBACK SUCCESS] Message delivered directly via text fallback")
+                        return fallback_res
                 return {
                     "status": "ERROR",
                     "error_code": response.status_code,
                     "details": response.text
                 }
+
+    def _build_template_fallback_text(self, template_name: str, parameters: Optional[list]) -> Optional[str]:
+        if not parameters:
+            return None
+        vals = [p.get("text", "") for p in parameters if isinstance(p, dict)]
+        if template_name == "citaly_confirmacion_v1" and len(vals) >= 5:
+            return (
+                f"Hola {vals[0]}, te confirmamos tu turno en {vals[1]} para el tratamiento {vals[2]} el día {vals[3]} a las {vals[4]} hs.\n\n"
+                f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
+                f"• Para reprogramar ingresá a: https://citaly-six.vercel.app\n\n"
+                f"¡Gracias por elegirnos! • Citaly App"
+            )
+        elif template_name == "citaly_reprogramacion_v1" and len(vals) >= 5:
+            return (
+                f"Hola {vals[0]}, te confirmamos que tu turno en {vals[1]} para {vals[2]} fue REPROGRAMADO con éxito para el día {vals[3]} a las {vals[4]} hs.\n\n"
+                f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
+                f"• Para reprogramar ingresá a: https://citaly-six.vercel.app\n\n"
+                f"¡Gracias por elegirnos! • Citaly App"
+            )
+        elif template_name == "citaly_cancelacion_v1" and len(vals) >= 3:
+            return (
+                f"Hola {vals[0]}, te confirmamos que tu turno en {vals[1]} para el tratamiento {vals[2]} fue CANCELADO con éxito.\n\n"
+                f"Muchas gracias por avisarnos con anticipación. Si querés volver a solicitar un turno podés hacerlo en: https://citaly-six.vercel.app\n\n"
+                f"¡Gracias por elegirnos! • Citaly App"
+            )
+        elif template_name == "citaly_recordatorio_24h_v1" and len(vals) >= 5:
+            return (
+                f"Hola {vals[0]}, te recordamos tu turno en {vals[1]} para el tratamiento {vals[2]} mañana {vals[3]} a las {vals[4]} hs.\n\n"
+                f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
+                f"• Para reprogramar ingresá a: https://citaly-six.vercel.app\n\n"
+                f"¡Gracias por elegirnos! • Citaly App"
+            )
+        return None
 
     async def send_text_message(self, to_phone: str, text_body: str) -> Dict[str, Any]:
         """
