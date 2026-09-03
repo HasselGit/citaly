@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v69-remove-brown-badge-reprogramados';
+const CACHE_NAME = 'citaly-v70-express-reschedule-branding';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

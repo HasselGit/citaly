@@ -104,12 +104,16 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
    - Si otro paciente reserva o cancela, los botones de horarios se deshabilitan/habilitan automáticamente en pantalla **sin recargar la página**.
 3. **Protección Anti-Colisión Atómica (HTTP 409):**
    - El backend valida solapamientos antes de insertar en base de datos. Si ocurre un intento simultáneo en el mismo milisegundo, responde `409 Conflict` evitando duplicaciones.
-4. **Reserva y Reprogramación Atómica:**
-   - Al reprogramar, la cita anterior pasa a `status = 'CANCELLED'` en la misma transacción de PostgreSQL, liberando de inmediato el horario viejo.
-   - Autocompletado de datos del paciente (`patient_name`, `patient_whatsapp`).
-4. **Consulta de Turnos por Celular (`.active-appt-card`):**
+4. **Flujo 1-Tap Express de Reprogramación (desde WhatsApp o Consulta):**
+   - Al entrar por link tokenizado (`/r/{token}` o `?reschedule_token=...`), la PWA precarga en memoria al paciente (`patient_name`, `patient_whatsapp`, `service_id`), oculta el selector de servicios y los campos de texto, e inserta el banner personalizado: *"Hola [Nombre], reprogramá tu turno"*.
+   - El paciente solo selecciona el nuevo día y horario disponible y presiona **`[ Confirmar Cambio de Turno ✔ ]`** directamente en 1 solo toque, sin volver a escribir datos.
+   - Liberación de slot anterior y confirmación del nuevo ejecutadas de forma atómica en PostgreSQL con despacho de `citaly_reprogramacion_v1`.
+5. **Branding Oficial de Plataforma:**
+   - En modales de éxito, cancelaciones y respuestas de WhatsApp se exhibe la firma:  
+     **`¡Gracias por elegirnos! • Citaly App`**
+6. **Consulta de Turnos por Celular (`.active-appt-card`):**
    - Tarjeta blanca `#FFFFFF` con borde `#E2E8F0` y radio `16px`.
-   - Botón Titanium Navy (`#0F172A`) para reprogramar y ghost para cancelar.
+   - Botón Titanium Navy (`#0F172A`) para reprogramar (activa modo 1-Tap Express) y ghost para cancelar.
 
 ### Dashboard Ejecutivo (`/dashboard`)
 1. **Estética Minimalista High-End (Stitch MCP):**
@@ -232,7 +236,7 @@ Citaly/
 │   ├── css/styles.css                           # Estilos globales unificados (Montserrat + Inter)
 │   ├── js/app.js                                # Lógica PWA paciente (Live slot sync en 2do plano)
 │   ├── js/dashboard.js                          # Lógica dashboard (métricas, sticky, filtros, 7d history window)
-│   └── sw.js                                    # Service Worker PWA (cache: citaly-v69-remove-brown-badge-reprogramados)
+│   └── sw.js                                    # Service Worker PWA (cache: citaly-v70-express-reschedule-branding)
 ├── scratch/
 │   ├── check_templates_status.py                # Consulta de plantillas en Meta Cloud API
 │   ├── create_word_guide.py                     # Generador de guía de arquitectura Multi-Tenant

@@ -230,7 +230,7 @@ async def receive_meta_webhook(request: Request, db: Session = Depends(get_db)):
                                 date_str = start_dt.strftime("%d/%m")
                                 time_str = start_dt.strftime("%H:%M")
 
-                                reply_msg = f"¡Excelente! Tu turno del {date_str} a las {time_str} hs quedó confirmado. ¡Te esperamos!"
+                                reply_msg = f"¡Excelente! Tu turno del {date_str} a las {time_str} hs quedó confirmado. ¡Te esperamos!\n\n¡Gracias por elegirnos! • Citaly App"
                                 result = await whatsapp_service.send_text_message(to_phone=sender_phone, text_body=reply_msg)
                                 
                                 meta_id = None
