@@ -1,5 +1,6 @@
 import re
 import uuid
+import unicodedata
 from fastapi import APIRouter, Request, HTTPException, Query, Depends
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
@@ -10,6 +11,8 @@ from app.db.session import get_db
 from app.models.whatsapp_log import WhatsAppLog
 from app.models.appointment import Appointment
 from app.models.patient import Patient
+from app.models.tenant import Tenant
+from app.models.service import Service
 from app.services.whatsapp import whatsapp_service
 
 router = APIRouter(prefix="/api/v1/webhook", tags=["WhatsApp Webhook"])
@@ -18,6 +21,13 @@ def clean_digits(phone: str) -> str:
     if not phone:
         return ""
     return re.sub(r"\D", "", phone)
+
+def normalize_text(text: str) -> str:
+    if not text:
+        return ""
+    nfkd = unicodedata.normalize('NFKD', str(text))
+    cleaned = "".join([c for c in nfkd if not unicodedata.combining(c)])
+    return cleaned.strip().lower()
 
 @router.get("/whatsapp")
 def verify_meta_webhook(
@@ -76,9 +86,9 @@ async def receive_meta_webhook(request: Request, db: Session = Depends(get_db)):
                         body_text = msg.get("button", {}).get("text", "") or msg.get("button", {}).get("payload", "")
 
                     clean_sender = clean_digits(sender_phone)
-                    clean_body = body_text.strip().upper()
+                    clean_norm = normalize_text(body_text)
 
-                    print(f"[WHATSAPP INCOMING] Sender: {sender_phone} ({clean_sender}) | Text: '{body_text}'")
+                    print(f"[WHATSAPP INCOMING] Sender: {sender_phone} ({clean_sender}) | Text: '{body_text}' | Normalized: '{clean_norm}'")
 
                     # Buscar paciente por coincidencia de teléfono
                     all_patients = db.query(Patient).all()
@@ -90,8 +100,21 @@ async def receive_meta_webhook(request: Request, db: Session = Depends(get_db)):
                         now_utc = datetime.utcnow()
                         context_wamid = msg.get("context", {}).get("id")
 
+                        # Listas de intenciones insensibles a mayúsculas, minúsculas y acentos
+                        cancel_keywords = [
+                            "cancelar", "cancela", "cancelo", "cancelame", "cancelacion",
+                            "cancel", "anular", "anula", "anulo", "anulacion",
+                            "dar de baja", "dar debaja", "de baja", "baja",
+                            "no puedo", "no voy a poder", "no llego", "no voy", "no asisto", "imposible asistir"
+                        ]
+                        confirm_keywords = [
+                            "confirmar", "confirmo", "confirma", "confirmacion",
+                            "si", "ok", "asisto", "voy", "voy a ir", "asistire",
+                            "dale", "perfecto", "listo", "de una", "ahi estare", "ahi voy"
+                        ]
+
                         # A) Si el paciente responde CANCELAR
-                        if any(k in clean_body for k in ["CANCELAR", "CANCEL", "DAR DE BAJA", "NO PUEDO"]):
+                        if any(k in clean_norm for k in cancel_keywords):
                             appt_to_cancel = None
 
                             # 1. Si respondió directamente a un mensaje específico (context wamid)
@@ -145,8 +168,8 @@ async def receive_meta_webhook(request: Request, db: Session = Depends(get_db)):
                                     language_code="es_AR",
                                     parameters=[
                                         {"type": "text", "text": patient.full_name if patient else "Paciente"},
-                                        {"type": "text", "text": tenant.business_name if tenant else "Consultorio"},
-                                        {"type": "text", "text": service.name if service else "Tratamiento"}
+                                        {"type": "text", "text": tenant.business_name if tenant else "Consultorio Dr. Alejandro Pérez"},
+                                        {"type": "text", "text": service.name if service else "Consulta"}
                                     ]
                                 )
                                 
@@ -166,7 +189,7 @@ async def receive_meta_webhook(request: Request, db: Session = Depends(get_db)):
                                 print(f"[AUTO CANCELLED VIA WHATSAPP] Appointment {appt_to_cancel.id} ({date_str} {time_str}) cancelled by patient {sender_phone}")
 
                         # B) Si el paciente responde CONFIRMAR
-                        elif any(k in clean_body for k in ["CONFIRMAR", "CONFIRMO", "OK", "SI", "SÍ", "ASISTO"]):
+                        elif any(k in clean_norm for k in confirm_keywords):
                             appt_to_confirm = None
 
                             if context_wamid:

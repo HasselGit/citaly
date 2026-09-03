@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v67-fix-dashboard-syntax-unblock';
+const CACHE_NAME = 'citaly-v68-cancel-wa-mobile-reschedule-sidebar-pill';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

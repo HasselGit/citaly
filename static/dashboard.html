@@ -80,12 +80,12 @@
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- SideNavBar (Desktop - Con + Nuevo Turno y Agenda renombrada) -->
-  <aside class="hidden md:flex flex-col fixed left-0 top-0 h-full w-64 bg-white p-5 z-40">
+  <!-- SideNavBar Flotante Minimalista con Bordes Redondeados (Desktop) -->
+  <aside class="hidden md:flex flex-col fixed left-4 top-4 bottom-4 h-[calc(100vh-2rem)] w-60 bg-white rounded-3xl border border-slate-200/90 shadow-sm p-5 z-40">
     
     <!-- Logo Minimalista Citaly -->
     <div class="flex items-center gap-2.5 mb-8 px-1">
-      <div class="w-9 h-9 rounded-xl bg-navy flex items-center justify-center text-white font-display font-extrabold text-sm shadow-sm">
+      <div class="w-9 h-9 rounded-2xl bg-navy flex items-center justify-center text-white font-display font-extrabold text-sm shadow-sm">
         C
       </div>
       <div>
@@ -132,10 +132,10 @@
   </aside>
 
   <!-- Main Content Area -->
-  <main class="flex-1 md:ml-64 min-h-screen w-full flex flex-col">
+  <main class="flex-1 md:ml-[16.5rem] min-h-screen w-full flex flex-col">
     
     <!-- TopNavBar Minimalista con Tarjeta Ejecutiva del Doctor de Gran Presencia -->
-    <header class="fixed top-0 left-0 md:left-64 right-0 z-30 h-20 bg-[#F8FAFC] flex justify-between items-center px-4 md:px-10">
+    <header class="fixed top-0 left-0 md:left-[16.5rem] right-0 z-30 h-20 bg-[#F8FAFC]/95 backdrop-blur-sm flex justify-between items-center px-4 md:px-10">
       
       <!-- Tarjeta Ejecutiva del Consultorio -->
       <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-slate-200/90 shadow-xs">
@@ -647,9 +647,13 @@
     </div>
   </div>
 
-  <!-- Modal Ejecutivo de Reprogramación Directa de Turno -->
-  <div id="admin-reschedule-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden">
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 text-left flex flex-col max-h-[90vh]">
+  <!-- Modal Ejecutivo de Reprogramación Directa de Turno (Mobile-First Bottom Sheet / Desktop Modal) -->
+  <div id="admin-reschedule-modal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs hidden">
+    <div class="bg-white rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 shadow-2xl max-w-lg w-full p-5 sm:p-6 text-left flex flex-col max-h-[88vh] sm:max-h-[90vh]">
+      
+      <!-- Tirador visual para móviles -->
+      <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-3 sm:hidden"></div>
+
       <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-200">
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 bg-navy text-white rounded-xl flex items-center justify-center font-bold text-sm shadow-xs">
@@ -665,13 +669,13 @@
 
       <div class="overflow-y-auto space-y-4 pr-1 flex-1">
         <!-- Info del Turno Actual -->
-        <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between gap-3">
-          <div>
-            <div class="text-xs font-bold text-navy font-display" id="reschedule-modal-patient-name">Paciente</div>
-            <div class="text-[11px] text-slate-500 font-mono mt-0.5" id="reschedule-modal-service-name">Especialidad • 30 min</div>
+        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between gap-3">
+          <div class="min-w-0 flex-1">
+            <div class="text-xs font-bold text-navy font-display truncate" id="reschedule-modal-patient-name">Paciente</div>
+            <div class="text-[11px] text-slate-500 font-mono mt-0.5 truncate" id="reschedule-modal-service-name">Especialidad • 30 min</div>
           </div>
-          <div class="text-right">
-            <span class="text-[10px] uppercase font-mono font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">Turno Actual</span>
+          <div class="text-right flex-shrink-0">
+            <span class="text-[10px] uppercase font-mono font-bold text-slate-700 bg-slate-200/80 px-2 py-0.5 rounded-md">Turno Actual</span>
             <div class="text-xs font-bold font-mono text-navy mt-1" id="reschedule-modal-current-slot">00/00 00:00 hs</div>
           </div>
         </div>
@@ -690,7 +694,7 @@
               </button>
             </div>
           </div>
-          <div id="reschedule-days-container" class="grid grid-cols-6 gap-1.5">
+          <div id="reschedule-days-container" class="flex gap-2 overflow-x-auto pb-1.5 sm:grid sm:grid-cols-6 sm:gap-1.5 sm:overflow-visible">
             <!-- Días dinámicos -->
           </div>
         </div>
@@ -708,15 +712,15 @@
       </div>
 
       <!-- Footer con Resumen y Botón de Acción -->
-      <div class="pt-4 mt-4 border-t border-slate-200 flex items-center justify-between gap-3">
-        <div>
+      <div class="pt-3.5 mt-3.5 border-t border-slate-200 flex items-center justify-between gap-3">
+        <div class="min-w-0">
           <span class="text-[10px] text-slate-400 font-mono block">Nuevo Horario:</span>
-          <span id="reschedule-summary-time" class="text-xs font-bold font-mono text-navy">Seleccionar horario</span>
+          <span id="reschedule-summary-time" class="text-xs font-bold font-mono text-navy truncate block">Seleccionar horario</span>
         </div>
-        <div class="flex items-center gap-2">
-          <button type="button" id="btn-abort-admin-reschedule" class="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold text-xs transition-all">Cancelar</button>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button type="button" id="btn-abort-admin-reschedule" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold text-xs transition-all">Cancelar</button>
           <button type="button" id="btn-confirm-admin-reschedule" class="px-4 py-2.5 bg-navy hover:bg-slate-800 text-white rounded-xl font-bold text-xs transition-all shadow-md flex items-center gap-1.5">
-            <span>Confirmar Reprogramación</span>
+            <span>Confirmar</span>
           </button>
         </div>
       </div>

@@ -1235,7 +1235,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div>
             <div class="flex items-center gap-2">
               <h4 class="font-bold text-navy text-sm font-display">${a.patient_name}</h4>
-              <span class="px-2 py-0.5 bg-amber-50 text-amber-900 border border-amber-200 text-[10px] font-bold font-mono rounded-full">Reprogramado</span>
+              <span class="px-2.5 py-0.5 bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-bold font-mono rounded-lg">Reprogramado</span>
             </div>
             <p class="text-xs text-slate-600 mt-1">${a.service_name} • ${cleanPhone ? a.patient_whatsapp : 'Sin celular'}</p>
           </div>
@@ -1710,7 +1710,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }).length;
 
       return `
-        <button type="button" data-reschedule-day-iso="${dIso}" class="reschedule-day-btn p-2 rounded-xl flex flex-col items-center justify-center text-center transition-all ${isSelected ? 'bg-navy text-white shadow-xs font-bold' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'}">
+        <button type="button" data-reschedule-day-iso="${dIso}" class="reschedule-day-btn min-w-[76px] sm:min-w-0 flex-shrink-0 p-2 sm:p-2.5 rounded-2xl flex flex-col items-center justify-center text-center transition-all ${isSelected ? 'bg-navy text-white shadow-xs font-bold' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'}">
           <span class="text-[9px] font-bold uppercase font-mono ${isSelected ? 'text-amber-400' : 'text-slate-500'}">${dayName}</span>
           <span class="text-xs font-bold font-display my-0.5">${dayNum}/${monthNum}</span>
           <span class="text-[8px] font-semibold font-mono ${isSelected ? 'text-slate-300' : 'text-slate-500'}">${freeCount} libres</span>
@@ -1804,7 +1804,7 @@ document.addEventListener('DOMContentLoaded', () => {
     rescheduleSlotsGrid.innerHTML = freeSlots.map(timeStr => {
       const isSelected = selectedRescheduleSlot === timeStr;
       return `
-        <button type="button" data-reschedule-slot="${timeStr}" class="reschedule-slot-btn py-2 px-1 rounded-xl text-xs font-mono font-bold transition-all ${isSelected ? 'bg-navy text-white shadow-xs border-navy' : 'bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-400 border border-slate-200 shadow-2xs'}">
+        <button type="button" data-reschedule-slot="${timeStr}" class="reschedule-slot-btn py-2.5 sm:py-2 px-1 rounded-xl text-xs font-mono font-bold transition-all ${isSelected ? 'bg-navy text-white shadow-xs border border-navy' : 'bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-400 border border-slate-200 shadow-2xs'}">
           ${timeStr} hs
         </button>
       `;

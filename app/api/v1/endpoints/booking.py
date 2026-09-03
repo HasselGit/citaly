@@ -319,16 +319,20 @@ async def create_appointment(
                 )
 
         # 3.1. Si es una reprogramación, cancelar el turno anterior para LIBERAR su horario en la base de datos
+        resched_token = (payload.reschedule_from_token or "").strip()
+        resched_id = (payload.reschedule_from_id or "").strip()
         was_rescheduled = False
         old_appt = None
-        if payload.reschedule_from_token:
-            old_appt = db.query(Appointment).filter(Appointment.token_cancellation == payload.reschedule_from_token).first()
-        elif payload.reschedule_from_id:
-            old_appt = db.query(Appointment).filter(Appointment.id == payload.reschedule_from_id).first()
+        if resched_token:
+            old_appt = db.query(Appointment).filter(Appointment.token_cancellation == resched_token).first()
+        elif resched_id:
+            old_appt = db.query(Appointment).filter(Appointment.id == resched_id).first()
 
         if old_appt:
             old_appt.status = "CANCELLED"
             db.commit()
+            was_rescheduled = True
+        elif resched_token or resched_id:
             was_rescheduled = True
         # 3.5. Validar solapamiento atómico concurrente (anti double-booking)
         overlapping_appt = db.query(Appointment).filter(
@@ -618,13 +622,49 @@ def confirm_appointment(token: str, db: Session = Depends(get_db)):
     }
 
 @router.post("/cancel/{token}")
-def cancel_appointment(token: str, db: Session = Depends(get_db)):
+async def cancel_appointment(token: str, db: Session = Depends(get_db)):
     appointment = db.query(Appointment).filter(Appointment.token_cancellation == token).first()
     if not appointment:
         raise HTTPException(status_code=404, detail="Turno no encontrado o ya fue cancelado")
 
     appointment.status = "CANCELLED"
     db.commit()
+
+    # Enviar notificación de cancelación por WhatsApp
+    patient = db.query(Patient).filter(Patient.id == appointment.patient_id).first()
+    tenant = db.query(Tenant).filter(Tenant.id == appointment.tenant_id).first()
+    service = db.query(Service).filter(Service.id == appointment.service_id).first()
+
+    if patient and patient.whatsapp_phone and whatsapp_service:
+        try:
+            p_name = patient.full_name or "Paciente"
+            b_name = tenant.business_name if tenant else "Consultorio Dr. Alejandro Pérez"
+            s_name = service.name if service else "Consulta"
+            wa_res = await whatsapp_service.send_template_message(
+                to_phone=patient.whatsapp_phone,
+                template_name="citaly_cancelacion_v1",
+                language_code="es_AR",
+                parameters=[
+                    {"type": "text", "text": p_name},
+                    {"type": "text", "text": b_name},
+                    {"type": "text", "text": s_name}
+                ]
+            )
+            meta_id = None
+            if isinstance(wa_res, dict) and "messages" in wa_res and len(wa_res["messages"]) > 0:
+                meta_id = wa_res["messages"][0].get("id")
+
+            log = WhatsAppLog(
+                id=str(uuid.uuid4()),
+                appointment_id=appointment.id,
+                message_type="CANCEL_NOTICE",
+                status="SENT" if wa_res.get("status") != "ERROR" else "FAILED",
+                meta_message_id=meta_id
+            )
+            db.add(log)
+            db.commit()
+        except Exception as wa_err:
+            print(f"[WHATSAPP CANCEL ERROR]: {wa_err}")
 
     return {
         "success": True,
@@ -662,7 +702,7 @@ class CancelByIdRequest(BaseModel):
     appointment_id: str
 
 @router.post("/cancel-by-id")
-def cancel_appointment_by_id(payload: CancelByIdRequest, db: Session = Depends(get_db)):
+async def cancel_appointment_by_id(payload: CancelByIdRequest, db: Session = Depends(get_db)):
     """
     Cancelación directa de cita por ID (usado desde la PWA del paciente y Dashboard).
     """
@@ -672,6 +712,42 @@ def cancel_appointment_by_id(payload: CancelByIdRequest, db: Session = Depends(g
 
     appointment.status = "CANCELLED"
     db.commit()
+
+    # Enviar notificación de cancelación por WhatsApp
+    patient = db.query(Patient).filter(Patient.id == appointment.patient_id).first()
+    tenant = db.query(Tenant).filter(Tenant.id == appointment.tenant_id).first()
+    service = db.query(Service).filter(Service.id == appointment.service_id).first()
+
+    if patient and patient.whatsapp_phone and whatsapp_service:
+        try:
+            p_name = patient.full_name or "Paciente"
+            b_name = tenant.business_name if tenant else "Consultorio Dr. Alejandro Pérez"
+            s_name = service.name if service else "Consulta"
+            wa_res = await whatsapp_service.send_template_message(
+                to_phone=patient.whatsapp_phone,
+                template_name="citaly_cancelacion_v1",
+                language_code="es_AR",
+                parameters=[
+                    {"type": "text", "text": p_name},
+                    {"type": "text", "text": b_name},
+                    {"type": "text", "text": s_name}
+                ]
+            )
+            meta_id = None
+            if isinstance(wa_res, dict) and "messages" in wa_res and len(wa_res["messages"]) > 0:
+                meta_id = wa_res["messages"][0].get("id")
+
+            log = WhatsAppLog(
+                id=str(uuid.uuid4()),
+                appointment_id=appointment.id,
+                message_type="CANCEL_NOTICE",
+                status="SENT" if wa_res.get("status") != "ERROR" else "FAILED",
+                meta_message_id=meta_id
+            )
+            db.add(log)
+            db.commit()
+        except Exception as wa_err:
+            print(f"[WHATSAPP CANCEL ERROR]: {wa_err}")
 
     return {
         "success": True,
