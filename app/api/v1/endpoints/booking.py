@@ -386,7 +386,8 @@ async def create_appointment(
             to_phone=patient.whatsapp_phone,
             template_name=template_name,
             language_code="es_AR",
-            parameters=template_params
+            parameters=template_params,
+            token=appointment.token_cancellation
         )
         print(f"[WHATSAPP META TEMPLATE RESULT] {meta_result}")
 

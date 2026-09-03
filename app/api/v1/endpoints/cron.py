@@ -59,7 +59,8 @@ async def send_scheduled_reminders(db: Session = Depends(get_db)):
                         {"type": "text", "text": service.name},
                         {"type": "text", "text": date_str},
                         {"type": "text", "text": time_str}
-                    ]
+                    ],
+                    token=appt.token_cancellation
                 )
 
                 meta_msg_id = None

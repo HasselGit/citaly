@@ -13,14 +13,14 @@ class WhatsAppService:
         self,
         to_phone: str,
         template_name: str,
-        language_code: str = "es",
-        parameters: Optional[list] = None
+        language_code: str = "es_AR",
+        parameters: Optional[list] = None,
+        token: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Envía un mensaje de plantilla oficial usando Meta Cloud API Graph v18.0+.
-        Si las credenciales no están configuradas en .env, entra en modo SIMULACIÓN.
+        Si la plantilla está en revisión (PENDING) o falla, envía fallback directo.
         """
-        # Limpiar y normalizar formato de teléfono a E.164
         digits = re.sub(r'\D', '', to_phone or '')
         if len(digits) == 10:
             clean_phone = f"549{digits}"
@@ -31,7 +31,6 @@ class WhatsAppService:
         else:
             clean_phone = digits
 
-        # Si no hay token de Meta configurado en desarrollo, simulamos el envío exitoso
         if not self.token or not self.phone_number_id or self.token == "YOUR_META_WHATSAPP_API_TOKEN":
             print(f"[SIMULACIÓN WHATSAPP] Enviando plantilla '{template_name}' a {clean_phone}")
             return {
@@ -68,7 +67,7 @@ class WhatsAppService:
                 return response.json()
             else:
                 print(f"[WARN WHATSAPP TEMPLATE] Template '{template_name}' status: {response.status_code}. Executing fallback...")
-                fallback_text = self._build_template_fallback_text(template_name, parameters)
+                fallback_text = self._build_template_fallback_text(template_name, parameters, token)
                 if fallback_text:
                     fallback_res = await self.send_text_message(to_phone=to_phone, text_body=fallback_text)
                     if fallback_res.get("status") != "ERROR" and "messages" in fallback_res:
@@ -80,22 +79,24 @@ class WhatsAppService:
                     "details": response.text
                 }
 
-    def _build_template_fallback_text(self, template_name: str, parameters: Optional[list]) -> Optional[str]:
+    def _build_template_fallback_text(self, template_name: str, parameters: Optional[list], token: Optional[str] = None) -> Optional[str]:
         if not parameters:
             return None
         vals = [p.get("text", "") for p in parameters if isinstance(p, dict)]
+        link_url = f"https://citaly-six.vercel.app/r/{token}" if token else "https://citaly-six.vercel.app"
+
         if template_name == "citaly_confirmacion_v1" and len(vals) >= 5:
             return (
                 f"Hola {vals[0]}, te confirmamos tu turno en {vals[1]} para el tratamiento {vals[2]} el día {vals[3]} a las {vals[4]} hs.\n\n"
                 f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
-                f"• Para reprogramar ingresá a: https://citaly-six.vercel.app\n\n"
+                f"• Para reprogramar ingresá a: {link_url}\n\n"
                 f"¡Gracias por elegirnos! • Citaly App"
             )
         elif template_name == "citaly_reprogramacion_v1" and len(vals) >= 5:
             return (
                 f"Hola {vals[0]}, te confirmamos que tu turno en {vals[1]} para {vals[2]} fue REPROGRAMADO con éxito para el día {vals[3]} a las {vals[4]} hs.\n\n"
                 f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
-                f"• Para reprogramar ingresá a: https://citaly-six.vercel.app\n\n"
+                f"• Para reprogramar ingresá a: {link_url}\n\n"
                 f"¡Gracias por elegirnos! • Citaly App"
             )
         elif template_name == "citaly_cancelacion_v1" and len(vals) >= 3:
@@ -108,7 +109,7 @@ class WhatsAppService:
             return (
                 f"Hola {vals[0]}, te recordamos tu turno en {vals[1]} para el tratamiento {vals[2]} mañana {vals[3]} a las {vals[4]} hs.\n\n"
                 f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
-                f"• Para reprogramar ingresá a: https://citaly-six.vercel.app\n\n"
+                f"• Para reprogramar ingresá a: {link_url}\n\n"
                 f"¡Gracias por elegirnos! • Citaly App"
             )
         return None
