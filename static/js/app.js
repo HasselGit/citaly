@@ -665,10 +665,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Detectar parámetros de URL (ej. ?phone=...&reschedule_token=...)
   const urlParams = new URLSearchParams(window.location.search);
   const paramPhone = urlParams.get('phone');
-  const paramRescheduleToken = urlParams.get('reschedule_token') || urlParams.get('token');
+  let paramRescheduleToken = urlParams.get('reschedule_token') || urlParams.get('token');
+
+  if (!paramRescheduleToken && window.location.pathname.startsWith('/r/')) {
+    const parts = window.location.pathname.split('/');
+    if (parts.length >= 3 && parts[2]) {
+      paramRescheduleToken = parts[2];
+    }
+  }
 
   if (paramRescheduleToken) {
     window._rescheduleToken = paramRescheduleToken;

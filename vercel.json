@@ -27,7 +27,7 @@
     },
     {
       "src": "/r/(.*)",
-      "dest": "/static/cancel.html?token=$1"
+      "dest": "/static/index.html?reschedule_token=$1"
     },
     {
       "src": "/static/(.*)",

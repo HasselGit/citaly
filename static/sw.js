@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v76-monogram-banner-italic-branding';
+const CACHE_NAME = 'citaly-v77-direct-r-reschedule-route';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
