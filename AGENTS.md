@@ -2,7 +2,7 @@
 
 Este documento contiene las reglas de arquitectura, infraestructura, base de datos, UX/UI, endpoints backend y flujos de trabajo necesarias para que cualquier Agente de IA pueda reproducir, mantener o extender este proyecto hasta el más mínimo detalle desde el principio sin introducir regresiones.
 
-**Última actualización:** 2026-09-02 (guarda-todo - Cierre de Sesión)
+**Última actualización:** 2026-09-03 (guarda-todo - Sesión Oficial)
 
 ---
 
@@ -13,6 +13,12 @@ Este documento contiene las reglas de arquitectura, infraestructura, base de dat
 - **Framework Backend:** FastAPI (Python 3.12).
 - **Regla Crítica Serverless:** **JAMÁS** ejecutar llamadas síncronas o bloqueantes a la base de datos durante la importación de módulos (ej. `init_db()` o `Base.metadata.create_all()` en `main.py` o `session.py`). Las funciones serverless congelan y rompen la invocación con timeouts (`exit status 500 / context canceled`).
 - **Patrón de Conexión:** **Lazy Connection** vía `get_db()`. La conexión a PostgreSQL se realiza únicamente a nivel de request.
+- **Enrutamiento Vercel (`vercel.json`):**
+  - `/` ➔ `/static/index.html`
+  - `/dashboard` ➔ `/static/dashboard.html`
+  - `/r/(.*)` ➔ `/static/index.html?reschedule_token=$1` (Acceso directo 1-Tap Express a turnos, sin pantallas intermedias).
+  - `/cancel/(.*)` ➔ `/static/cancel.html?token=$1`
+  - `/api/(.*)` ➔ `main.py`
 
 ### Conexión a Base de Datos (Supabase PostgreSQL)
 - **Host del Session Pooler:** `aws-1-us-west-2.pooler.supabase.com` en puerto `5432`.
@@ -105,12 +111,14 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 3. **Protección Anti-Colisión Atómica (HTTP 409):**
    - El backend valida solapamientos antes de insertar en base de datos. Si ocurre un intento simultáneo en el mismo milisegundo, responde `409 Conflict` evitando duplicaciones.
 4. **Flujo 1-Tap Express de Reprogramación (desde WhatsApp o Consulta):**
-   - Al entrar por link tokenizado (`/r/{token}` o `?reschedule_token=...`), la PWA precarga en memoria al paciente (`patient_name`, `patient_whatsapp`, `service_id`), oculta el selector de servicios y los campos de texto, e inserta el banner personalizado: *"Hola [Nombre], reprogramá tu turno"*.
-   - El paciente solo selecciona el nuevo día y horario disponible y presiona **`[ Confirmar Cambio de Turno ✔ ]`** directamente en 1 solo toque, sin volver a escribir datos.
-   - Liberación de slot anterior y confirmación del nuevo ejecutadas de forma atómica en PostgreSQL con despacho de `citaly_reprogramacion_v1`.
+   - Al tocar el link tokenizado (`https://citaly-six.vercel.app/r/{token}`), el usuario entra **directamente a la vista de reserva sin páginas intermedias**.
+   - La PWA precarga en memoria al paciente (`patient_name`, `patient_whatsapp`, `service_id`), oculta el selector de servicios y los campos de texto, e inserta el banner limpio con monograma oficial:  
+     `Reprogramar Turno de [Nombre]` — `Tratamiento: [Servicio]` (`[ Paso Único ]`).
+   - El paciente solo selecciona el nuevo día y horario disponible y presiona **`[ Confirmar Cambio de Turno ✔ ]`** directamente en 1 solo toque, sin volver a escribir datos ni pasar por modales de formulario.
+   - Liberación de slot anterior y confirmación del nuevo ejecutadas de forma atómica en PostgreSQL con despacho de notificación por WhatsApp.
 5. **Branding Oficial de Plataforma:**
-   - En modales de éxito, cancelaciones y respuestas de WhatsApp se exhibe la firma:  
-     **`¡Gracias por elegirnos! • Citaly App`**
+   - En modales de éxito, cancelaciones y respuestas de WhatsApp se exhibe la firma en color gris suave (`#94A3B8`) y en cursiva:  
+     *`¡Gracias por elegirnos! • Citaly App`*
 6. **Consulta de Turnos por Celular (`.active-appt-card`):**
    - Tarjeta blanca `#FFFFFF` con borde `#E2E8F0` y radio `16px`.
    - Botón Titanium Navy (`#0F172A`) para reprogramar (activa modo 1-Tap Express) y ghost para cancelar.
@@ -162,16 +170,12 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 - **Token:** Long-lived user token, 59 días, **vence 26/10/2026**
 - **URL Base:** `https://graph.facebook.com/v18.0/{PHONE_NUMBER_ID}/messages`
 
-### Estado de Plantillas en Meta (WABA: `1006525879102174` / `985775717869143`)
-- `citaly_confirmacion_v1` (`es_AR`): ✅ `APPROVED` (Verificado en producción con estado `DELIVERED`)
-- `citaly_reprogramacion_v1` (`es_AR`): ✅ `APPROVED` (Enviado automáticamente cuando el paciente o admin reprograma)
-- `citaly_recordatorio_24h_v1` (`es_AR`): ✅ `APPROVED` (Envíos automáticos vía cron cada 15 min)
-- `citaly_cancelacion_v1` (`es_AR`): ✅ `APPROVED` (Auto-respuesta cuando el paciente cancela por WhatsApp)
-- `citaly_recordatorio_2h_v1`: Descartado por regla de negocio (no se utiliza)
-- **Facturación WABA:** Método de pago validado y conectado en WABA `985775717869143` (`health_status: AVAILABLE`)
+### Mecanismo de Contingencia Automático (Fallback Garantizado):
+- Si una plantilla en Meta se encuentra en revisión (`PENDING`) o la API de plantillas devuelve error (404), `WhatsAppService.send_template_message` automáticamente construye el mensaje estructurado con el link tokenizado `/r/{token}` y lo despacha de inmediato como mensaje de texto directo con la firma oficial `_¡Gracias por elegirnos! • Citaly App_`, garantizando que el paciente **nunca deje de recibir su notificación**.
 
-### Regla de Bot Transaccional Multi-Negocio (Fallback Auto-Reply):
-- Ante cualquier mensaje entrante que **no sea un comando de cancelación o confirmación**, el sistema responde automáticamente redirigiendo al paciente al teléfono de contacto del consultorio (`tenant.whatsapp_number` o `2302 555555`):
+### Regla de Bot Transaccional Multi-Negocio (Auto-Reply Redirection):
+- Si el paciente escribe `CANCELAR` (o derivados) ➔ Cancela el turno y libera el slot en tiempo real.
+- Ante cualquier otro mensaje entrante ➔ El bot responde automáticamente redirigiendo al paciente al teléfono de contacto del consultorio (`tenant.whatsapp_number` o `2302 555555`):
   > *"Hola 👋 Este es el canal automático de notificaciones de Citaly App.\n\nPara consultas o atención personalizada, por favor comunicate directamente con [Consultorio] al 📞 [Teléfono]."*
 
 ---
@@ -225,22 +229,22 @@ Citaly/
 ├── app/
 │   ├── core/config.py                           # Settings: DATABASE_URL, WHATSAPP_TOKEN, etc.
 │   ├── db/session.py                            # SQLAlchemy engine con NullPool, get_db()
-│   ├── models/                                  # ORM: tenant, service, patient, appointment, whatsapp_log
+│   ├── models/                                  # ORM: tenant, service, patient, appointment, whatsapp_log, time_block
 │   ├── api/v1/endpoints/
-│   │   ├── booking.py                           # CRUD turnos, disponibilidad, reprogramación atómica, 409 anti-collision
-│   │   ├── webhook.py                           # Webhook Meta: CANCELAR/CONFIRMAR del paciente
-│   │   └── cron.py                              # Recordatorios automáticos 24h/2h
+│   │   ├── booking.py                           # CRUD turnos, disponibilidad, reprogramación express, 409 anti-collision
+│   │   ├── webhook.py                           # Webhook Meta: CANCELAR + Bot de redirección automática
+│   │   └── cron.py                              # Recordatorios automáticos 24h
 │   └── services/
-│       ├── booking.py                           # Cálculo de slots disponibles
-│       └── whatsapp.py                          # WhatsAppService: send_template_message, send_text_message
+│       ├── booking.py                           # Cálculo de slots disponibles y solapamientos
+│       └── whatsapp.py                          # WhatsAppService con fallback garantizado a mensaje directo
 ├── static/
-│   ├── index.html                               # PWA paciente (Montserrat + Inter)
+│   ├── index.html                               # PWA paciente (Montserrat + Inter, banner monograma)
 │   ├── dashboard.html                           # Dashboard ejecutivo Stitch con Sticky Headers y filtros
 │   ├── cancel.html                              # Gestión/cancelación por token
 │   ├── css/styles.css                           # Estilos globales unificados (Montserrat + Inter)
-│   ├── js/app.js                                # Lógica PWA paciente (Live slot sync en 2do plano)
+│   ├── js/app.js                                # Lógica PWA paciente (1-Tap Express, Live slot sync)
 │   ├── js/dashboard.js                          # Lógica dashboard (métricas, sticky, filtros, 7d history window)
-│   └── sw.js                                    # Service Worker PWA (cache: citaly-v71-bot-autoreply-redirection)
+│   └── sw.js                                    # Service Worker PWA (cache: citaly-v77-direct-r-reschedule-route)
 ├── scratch/
 │   ├── check_templates_status.py                # Consulta de plantillas en Meta Cloud API
 │   ├── create_word_guide.py                     # Generador de guía de arquitectura Multi-Tenant
@@ -249,6 +253,6 @@ Citaly/
 ├── Guia_Arquitectura_Multi_Negocio_Citaly.docx  # Documento Word ejecutivo de escalamiento SaaS
 ├── .env                                         # Variables locales (NO commitear)
 ├── AGENTS.md                                    # Blueprint estructural del sistema
-├── vercel.json                                  # Configuración Vercel serverless
+├── vercel.json                                  # Configuración Vercel serverless y rutas
 └── requirements.txt                             # Dependencias Python
 ```
