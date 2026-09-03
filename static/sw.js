@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v78-calendar-month-kpis-sync';
+const CACHE_NAME = 'prontoturno-v1-initial-rebrand';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

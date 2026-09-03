@@ -85,32 +85,32 @@ class WhatsAppService:
         vals = [p.get("text", "") for p in parameters if isinstance(p, dict)]
         link_url = f"https://citaly-six.vercel.app/r/{token}" if token else "https://citaly-six.vercel.app"
 
-        if template_name == "citaly_confirmacion_v1" and len(vals) >= 5:
+        if template_name in ["prontoturno_confirmacion_v1", "citaly_confirmacion_v1", "citaly_confirma_v2"] and len(vals) >= 5:
             return (
                 f"Hola {vals[0]}, te confirmamos tu turno en {vals[1]} para el tratamiento {vals[2]} el día {vals[3]} a las {vals[4]} hs.\n\n"
                 f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
                 f"• Para reprogramar ingresá a: {link_url}\n\n"
-                f"_¡Gracias por elegirnos! • Citaly App_"
+                f"_¡Gracias por elegirnos! • ProntoTurno App_"
             )
-        elif template_name == "citaly_reprogramacion_v1" and len(vals) >= 5:
+        elif template_name in ["prontoturno_reprogramacion_v1", "citaly_reprogramacion_v1", "citaly_reprograma_v2"] and len(vals) >= 5:
             return (
                 f"Hola {vals[0]}, te confirmamos que tu turno en {vals[1]} para {vals[2]} fue REPROGRAMADO con éxito para el día {vals[3]} a las {vals[4]} hs.\n\n"
                 f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
                 f"• Para reprogramar ingresá a: {link_url}\n\n"
-                f"_¡Gracias por elegirnos! • Citaly App_"
+                f"_¡Gracias por elegirnos! • ProntoTurno App_"
             )
-        elif template_name == "citaly_cancelacion_v1" and len(vals) >= 3:
+        elif template_name in ["prontoturno_cancelacion_v1", "citaly_cancelacion_v1", "citaly_cancela_v2"] and len(vals) >= 3:
             return (
                 f"Hola {vals[0]}, te confirmamos que tu turno en {vals[1]} para el tratamiento {vals[2]} fue CANCELADO con éxito.\n\n"
                 f"Muchas gracias por avisarnos con anticipación. Si querés volver a solicitar un turno podés hacerlo en: https://citaly-six.vercel.app\n\n"
-                f"_¡Gracias por elegirnos! • Citaly App_"
+                f"_¡Gracias por elegirnos! • ProntoTurno App_"
             )
-        elif template_name == "citaly_recordatorio_24h_v1" and len(vals) >= 5:
+        elif template_name in ["prontoturno_recordatorio_24h_v1", "citaly_recordatorio_24h_v1", "citaly_recordatorio_24h_v2"] and len(vals) >= 5:
             return (
                 f"Hola {vals[0]}, te recordamos tu turno en {vals[1]} para el tratamiento {vals[2]} mañana {vals[3]} a las {vals[4]} hs.\n\n"
                 f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
                 f"• Para reprogramar ingresá a: {link_url}\n\n"
-                f"_¡Gracias por elegirnos! • Citaly App_"
+                f"_¡Gracias por elegirnos! • ProntoTurno App_"
             )
         return None
 

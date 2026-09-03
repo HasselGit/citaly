@@ -380,7 +380,7 @@ async def create_appointment(
             {"type": "text", "text": time_param}
         ]
 
-        template_name = "citaly_reprogramacion_v1" if was_rescheduled else "citaly_confirmacion_v1"
+        template_name = "prontoturno_reprogramacion_v1" if was_rescheduled else "prontoturno_confirmacion_v1"
 
         meta_result = await whatsapp_service.send_template_message(
             to_phone=patient.whatsapp_phone,
@@ -643,7 +643,7 @@ async def cancel_appointment(token: str, db: Session = Depends(get_db)):
             s_name = service.name if service else "Consulta"
             wa_res = await whatsapp_service.send_template_message(
                 to_phone=patient.whatsapp_phone,
-                template_name="citaly_cancelacion_v1",
+                template_name="prontoturno_cancelacion_v1",
                 language_code="es_AR",
                 parameters=[
                     {"type": "text", "text": p_name},
@@ -726,7 +726,7 @@ async def cancel_appointment_by_id(payload: CancelByIdRequest, db: Session = Dep
             s_name = service.name if service else "Consulta"
             wa_res = await whatsapp_service.send_template_message(
                 to_phone=patient.whatsapp_phone,
-                template_name="citaly_cancelacion_v1",
+                template_name="prontoturno_cancelacion_v1",
                 language_code="es_AR",
                 parameters=[
                     {"type": "text", "text": p_name},

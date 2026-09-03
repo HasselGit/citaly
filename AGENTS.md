@@ -1,8 +1,8 @@
-# AGENTS.md - Directrices del Sistema y Blueprint Estructural (Citaly)
+# AGENTS.md - Directrices del Sistema y Blueprint Estructural (ProntoTurno App)
 
 Este documento contiene las reglas de arquitectura, infraestructura, base de datos, UX/UI, endpoints backend y flujos de trabajo necesarias para que cualquier Agente de IA pueda reproducir, mantener o extender este proyecto hasta el más mínimo detalle desde el principio sin introducir regresiones.
 
-**Última actualización:** 2026-09-03 (guarda-todo - Sesión Oficial)
+**Última actualización:** 2026-09-03 (Rebrand a ProntoTurno App - Sesión Oficial)
 
 ---
 
@@ -118,7 +118,7 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
    - Liberación de slot anterior y confirmación del nuevo ejecutadas de forma atómica en PostgreSQL con despacho de notificación por WhatsApp.
 5. **Branding Oficial de Plataforma:**
    - En modales de éxito, cancelaciones y respuestas de WhatsApp se exhibe la firma en color gris suave (`#94A3B8`) y en cursiva:  
-     *`¡Gracias por elegirnos! • Citaly App`*
+     *`¡Gracias por elegirnos! • ProntoTurno App`*
 6. **Consulta de Turnos por Celular (`.active-appt-card`):**
    - Tarjeta blanca `#FFFFFF` con borde `#E2E8F0` y radio `16px`.
    - Botón Titanium Navy (`#0F172A`) para reprogramar (activa modo 1-Tap Express) y ghost para cancelar.
@@ -171,12 +171,12 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 - **URL Base:** `https://graph.facebook.com/v18.0/{PHONE_NUMBER_ID}/messages`
 
 ### Mecanismo de Contingencia Automático (Fallback Garantizado):
-- Si una plantilla en Meta se encuentra en revisión (`PENDING`) o la API de plantillas devuelve error (404), `WhatsAppService.send_template_message` automáticamente construye el mensaje estructurado con el link tokenizado `/r/{token}` y lo despacha de inmediato como mensaje de texto directo con la firma oficial `_¡Gracias por elegirnos! • Citaly App_`, garantizando que el paciente **nunca deje de recibir su notificación**.
+- Si una plantilla en Meta se encuentra en revisión (`PENDING`) o la API de plantillas devuelve error (404), `WhatsAppService.send_template_message` automáticamente construye el mensaje estructurado con el link tokenizado `/r/{token}` y lo despacha de inmediato como mensaje de texto directo con la firma oficial `_¡Gracias por elegirnos! • ProntoTurno App_`, garantizando que el paciente **nunca deje de recibir su notificación**.
 
 ### Regla de Bot Transaccional Multi-Negocio (Auto-Reply Redirection):
 - Si el paciente escribe `CANCELAR` (o derivados) ➔ Cancela el turno y libera el slot en tiempo real.
 - Ante cualquier otro mensaje entrante ➔ El bot responde automáticamente redirigiendo al paciente al teléfono de contacto del consultorio (`tenant.whatsapp_number` o `2302 555555`):
-  > *"Hola 👋 Este es el canal automático de notificaciones de Citaly App.\n\nPara consultas o atención personalizada, por favor comunicate directamente con [Consultorio] al 📞 [Teléfono]."*
+  > *"Hola 👋 Este es el canal automático de notificaciones de ProntoTurno App.\n\nPara consultas o atención personalizada, por favor comunicate directamente con [Consultorio] al 📞 [Teléfono]."*
 
 ---
 

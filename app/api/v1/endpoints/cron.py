@@ -51,7 +51,7 @@ async def send_scheduled_reminders(db: Session = Depends(get_db)):
                 # Enviar plantilla oficial de Meta Cloud API
                 result = await whatsapp_service.send_template_message(
                     to_phone=patient.whatsapp_phone,
-                    template_name="citaly_recordatorio_24h_v1",
+                    template_name="prontoturno_recordatorio_24h_v1",
                     language_code="es_AR",
                     parameters=[
                         {"type": "text", "text": patient.full_name},

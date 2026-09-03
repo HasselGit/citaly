@@ -159,7 +159,7 @@ async def receive_meta_webhook(request: Request, db: Session = Depends(get_db)):
 
                                 result = await whatsapp_service.send_template_message(
                                     to_phone=sender_phone,
-                                    template_name="citaly_cancelacion_v1",
+                                    template_name="prontoturno_cancelacion_v1",
                                     language_code="es_AR",
                                     parameters=[
                                         {"type": "text", "text": patient.full_name if patient else "Paciente"},
@@ -206,7 +206,7 @@ async def send_bot_redirection_reply(sender_phone: str, tenant, db: Session):
         contact_phone = (tenant.whatsapp_number if tenant and tenant.whatsapp_number else "2302 555555").strip()
 
         bot_msg = (
-            f"Hola 👋 Este es el canal automático de notificaciones de Citaly App.\n\n"
+            f"Hola 👋 Este es el canal automático de notificaciones de ProntoTurno App.\n\n"
             f"Para consultas o atención personalizada, por favor comunicate directamente con {b_name} al 📞 {contact_phone}."
         )
         result = await whatsapp_service.send_text_message(to_phone=sender_phone, text_body=bot_msg)

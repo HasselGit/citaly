@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Settings(BaseSettings):
-    APP_NAME: str = os.getenv("APP_NAME", "Citaly")
+    APP_NAME: str = os.getenv("APP_NAME", "ProntoTurno")
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL",

@@ -1,7 +1,7 @@
 {
-  "name": "TuTurno Pro - Agenda Inteligente",
-  "short_name": "TuTurno",
-  "description": "Sistema de Agenda Inteligente, Reservas y Reducción de Ausentismo por WhatsApp",
+  "name": "ProntoTurno App - Agenda Inteligente",
+  "short_name": "ProntoTurno",
+  "description": "Sistema de Agenda Inteligente y Gestión de Turnos por WhatsApp",
   "start_url": "/static/dashboard.html",
   "display": "standalone",
   "background_color": "#F8FAFC",
