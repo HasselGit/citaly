@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnPeriodWeek = document.getElementById('btn-period-week');
   const btnPeriodMonth = document.getElementById('btn-period-month');
   const metricTotalTurnos = document.getElementById('metric-total-turnos');
+  const metricPeriodLabel = document.getElementById('metric-period-label');
   const metricCanceladosCount = document.getElementById('metric-cancelados-count');
   const metricReprogramadosCount = document.getElementById('metric-reprogramados-count');
   const metricOcupacion = document.getElementById('metric-ocupacion');
@@ -115,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let allAppointments = [];
   let allTimeBlocks = [];
   let _pendingAdminCancelApptId = null;
-  let currentMetricsPeriod = 'week';
+  let currentMetricsPeriod = 'month';
   let currentViewMode = 'agenda';
   let selectedTodaySpecialty = 'all';
   let selectedAvailabilityFilter = 'all';
@@ -1247,56 +1248,64 @@ document.addEventListener('DOMContentLoaded', () => {
   // 12. Actualizar Métricas Bento
   function updateMetrics() {
     const now = new Date();
-    now.setHours(0, 0, 0, 0);
+
+    // Nombres de meses en español
+    const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    const currentMonthName = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+
+    // Mes calendario: 1er día 00:00:00 hasta último día 23:59:59
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+    // Semana actual (Lunes a Domingo)
+    const currentDay = now.getDay();
+    const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() + diffToMonday);
+    startOfWeek.setHours(0, 0, 0, 0);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
 
     let periodAppointments = [];
     let totalSlotsCapacity = 108;
 
-    if (currentMetricsPeriod === 'week') {
-      const endOfRollingWeek = new Date(now);
-      endOfRollingWeek.setDate(now.getDate() + 6);
-      endOfRollingWeek.setHours(23, 59, 59, 999);
+    if (currentMetricsPeriod === 'month') {
+      if (metricPeriodLabel) metricPeriodLabel.innerText = currentMonthName;
 
       periodAppointments = allAppointments.filter(a => {
         if (!a.start_time) return false;
         const d = new Date(a.start_time);
-        return d >= now && d <= endOfRollingWeek;
+        return d >= startOfMonth && d <= endOfMonth;
+      });
+
+      // Cálculo de días laborables en el mes calendario (Lun-Sáb)
+      let workDaysCount = 0;
+      const cur = new Date(startOfMonth);
+      while (cur <= endOfMonth) {
+        const day = cur.getDay();
+        if (day !== 0) workDaysCount++; // Excluye domingos
+        cur.setDate(cur.getDate() + 1);
+      }
+      totalSlotsCapacity = workDaysCount * defaultSlotsTimes.length;
+    } else {
+      if (metricPeriodLabel) metricPeriodLabel.innerText = 'Esta semana';
+
+      periodAppointments = allAppointments.filter(a => {
+        if (!a.start_time) return false;
+        const d = new Date(a.start_time);
+        return d >= startOfWeek && d <= endOfWeek;
       });
 
       totalSlotsCapacity = 6 * defaultSlotsTimes.length;
-    } else {
-      const endOfRollingMonth = new Date(now);
-      endOfRollingMonth.setDate(now.getDate() + 29);
-      endOfRollingMonth.setHours(23, 59, 59, 999);
-
-      periodAppointments = allAppointments.filter(a => {
-        if (!a.start_time) return false;
-        const d = new Date(a.start_time);
-        return d >= now && d <= endOfRollingMonth;
-      });
-
-      totalSlotsCapacity = 26 * defaultSlotsTimes.length;
     }
 
     const total = periodAppointments.length;
     const cancelados = periodAppointments.filter(a => a.status === 'CANCELLED').length;
     const activos = periodAppointments.filter(a => a.status !== 'CANCELLED').length;
     
-    const reprogramados = allAppointments.filter(a => {
-      if (!a.was_rescheduled || a.status === 'CANCELLED' || a.is_past) return false;
-      if (!a.start_time) return false;
-      const d = new Date(a.start_time);
-      if (currentMetricsPeriod === 'week') {
-        const endOfRollingWeek = new Date(now);
-        endOfRollingWeek.setDate(now.getDate() + 6);
-        endOfRollingWeek.setHours(23, 59, 59, 999);
-        return d >= now && d <= endOfRollingWeek;
-      } else {
-        const endOfRollingMonth = new Date(now);
-        endOfRollingMonth.setDate(now.getDate() + 29);
-        endOfRollingMonth.setHours(23, 59, 59, 999);
-        return d >= now && d <= endOfRollingMonth;
-      }
+    const reprogramados = periodAppointments.filter(a => {
+      return a.was_rescheduled && a.status !== 'CANCELLED';
     }).length;
 
     if (metricTotalTurnos) metricTotalTurnos.innerText = total;

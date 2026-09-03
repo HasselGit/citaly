@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v77-direct-r-reschedule-route';
+const CACHE_NAME = 'citaly-v78-calendar-month-kpis-sync';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
