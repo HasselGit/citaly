@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v75-clean-reschedule-layout';
+const CACHE_NAME = 'citaly-v76-monogram-banner-italic-branding';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

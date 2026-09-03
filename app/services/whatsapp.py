@@ -90,27 +90,27 @@ class WhatsAppService:
                 f"Hola {vals[0]}, te confirmamos tu turno en {vals[1]} para el tratamiento {vals[2]} el día {vals[3]} a las {vals[4]} hs.\n\n"
                 f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
                 f"• Para reprogramar ingresá a: {link_url}\n\n"
-                f"¡Gracias por elegirnos! • Citaly App"
+                f"_¡Gracias por elegirnos! • Citaly App_"
             )
         elif template_name == "citaly_reprogramacion_v1" and len(vals) >= 5:
             return (
                 f"Hola {vals[0]}, te confirmamos que tu turno en {vals[1]} para {vals[2]} fue REPROGRAMADO con éxito para el día {vals[3]} a las {vals[4]} hs.\n\n"
                 f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
                 f"• Para reprogramar ingresá a: {link_url}\n\n"
-                f"¡Gracias por elegirnos! • Citaly App"
+                f"_¡Gracias por elegirnos! • Citaly App_"
             )
         elif template_name == "citaly_cancelacion_v1" and len(vals) >= 3:
             return (
                 f"Hola {vals[0]}, te confirmamos que tu turno en {vals[1]} para el tratamiento {vals[2]} fue CANCELADO con éxito.\n\n"
                 f"Muchas gracias por avisarnos con anticipación. Si querés volver a solicitar un turno podés hacerlo en: https://citaly-six.vercel.app\n\n"
-                f"¡Gracias por elegirnos! • Citaly App"
+                f"_¡Gracias por elegirnos! • Citaly App_"
             )
         elif template_name == "citaly_recordatorio_24h_v1" and len(vals) >= 5:
             return (
                 f"Hola {vals[0]}, te recordamos tu turno en {vals[1]} para el tratamiento {vals[2]} mañana {vals[3]} a las {vals[4]} hs.\n\n"
                 f"• Para cancelar: respondé CANCELAR a este mensaje.\n"
                 f"• Para reprogramar ingresá a: {link_url}\n\n"
-                f"¡Gracias por elegirnos! • Citaly App"
+                f"_¡Gracias por elegirnos! • Citaly App_"
             )
         return None
 
