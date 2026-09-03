@@ -100,17 +100,12 @@ async def receive_meta_webhook(request: Request, db: Session = Depends(get_db)):
                         now_utc = datetime.utcnow()
                         context_wamid = msg.get("context", {}).get("id")
 
-                        # Listas de intenciones insensibles a mayúsculas, minúsculas y acentos
+                        # Listas de intenciones de cancelación insensibles a mayúsculas, minúsculas y acentos
                         cancel_keywords = [
                             "cancelar", "cancela", "cancelo", "cancelame", "cancelacion",
                             "cancel", "anular", "anula", "anulo", "anulacion",
                             "dar de baja", "dar debaja", "de baja", "baja",
                             "no puedo", "no voy a poder", "no llego", "no voy", "no asisto", "imposible asistir"
-                        ]
-                        confirm_keywords = [
-                            "confirmar", "confirmo", "confirma", "confirmacion",
-                            "si", "ok", "asisto", "voy", "voy a ir", "asistire",
-                            "dale", "perfecto", "listo", "de una", "ahi estare", "ahi voy"
                         ]
 
                         # A) Si el paciente responde CANCELAR
@@ -188,67 +183,7 @@ async def receive_meta_webhook(request: Request, db: Session = Depends(get_db)):
                                 db.commit()
                                 print(f"[AUTO CANCELLED VIA WHATSAPP] Appointment {appt_to_cancel.id} ({date_str} {time_str}) cancelled by patient {sender_phone}")
 
-                        # B) Si el paciente responde CONFIRMAR
-                        elif any(k in clean_norm for k in confirm_keywords):
-                            appt_to_confirm = None
-
-                            if context_wamid:
-                                ref_log = db.query(WhatsAppLog).filter(WhatsAppLog.meta_message_id == context_wamid).first()
-                                if ref_log and ref_log.appointment_id:
-                                    target = db.query(Appointment).filter(
-                                        Appointment.id == ref_log.appointment_id,
-                                        Appointment.status.in_(["SCHEDULED", "REMINDER_SENT"])
-                                    ).first()
-                                    if target:
-                                        appt_to_confirm = target
-
-                            if not appt_to_confirm:
-                                recent_log = db.query(WhatsAppLog).join(Appointment).filter(
-                                    Appointment.patient_id.in_(patient_ids),
-                                    Appointment.status.in_(["SCHEDULED", "REMINDER_SENT"])
-                                ).order_by(WhatsAppLog.sent_at.desc()).first()
-                                if recent_log and recent_log.appointment_id:
-                                    appt_to_confirm = db.query(Appointment).filter(
-                                        Appointment.id == recent_log.appointment_id,
-                                        Appointment.status.in_(["SCHEDULED", "REMINDER_SENT"])
-                                    ).first()
-
-                            if not appt_to_confirm:
-                                active_appts = db.query(Appointment).filter(
-                                    Appointment.patient_id.in_(patient_ids),
-                                    Appointment.status.in_(["SCHEDULED", "REMINDER_SENT"]),
-                                    Appointment.start_time >= now_utc
-                                ).order_by(Appointment.start_time.asc()).all()
-                                if active_appts:
-                                    appt_to_confirm = active_appts[0]
-
-                            if appt_to_confirm:
-                                appt_to_confirm.status = "CONFIRMED"
-                                db.commit()
-
-                                start_dt = appt_to_confirm.start_time
-                                date_str = start_dt.strftime("%d/%m")
-                                time_str = start_dt.strftime("%H:%M")
-
-                                reply_msg = f"¡Excelente! Tu turno del {date_str} a las {time_str} hs quedó confirmado. ¡Te esperamos!\n\n¡Gracias por elegirnos! • Citaly App"
-                                result = await whatsapp_service.send_text_message(to_phone=sender_phone, text_body=reply_msg)
-                                
-                                meta_id = None
-                                if isinstance(result, dict) and "messages" in result and len(result["messages"]) > 0:
-                                    meta_id = result["messages"][0].get("id")
-
-                                log = WhatsAppLog(
-                                    id=str(uuid.uuid4()),
-                                    appointment_id=appt_to_confirm.id,
-                                    message_type="AUTO_CONFIRM_REPLY",
-                                    status="SENT" if result.get("status") != "ERROR" else "FAILED",
-                                    meta_message_id=meta_id
-                                )
-                                db.add(log)
-                                db.commit()
-                                print(f"[AUTO CONFIRMED VIA WHATSAPP] Appointment {appt_to_confirm.id} confirmed by patient {sender_phone}")
-
-                        # C) Si escribe cualquier otro texto -> Bot de Redirección Automático Citaly App
+                        # B) Si escribe cualquier otro texto -> Bot de Redirección Automático Citaly App
                         else:
                             target_tenant = db.query(Tenant).filter(Tenant.id == matched_patients[0].tenant_id).first() if matched_patients else None
                             if not target_tenant:
