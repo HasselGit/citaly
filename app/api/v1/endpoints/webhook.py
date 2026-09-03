@@ -247,7 +247,48 @@ async def receive_meta_webhook(request: Request, db: Session = Depends(get_db)):
                                 db.add(log)
                                 db.commit()
                                 print(f"[AUTO CONFIRMED VIA WHATSAPP] Appointment {appt_to_confirm.id} confirmed by patient {sender_phone}")
+
+                        # C) Si escribe cualquier otro texto -> Bot de Redirección Automático Citaly App
+                        else:
+                            target_tenant = db.query(Tenant).filter(Tenant.id == matched_patients[0].tenant_id).first() if matched_patients else None
+                            if not target_tenant:
+                                target_tenant = db.query(Tenant).first()
+                            await send_bot_redirection_reply(sender_phone, target_tenant, db)
+
+                    else:
+                        # Paciente no registrado previamente que escribe al bot
+                        primary_tenant = db.query(Tenant).first()
+                        await send_bot_redirection_reply(sender_phone, primary_tenant, db)
+
     except Exception as e:
         print(f"[ERROR WEBHOOK PROCESS]: {e}")
 
     return {"status": "success"}
+
+async def send_bot_redirection_reply(sender_phone: str, tenant, db: Session):
+    try:
+        b_name = tenant.business_name if tenant else "Consultorio Dr. Alejandro Pérez"
+        contact_phone = (tenant.whatsapp_number if tenant and tenant.whatsapp_number else "2302 555555").strip()
+
+        bot_msg = (
+            f"Hola 👋 Este es el canal automático de notificaciones de Citaly App.\n\n"
+            f"Para consultas o atención personalizada, por favor comunicate directamente con {b_name} al 📞 {contact_phone}."
+        )
+        result = await whatsapp_service.send_text_message(to_phone=sender_phone, text_body=bot_msg)
+
+        meta_id = None
+        if isinstance(result, dict) and "messages" in result and len(result["messages"]) > 0:
+            meta_id = result["messages"][0].get("id")
+
+        log = WhatsAppLog(
+            id=str(uuid.uuid4()),
+            appointment_id=None,
+            message_type="BOT_INFO_REPLY",
+            status="SENT" if result.get("status") != "ERROR" else "FAILED",
+            meta_message_id=meta_id
+        )
+        db.add(log)
+        db.commit()
+        print(f"[BOT AUTOREPLY SENT] Sent redirection message to {sender_phone} for {b_name} ({contact_phone})")
+    except Exception as err:
+        print(f"[BOT AUTOREPLY ERROR]: {err}")

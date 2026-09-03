@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v70-express-reschedule-branding';
+const CACHE_NAME = 'citaly-v71-bot-autoreply-redirection';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

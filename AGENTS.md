@@ -170,6 +170,10 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 - `citaly_recordatorio_2h_v1`: Descartado por regla de negocio (no se utiliza)
 - **Facturación WABA:** Método de pago validado y conectado en WABA `985775717869143` (`health_status: AVAILABLE`)
 
+### Regla de Bot Transaccional Multi-Negocio (Fallback Auto-Reply):
+- Ante cualquier mensaje entrante que **no sea un comando de cancelación o confirmación**, el sistema responde automáticamente redirigiendo al paciente al teléfono de contacto del consultorio (`tenant.whatsapp_number` o `2302 555555`):
+  > *"Hola 👋 Este es el canal automático de notificaciones de Citaly App.\n\nPara consultas o atención personalizada, por favor comunicate directamente con [Consultorio] al 📞 [Teléfono]."*
+
 ---
 
 ## 🚀 5. Comandos de Despliegue y Verificación
@@ -236,7 +240,7 @@ Citaly/
 │   ├── css/styles.css                           # Estilos globales unificados (Montserrat + Inter)
 │   ├── js/app.js                                # Lógica PWA paciente (Live slot sync en 2do plano)
 │   ├── js/dashboard.js                          # Lógica dashboard (métricas, sticky, filtros, 7d history window)
-│   └── sw.js                                    # Service Worker PWA (cache: citaly-v70-express-reschedule-branding)
+│   └── sw.js                                    # Service Worker PWA (cache: citaly-v71-bot-autoreply-redirection)
 ├── scratch/
 │   ├── check_templates_status.py                # Consulta de plantillas en Meta Cloud API
 │   ├── create_word_guide.py                     # Generador de guía de arquitectura Multi-Tenant
