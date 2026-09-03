@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-  <title>Reserva de Turnos — Dr. Alejandro Pérez | TuTurno Pro</title>
+  <title>Consultorio Dr. Alejandro Pérez</title>
+  <meta property="og:title" content="Consultorio Dr. Alejandro Pérez">
+  <meta property="og:description" content="Agenda de turnos online">
   <link rel="manifest" href="/static/manifest.json">
   <meta name="theme-color" content="#F8FAFC">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -30,7 +32,7 @@
               <path d="M 42 46 L 58 64 L 88 26" stroke="#D97706" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <div class="tuturno-brand-text">Tu<span>Turno</span></div>
+          <span class="brand-name">TuTurno</span>
         </div>
       </div>
 
@@ -43,12 +45,16 @@
       </div>
     </header>
     
-    <!-- Banner Modo Express de Reprogramación (Activo al ingresar por link de WhatsApp) -->
-    <div id="express-reschedule-banner" style="display: none; background: #0F172A; color: white; border-radius: 20px; padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(15, 23, 42, 0.15);">
-      <div>
-        <div style="font-size: 11px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; color: #F59E0B; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 3px;">● Reprogramación Express</div>
-        <h3 style="font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 800; color: #FFFFFF; margin: 0;" id="express-greeting-title">Hola, reprogramá tu turno</h3>
-        <p style="font-family: 'Inter', sans-serif; font-size: 12.5px; color: #94A3B8; margin-top: 4px; margin-bottom: 0; line-height: 1.4;" id="express-greeting-subtitle">Seleccioná tu nuevo día y horario disponible a continuación:</p>
+    <!-- Banner Limpio y Claro de Reprogramación (Fondo blanco, sin cajas oscuras ni sobrecarga) -->
+    <div id="express-reschedule-banner" style="display: none; background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 14px 16px; margin-bottom: 16px; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <div style="font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 800; color: #0F172A;" id="express-greeting-title">Reprogramar Turno</div>
+          <div style="font-family: 'Inter', sans-serif; font-size: 12px; color: #64748B; margin-top: 2px;" id="express-greeting-subtitle">Tratamiento: <strong style="color: #D97706;" id="express-service-name">Odontología</strong></div>
+        </div>
+        <div style="padding: 4px 10px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; font-size: 11px; font-weight: 700; color: #64748B; font-family: 'JetBrains Mono', monospace;">
+          Paso Único
+        </div>
       </div>
     </div>
 

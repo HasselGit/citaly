@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citaly-v71-bot-autoreply-redirection';
+const CACHE_NAME = 'citaly-v75-clean-reschedule-layout';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

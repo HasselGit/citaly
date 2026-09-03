@@ -694,31 +694,24 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedServiceDuration = data.duration_minutes || 30;
           }
 
-          // Mostrar banner de bienvenida personalizada express
+          // Configurar banner limpio y claro
           const expressBanner = document.getElementById('express-reschedule-banner');
           const expressTitle = document.getElementById('express-greeting-title');
-          const expressSub = document.getElementById('express-greeting-subtitle');
+          const expressService = document.getElementById('express-service-name');
           const firstName = data.patient_name.split(' ')[0] || data.patient_name;
 
-          if (expressTitle) expressTitle.innerText = `Hola ${firstName}, reprogramá tu turno`;
-          if (expressSub) expressSub.innerText = `Turno actual: ${data.date_formatted} a las ${data.time_formatted} (${data.service_name}). Elegí tu nuevo día y horario disponible a continuación:`;
+          if (expressTitle) expressTitle.innerText = `Reprogramar turno de ${firstName}`;
+          if (expressService) expressService.innerText = `${data.service_name}`;
           if (expressBanner) expressBanner.style.display = 'block';
 
           // Ocultar sección de consulta por teléfono
           const phoneSection = document.getElementById('phone-lookup-section');
           if (phoneSection) phoneSection.style.display = 'none';
 
-          // Ocultar selector de servicios completo para evitar confusión
+          // Ocultar selector de servicios y barra oscura redundante
           const servicesSec = document.getElementById('services-section');
           if (servicesSec) servicesSec.style.display = 'none';
-
-          // Mostrar barra compacta de tratamiento fijo
-          if (serviceCollapsedBar && collapsedServiceName) {
-            collapsedServiceName.innerText = `${data.service_name} • ${data.duration_minutes || 30} min`;
-            serviceCollapsedBar.style.display = 'flex';
-            const btnChange = document.getElementById('btn-change-service');
-            if (btnChange) btnChange.style.display = 'none';
-          }
+          if (serviceCollapsedBar) serviceCollapsedBar.style.display = 'none';
 
           // Desplegar calendario directamente
           if (calendarSection) calendarSection.style.display = 'block';
@@ -869,23 +862,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const serviceCard = document.querySelector(`.service-card[data-service-id="${appt.service_id}"]`);
         if (serviceCard) serviceCard.click();
 
-        // Mostrar banner de bienvenida personalizada express
+        // Configurar banner limpio y claro
         const expressBanner = document.getElementById('express-reschedule-banner');
         const expressTitle = document.getElementById('express-greeting-title');
-        const expressSub = document.getElementById('express-greeting-subtitle');
+        const expressService = document.getElementById('express-service-name');
         const firstName = (appt.patient_name || '').split(' ')[0] || appt.patient_name || 'Paciente';
 
-        if (expressTitle) expressTitle.innerText = `Hola ${firstName}, reprogramá tu turno`;
-        if (expressSub) expressSub.innerText = `Turno actual: ${appt.date_formatted || ''} a las ${appt.time_formatted || ''} (${appt.service_name || ''}). Elegí tu nuevo día y horario:`;
+        if (expressTitle) expressTitle.innerText = `Reprogramar turno de ${firstName}`;
+        if (expressService) expressService.innerText = `${appt.service_name || 'Tratamiento'}`;
         if (expressBanner) expressBanner.style.display = 'block';
 
         const servicesSection = document.getElementById('services-section');
         const calendarSection = document.getElementById('calendar-section');
         if (servicesSection) servicesSection.style.display = 'none';
+        if (serviceCollapsedBar) serviceCollapsedBar.style.display = 'none';
         if (calendarSection) calendarSection.style.display = 'block';
-
-        const btnChange = document.getElementById('btn-change-service');
-        if (btnChange) btnChange.style.display = 'none';
 
         const btnOpen = document.getElementById('btn-open-modal');
         if (btnOpen) {
