@@ -64,20 +64,31 @@
     </header>
     
     <!-- Banner Limpio y Claro de Reprogramación con Monograma Oficial -->
-    <div id="express-reschedule-banner" style="display: none; background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 20px; padding: 14px 16px; margin-bottom: 16px; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <div style="width: 40px; height: 40px; border-radius: 12px; background: #F8FAFC; border: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+    <div id="express-reschedule-banner" style="display: none; background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 20px; padding: 16px 18px; margin-bottom: 18px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);">
+      <div style="display: flex; align-items: flex-start; gap: 14px;">
+        <div style="width: 42px; height: 42px; border-radius: 12px; background: #F8FAFC; border: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;">
           <svg width="22" height="22" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M 22 34 L 52 34 M 42 34 L 42 86" stroke="#0F172A" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M 42 46 L 58 64 L 88 26" stroke="#D97706" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
         <div style="flex: 1; min-width: 0;">
-          <div style="font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 800; color: #0F172A;" id="express-greeting-title">Reprogramar Turno</div>
-          <div style="font-family: 'Inter', sans-serif; font-size: 12px; color: #64748B; margin-top: 2px;" id="express-greeting-subtitle">Tratamiento: <strong style="color: #D97706;" id="express-service-name">Odontología</strong></div>
-        </div>
-        <div style="padding: 4px 10px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; font-size: 11px; font-weight: 700; color: #64748B; font-family: 'JetBrains Mono', monospace; flex-shrink: 0;">
-          Paso Único
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px;">
+            <div style="font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 800; color: #0F172A; line-height: 1.2;" id="express-greeting-title">Reprogramando Turno</div>
+            <span style="padding: 3px 8px; background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 8px; font-size: 10.5px; font-weight: 700; color: #92400E; font-family: 'JetBrains Mono', monospace; flex-shrink: 0;">
+              Paso Único
+            </span>
+          </div>
+          <div style="font-family: 'Inter', sans-serif; font-size: 13px; color: #334155; margin-bottom: 6px;">
+            Tratamiento: <strong style="color: #D97706; font-weight: 700;" id="express-service-name">Odontología</strong>
+          </div>
+          <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: #F1F5F9; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #475569;" id="express-current-slot-box">
+            <span>📅 Turno actual:</span>
+            <strong style="color: #0F172A;" id="express-current-datetime">--/-- a las --:-- hs</strong>
+          </div>
+          <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: #64748B; margin-top: 8px; margin-bottom: 0; line-height: 1.4;">
+            Elegí tu nuevo día y horario disponible a continuación para confirmar el cambio.
+          </p>
         </div>
       </div>
     </div>

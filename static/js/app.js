@@ -128,23 +128,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 1. Cargar servicios desde API
   async function fetchServices() {
-    renderInitialServices(fallbackServices);
-    renderDatePills();
-    renderSlotsInstant();
+    if (!window._isExpressReschedule) {
+      renderInitialServices(fallbackServices);
+      renderDatePills();
+      renderSlotsInstant();
+    }
 
     try {
       const res = await fetch('/api/v1/booking/services', { cache: 'no-store' });
       if (res.ok) {
         const liveServices = await res.json();
         if (liveServices && liveServices.length > 0) {
-          renderInitialServices(liveServices);
+          if (!window._isExpressReschedule) {
+            renderInitialServices(liveServices);
+          } else {
+            // Sincronizar duración y datos en segundo plano
+            const match = liveServices.find(s => s.id === selectedServiceId || s.name.toLowerCase() === (selectedServiceName || '').toLowerCase());
+            if (match) {
+              selectedServiceId = match.id;
+              selectedServiceName = match.name;
+              selectedServiceDuration = match.duration_minutes || 30;
+            }
+          }
         }
       }
     } catch (e) {
       console.warn('Usando servicios predeterminados:', e);
     }
 
-    fetchAvailability();
+    if (!window._isExpressReschedule) {
+      fetchAvailability();
+    }
     startAutoSync();
   }
 
@@ -441,11 +455,13 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if (window._isExpressReschedule && window._expressPatientName && window._expressPatientPhone) {
+    if (window._isExpressReschedule && window._expressPatientName) {
       // MODO 1-TAP EXPRESS: Confirmar directamente sin abrir modal ni pedir reingreso de datos
+      const pName = window._expressPatientName || 'Paciente';
+      const pPhone = window._expressPatientPhone || (document.getElementById('patient-phone') ? document.getElementById('patient-phone').value : '') || '5492302640284';
       btnOpenModal.disabled = true;
-      btnOpenModal.innerHTML = `<span>Reprogramando tu cita...</span>`;
-      createAppointmentCall(window._expressPatientName, window._expressPatientPhone, btnOpenModal);
+      btnOpenModal.innerHTML = `<span>Confirmando cambio de turno...</span>`;
+      createAppointmentCall(pName, pPhone, btnOpenModal);
       return;
     }
 
@@ -618,11 +634,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (successModal) successModal.classList.add('active');
 
         // Limpiar estado de reprogramación y horario seleccionado
+        window._isExpressReschedule = false;
         window._rescheduleToken = null;
         window._rescheduleApptId = null;
         window._pendingRescheduleApptId = null;
         selectedTimeSlot = null;
-        if (btnOpenModal) btnOpenModal.disabled = true;
+        if (btnOpenModal) {
+          btnOpenModal.innerHTML = `<span>Confirmar Turno</span>`;
+          btnOpenModal.disabled = true;
+        }
+
+        const expressBanner = document.getElementById('express-reschedule-banner');
+        if (expressBanner) expressBanner.style.display = 'none';
 
         // Actualizar disponibilidad inmediatamente en vivo
         fetchAvailability();
@@ -641,6 +664,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (submitBtn) {
         submitBtn.classList.remove('loading');
         submitBtn.disabled = false;
+        if (window._isExpressReschedule) {
+          submitBtn.innerHTML = `<span>Confirmar Cambio de Turno ✔</span>`;
+        }
       }
     }
   }
@@ -699,6 +725,79 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function activateExpressRescheduleMode(data, token) {
+    if (!data) return;
+    window._isExpressReschedule = true;
+    window._rescheduleToken = token || data.token_cancellation || null;
+    window._rescheduleApptId = data.appointment_id || data.id || null;
+    window._expressPatientName = data.patient_name || data.full_name || '';
+    window._expressPatientPhone = data.patient_whatsapp || data.whatsapp_phone || '';
+
+    if (data.service_id) {
+      selectedServiceId = data.service_id;
+    }
+    if (data.service_name) {
+      selectedServiceName = data.service_name;
+    }
+    if (data.duration_minutes) {
+      selectedServiceDuration = data.duration_minutes;
+    }
+
+    const inputName = document.getElementById('patient-name');
+    const inputPhone = document.getElementById('patient-phone');
+    if (inputName && window._expressPatientName) inputName.value = window._expressPatientName;
+    if (inputPhone && window._expressPatientPhone) inputPhone.value = window._expressPatientPhone;
+
+    // Configurar banner limpio y claro con todos los datos del turno actual
+    const expressBanner = document.getElementById('express-reschedule-banner');
+    const expressTitle = document.getElementById('express-greeting-title');
+    const expressService = document.getElementById('express-service-name');
+    const expressCurrentDt = document.getElementById('express-current-datetime');
+
+    if (expressTitle) {
+      expressTitle.innerText = `Reprogramando turno de ${window._expressPatientName || 'Paciente'}`;
+    }
+    if (expressService) {
+      expressService.innerText = `${selectedServiceName || 'Tratamiento'}`;
+    }
+    if (expressCurrentDt) {
+      const dtText = (data.date_formatted && data.time_formatted) ? `${data.date_formatted} a las ${data.time_formatted}` : (data.start_time_formatted || '--/--');
+      expressCurrentDt.innerText = dtText;
+    }
+    if (expressBanner) {
+      expressBanner.style.display = 'block';
+    }
+
+    // Ocultar sección de consulta por teléfono
+    const phoneSection = document.getElementById('phone-lookup-section');
+    if (phoneSection) phoneSection.style.display = 'none';
+
+    // Ocultar sección de tarjetas activas
+    const activeApptSec = document.getElementById('active-appt-section');
+    if (activeApptSec) activeApptSec.style.display = 'none';
+
+    // Ocultar selector de servicios y barra
+    if (servicesSection) servicesSection.style.display = 'none';
+    if (serviceCollapsedBar) serviceCollapsedBar.style.display = 'none';
+
+    // Desplegar calendario directamente
+    const calendarSection = document.getElementById('calendar-section');
+    if (calendarSection) calendarSection.style.display = 'block';
+
+    if (btnOpenModal) {
+      btnOpenModal.innerHTML = `<span>Confirmar Cambio de Turno ✔</span>`;
+      btnOpenModal.disabled = true;
+    }
+
+    selectedTimeSlot = null;
+    renderDatePills();
+    renderSlotsInstant();
+    fetchAvailability();
+  }
+
+  // Hacer disponible el helper globalmente para el módulo de búsqueda
+  window.activateExpressRescheduleMode = activateExpressRescheduleMode;
+
   const urlParams = new URLSearchParams(window.location.search);
   const paramPhone = urlParams.get('phone');
   let paramRescheduleToken = urlParams.get('reschedule_token') || urlParams.get('token');
@@ -714,56 +813,22 @@ document.addEventListener('DOMContentLoaded', () => {
     window._rescheduleToken = paramRescheduleToken;
     window._isExpressReschedule = true;
 
+    // Ocultar servicios y teléfono de inmediato para evitar parpadeos
+    const phoneSection = document.getElementById('phone-lookup-section');
+    if (phoneSection) phoneSection.style.display = 'none';
+    if (servicesSection) servicesSection.style.display = 'none';
+    if (serviceCollapsedBar) serviceCollapsedBar.style.display = 'none';
+
     fetch(`/api/v1/booking/appointment/${paramRescheduleToken}`)
       .then(r => r.json())
       .then(data => {
-        if (data && data.patient_name) {
-          window._expressPatientName = data.patient_name;
-          window._expressPatientPhone = data.patient_whatsapp;
-          window._rescheduleApptId = data.appointment_id;
-
-          const inputName = document.getElementById('patient-name');
-          const inputPhone = document.getElementById('patient-phone');
-          if (inputName) inputName.value = data.patient_name;
-          if (inputPhone && data.patient_whatsapp) inputPhone.value = data.patient_whatsapp;
-
-          // Configurar servicio bloqueado
-          if (data.service_id) {
-            selectedServiceId = data.service_id;
-            selectedServiceName = data.service_name;
-            selectedServiceDuration = data.duration_minutes || 30;
-          }
-
-          // Configurar banner limpio y claro
-          const expressBanner = document.getElementById('express-reschedule-banner');
-          const expressTitle = document.getElementById('express-greeting-title');
-          const expressService = document.getElementById('express-service-name');
-          const firstName = data.patient_name.split(' ')[0] || data.patient_name;
-
-          if (expressTitle) expressTitle.innerText = `Reprogramar turno de ${firstName}`;
-          if (expressService) expressService.innerText = `${data.service_name}`;
-          if (expressBanner) expressBanner.style.display = 'block';
-
-          // Ocultar sección de consulta por teléfono
-          const phoneSection = document.getElementById('phone-lookup-section');
-          if (phoneSection) phoneSection.style.display = 'none';
-
-          // Ocultar selector de servicios y barra oscura redundante
-          const servicesSec = document.getElementById('services-section');
-          if (servicesSec) servicesSec.style.display = 'none';
-          if (serviceCollapsedBar) serviceCollapsedBar.style.display = 'none';
-
-          // Desplegar calendario directamente
-          if (calendarSection) calendarSection.style.display = 'block';
-          if (btnOpenModal) {
-            btnOpenModal.innerHTML = `<span>Confirmar Cambio de Turno ✔</span>`;
-          }
-
-          renderDatePills();
-          fetchAvailability();
+        if (data && (data.patient_name || data.appointment_id)) {
+          activateExpressRescheduleMode(data, paramRescheduleToken);
         }
-      }).catch(e => console.warn('Error pre-cargando paciente reprogramado:', e));
+      })
+      .catch(e => console.warn('Error pre-cargando paciente reprogramado:', e));
   }
+
   if (paramPhone && !paramRescheduleToken) {
     const phoneInput = document.getElementById('phone-lookup-input');
     if (phoneInput) {
@@ -890,39 +955,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Evento Reprogramar individual — Activa Modo Express 1-Tap
       btnRescheduleCard.addEventListener('click', () => {
-        phoneLookupSection.style.display = 'none';
-        activeApptSection.style.display = 'none';
-
-        window._isExpressReschedule = true;
-        window._expressPatientName = appt.patient_name;
-        window._expressPatientPhone = (phoneInput ? phoneInput.value : '') || appt.patient_whatsapp || appt.whatsapp_phone || '';
-        window._rescheduleApptId = appt.id;
-        window._rescheduleToken = appt.token_cancellation;
-
-        const serviceCard = document.querySelector(`.service-card[data-service-id="${appt.service_id}"]`);
-        if (serviceCard) serviceCard.click();
-
-        // Configurar banner limpio y claro
-        const expressBanner = document.getElementById('express-reschedule-banner');
-        const expressTitle = document.getElementById('express-greeting-title');
-        const expressService = document.getElementById('express-service-name');
-        const firstName = (appt.patient_name || '').split(' ')[0] || appt.patient_name || 'Paciente';
-
-        if (expressTitle) expressTitle.innerText = `Reprogramar turno de ${firstName}`;
-        if (expressService) expressService.innerText = `${appt.service_name || 'Tratamiento'}`;
-        if (expressBanner) expressBanner.style.display = 'block';
-
-        const servicesSection = document.getElementById('services-section');
-        const calendarSection = document.getElementById('calendar-section');
-        if (servicesSection) servicesSection.style.display = 'none';
-        if (serviceCollapsedBar) serviceCollapsedBar.style.display = 'none';
-        if (calendarSection) calendarSection.style.display = 'block';
-
-        const btnOpen = document.getElementById('btn-open-modal');
-        if (btnOpen) {
-          btnOpen.innerHTML = `<span>Confirmar Cambio de Turno ✔</span>`;
+        if (typeof window.activateExpressRescheduleMode === 'function') {
+          window.activateExpressRescheduleMode(appt, appt.token_cancellation);
         }
-
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
 

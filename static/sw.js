@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v3-frosted-glass-dark-theme';
+const CACHE_NAME = 'prontoturno-v4-express-reschedule-sync';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
