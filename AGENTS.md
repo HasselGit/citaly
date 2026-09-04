@@ -157,6 +157,12 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 12. **Grilla de Agenda en Columnas Verticales Continuas:**
    - Los slots del día se renderizan divididos en **2 columnas verticales continuas** (Columna Izquierda: primera mitad cronológica; Columna Derecha: segunda mitad cronológica).
    - Esto garantiza que los tratamientos con múltiples slots (ej: Ortodoncia de 120 min) aparezcan agrupados de forma **consecutiva vertical**, facilitando la lectura natural como en un libro de citas médico sin saltos en zig-zag.
+13. **Modo Oscuro Oficial (Dark Mode Deep Titanium & Obsidian Navy):**
+   - Lienzo: `#0B0F17`, Tarjetas: `#131B2E`, Inputs/Slots: `#1E293B`, Bordes: `#2A374F`, Textos: `#F8FAFC`, Acento: `#F59E0B`.
+   - Botón toggle Luna 🌙 / Sol ☀️ ubicado en la barra superior al lado izquierdo del botón de actualización en vivo (`#theme-toggle` / `#theme-toggle-pwa`).
+   - Persistencia automática en `localStorage` (`prontoturno_theme`) y detección inteligente inicial de `prefers-color-scheme`.
+14. **Barra Lateral Desktop Integrada (Sin Bordes):**
+   - La barra vertical de navegación del Dashboard utiliza fondo 100% integrado al lienzo (`bg-transparent`) y sin bordes divisorios (`border-0`), permitiendo que los botones de navegación floten de forma fluida.
 
 ---
 

@@ -58,6 +58,40 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCopyCardLink = document.getElementById('btn-copy-card-link');
   const btnManualSync = document.getElementById('btn-manual-sync');
   const syncIcon = document.getElementById('sync-icon');
+
+  // ==========================================
+  // TEMA OSCURO / CLARO (PRONTOTURNO DASHBOARD)
+  // ==========================================
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  const moonIcon = document.getElementById('theme-icon-moon');
+  const sunIcon = document.getElementById('theme-icon-sun');
+
+  function applyDashboardTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.body.classList.add('dark-theme');
+      if (moonIcon) moonIcon.classList.add('hidden');
+      if (sunIcon) sunIcon.classList.remove('hidden');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.body.classList.remove('dark-theme');
+      if (moonIcon) moonIcon.classList.remove('hidden');
+      if (sunIcon) sunIcon.classList.add('hidden');
+    }
+  }
+
+  const savedTheme = localStorage.getItem('prontoturno_theme') || 
+    (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyDashboardTheme(savedTheme);
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      const newTheme = isDark ? 'light' : 'dark';
+      localStorage.setItem('prontoturno_theme', newTheme);
+      applyDashboardTheme(newTheme);
+    });
+  }
   const toastContainer = document.getElementById('toast-container');
 
   // Elementos del Módulo Asignar Nuevo Turno

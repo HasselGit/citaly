@@ -14,6 +14,40 @@ document.addEventListener('DOMContentLoaded', () => {
   let activePatientAppt = null;
   let syncInterval = null;
 
+  // ==========================================
+  // TEMA OSCURO / CLARO (PRONTOTURNO THEME)
+  // ==========================================
+  const themeTogglePwa = document.getElementById('theme-toggle-pwa');
+  const moonIconPwa = document.getElementById('pwa-theme-icon-moon');
+  const sunIconPwa = document.getElementById('pwa-theme-icon-sun');
+
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.body.classList.add('dark-theme');
+      if (moonIconPwa) moonIconPwa.style.display = 'none';
+      if (sunIconPwa) sunIconPwa.style.display = 'block';
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.body.classList.remove('dark-theme');
+      if (moonIconPwa) moonIconPwa.style.display = 'block';
+      if (sunIconPwa) sunIconPwa.style.display = 'none';
+    }
+  }
+
+  const savedTheme = localStorage.getItem('prontoturno_theme') || 
+    (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(savedTheme);
+
+  if (themeTogglePwa) {
+    themeTogglePwa.addEventListener('click', () => {
+      const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('prontoturno_theme', newTheme);
+      applyTheme(newTheme);
+    });
+  }
+
   const servicesContainer = document.getElementById('services-container');
   const servicesSection = document.getElementById('services-section');
   const serviceCollapsedBar = document.getElementById('service-collapsed-bar');

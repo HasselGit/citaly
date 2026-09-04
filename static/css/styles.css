@@ -22,6 +22,24 @@
   --shadow-elevated: 0 12px 28px -4px rgba(15, 23, 42, 0.16);
 }
 
+html.dark,
+body.dark-theme,
+[data-theme="dark"] {
+  --primary-navy: #F8FAFC;
+  --primary-container: #1E293B;
+  --secondary-amber: #F59E0B;
+  --amber-dark: #FBBF24;
+  --amber-light: rgba(245, 158, 11, 0.18);
+  --bg-neutral: #0B0F17;
+  --surface-card: #131B2E;
+  --surface-subtle: #1E293B;
+  --text-dark: #F8FAFC;
+  --text-muted: #94A3B8;
+  --border-light: #2A374F;
+  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+  --shadow-elevated: 0 12px 32px -4px rgba(0, 0, 0, 0.7);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -875,4 +893,161 @@ h1, h2, h3, h4, .font-display {
 .appt-btn-cancel:active {
   transform: scale(0.98);
 }
+
+/* ==========================================================================
+   PRONTOTURNO PREMIUM DARK THEME OVERRIDES
+   ========================================================================== */
+
+/* Theme Toggle Button Premium */
+.theme-toggle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #0F172A;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  flex-shrink: 0;
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.06);
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+}
+
+.theme-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+html.dark body,
+body.dark-theme {
+  background-color: #0B0F17 !important;
+  color: #F8FAFC !important;
+}
+
+html.dark .brand-header-sticky,
+body.dark-theme .brand-header-sticky,
+html.dark .client-business-header,
+body.dark-theme .client-business-header {
+  background: #0B0F17 !important;
+}
+
+html.dark .theme-toggle-btn,
+body.dark-theme .theme-toggle-btn {
+  background: #1E293B;
+  border-color: #2A374F;
+  color: #F59E0B;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+html.dark .theme-toggle-btn:hover,
+body.dark-theme .theme-toggle-btn:hover {
+  border-color: #F59E0B;
+}
+
+html.dark .section-card,
+body.dark-theme .section-card {
+  background: #131B2E !important;
+  border-color: #2A374F !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark .service-item,
+body.dark-theme .service-item {
+  background: #1E293B !important;
+  border-color: #2A374F !important;
+  color: #F8FAFC !important;
+}
+
+html.dark .service-item.selected,
+body.dark-theme .service-item.selected {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: #F59E0B !important;
+}
+
+html.dark .service-item.selected .service-name,
+body.dark-theme .service-item.selected .service-name {
+  color: #F59E0B !important;
+}
+
+html.dark .date-chip,
+body.dark-theme .date-chip {
+  background: #1E293B !important;
+  border-color: #2A374F !important;
+  color: #94A3B8 !important;
+}
+
+html.dark .date-chip.selected,
+body.dark-theme .date-chip.selected {
+  background: #F59E0B !important;
+  border-color: #F59E0B !important;
+  color: #0F172A !important;
+}
+
+html.dark .date-chip.selected .date-day,
+html.dark .date-chip.selected .date-num,
+body.dark-theme .date-chip.selected .date-day,
+body.dark-theme .date-chip.selected .date-num {
+  color: #0F172A !important;
+}
+
+html.dark .slot-btn,
+body.dark-theme .slot-btn {
+  background: #1E293B !important;
+  border-color: #2A374F !important;
+  color: #F8FAFC !important;
+}
+
+html.dark .slot-btn.selected,
+body.dark-theme .slot-btn.selected {
+  background: #F59E0B !important;
+  border-color: #F59E0B !important;
+  color: #0F172A !important;
+}
+
+html.dark .input-field,
+html.dark input[type="text"],
+html.dark input[type="tel"],
+html.dark input[type="search"],
+body.dark-theme .input-field,
+body.dark-theme input[type="text"],
+body.dark-theme input[type="tel"],
+body.dark-theme input[type="search"] {
+  background: #1E293B !important;
+  border-color: #2A374F !important;
+  color: #F8FAFC !important;
+}
+
+html.dark .active-appt-card,
+body.dark-theme .active-appt-card {
+  background: #131B2E !important;
+  border-color: #2A374F !important;
+}
+
+html.dark #express-reschedule-banner,
+body.dark-theme #express-reschedule-banner {
+  background: #131B2E !important;
+  border-color: #2A374F !important;
+}
+
+html.dark .modal-container,
+body.dark-theme .modal-container {
+  background: #131B2E !important;
+  border-color: #2A374F !important;
+  color: #F8FAFC !important;
+}
+
+html.dark .brand-name,
+body.dark-theme .brand-name,
+html.dark .client-doctor-name,
+body.dark-theme .client-doctor-name {
+  color: #F8FAFC !important;
+}
+
 

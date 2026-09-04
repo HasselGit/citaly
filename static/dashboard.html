@@ -73,6 +73,70 @@
     ::-webkit-scrollbar-track { background: #F8FAFC; }
     ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+    /* ================= DARK MODE ================= */
+    html.dark body {
+      background-color: #0B0F17 !important;
+      color: #F8FAFC !important;
+    }
+    html.dark aside {
+      background: transparent !important;
+    }
+    html.dark header {
+      background-color: rgba(11, 15, 23, 0.95) !important;
+      border-color: #1E293B !important;
+    }
+    html.dark .citaly-card {
+      background: #131B2E !important;
+      border-color: #2A374F !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+    }
+    html.dark .text-navy {
+      color: #F8FAFC !important;
+    }
+    html.dark .bg-white {
+      background-color: #131B2E !important;
+      border-color: #2A374F !important;
+    }
+    html.dark .text-slate-700,
+    html.dark .text-slate-600 {
+      color: #CBD5E1 !important;
+    }
+    html.dark .text-slate-muted {
+      color: #94A3B8 !important;
+    }
+    html.dark .border-slate-200,
+    html.dark .border-slate-200\/90,
+    html.dark .border-slate-200\/80,
+    html.dark .border-slate-100 {
+      border-color: #2A374F !important;
+    }
+    html.dark .bg-slate-50,
+    html.dark .bg-slate-100 {
+      background-color: #1E293B !important;
+    }
+    html.dark .bg-slate-200,
+    html.dark .bg-slate-200\/70 {
+      background-color: #1E293B !important;
+    }
+    html.dark input, html.dark select, html.dark textarea {
+      background-color: #1E293B !important;
+      border-color: #2A374F !important;
+      color: #F8FAFC !important;
+    }
+    html.dark #btn-manual-sync,
+    html.dark #theme-toggle {
+      background-color: #131B2E !important;
+      border-color: #2A374F !important;
+      color: #F8FAFC !important;
+    }
+    html.dark .mobile-nav-bar {
+      background-color: #0B0F17 !important;
+      border-color: #1E293B !important;
+    }
+    html.dark .sticky {
+      background-color: #131B2E !important;
+    }
   </style>
 </head>
 <body class="bg-[#F8FAFC] min-h-screen text-slate-900 antialiased">
@@ -80,17 +144,17 @@
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- SideNavBar Flotante Minimalista con Bordes Redondeados (Desktop) -->
-  <aside class="hidden md:flex flex-col fixed left-4 top-4 bottom-4 h-[calc(100vh-2rem)] w-60 bg-white rounded-3xl border border-slate-200/90 shadow-sm p-5 z-40">
+  <!-- SideNavBar Flotante Minimalista Integrada al Lienzo (Desktop) -->
+  <aside class="hidden md:flex flex-col fixed left-4 top-4 bottom-4 h-[calc(100vh-2rem)] w-60 bg-transparent p-5 z-40">
     
     <!-- Logo Minimalista ProntoTurno -->
     <div class="flex items-center gap-2.5 mb-8 px-1">
-      <div class="w-9 h-9 rounded-2xl bg-navy flex items-center justify-center text-white font-display font-extrabold text-sm shadow-sm">
+      <div class="w-9 h-9 rounded-2xl bg-navy text-amber-brand flex items-center justify-center font-display font-extrabold text-sm shadow-sm flex-shrink-0">
         P
       </div>
       <div>
-        <h1 class="text-lg font-bold text-navy tracking-tight font-display">ProntoTurno<span class="text-amber-brand">Pro</span></h1>
-        <span class="text-[10px] font-semibold text-slate-muted uppercase tracking-wider font-mono">Gestión Dental</span>
+        <h1 class="text-lg font-bold text-navy tracking-tight font-display">ProntoTurno</h1>
+        <span class="text-[11px] font-bold text-amber-600 uppercase tracking-wide font-mono">Turnos al toque</span>
       </div>
     </div>
 
@@ -149,7 +213,25 @@
       </div>
 
       <!-- Acciones de Encabezado -->
-      <div class="flex items-center gap-2.5">
+      <div class="flex items-center gap-2">
+        <!-- Botón Modo Oscuro / Claro Premium -->
+        <button id="theme-toggle" title="Cambiar a Modo Oscuro / Claro" class="p-2.5 bg-white hover:bg-slate-100 text-slate-700 rounded-xl transition-all font-mono text-xs flex items-center justify-center border border-slate-200 shadow-2xs" aria-label="Cambiar tema">
+          <svg id="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg id="theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+
         <button id="btn-manual-sync" title="Sincronizar en vivo" class="p-2.5 bg-white hover:bg-slate-100 text-slate-700 rounded-xl transition-all font-mono text-xs flex items-center gap-2 border border-slate-200 shadow-2xs">
           <svg id="sync-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
           <span class="hidden sm:inline font-semibold">Actualizar</span>
