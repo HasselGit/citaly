@@ -171,16 +171,26 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 ### Arquitectura de Envío
 - **Servicio:** `app/services/whatsapp.py` → clase `WhatsAppService`
 - **Número Emisor (Producción Chip Propio):** `+54 9 2302 64-0284` (Phone Number ID: `1284438344753210`)
-- **WABA ID:** `1006525879102174` (Plantillas) / `965775717869143` (TuTurno)
+- **WABA ID:** `985775717869143` (TuTurno / ProntoTurno App)
 - **App ID Meta:** `2060755134547559`
 - **Token:** Long-lived user token, 59 días, **vence 26/10/2026**
 - **URL Base:** `https://graph.facebook.com/v18.0/{PHONE_NUMBER_ID}/messages`
+- **Plantillas Oficiales Aprobadas en Meta (`[APPROVED]`):**
+  - `prontoturno_confirmacion_v1`
+  - `prontoturno_reprogramacion_v1`
+  - `prontoturno_cancelacion_v1`
+  - `prontoturno_recordatorio_24h_v1`
+  - `citaly_confirmacion_v1` (fallback secundario)
+
+### Normalización Estricta de Teléfonos Argentinos (`normalize_whatsapp_phone`):
+- Transforma automáticamente cualquier formato ingresado por el paciente (`02302 15 640284`, `2302-15-640284`, `011 15 5576 9048`, `+54 9 11 ...`) al estándar internacional exacto de Meta Cloud API: `549[cod_area_sin_0][numero_sin_15]` (13 dígitos).
 
 ### Mecanismo de Contingencia Automático (Fallback Garantizado):
-- Si una plantilla en Meta se encuentra en revisión (`PENDING`) o la API de plantillas devuelve error (404), `WhatsAppService.send_template_message` automáticamente construye el mensaje estructurado con el link tokenizado `/r/{token}` y lo despacha de inmediato como mensaje de texto directo con la firma oficial `_¡Gracias por elegirnos! • ProntoTurno App_`, garantizando que el paciente **nunca deje de recibir su notificación**.
+- Meta Cloud API exige plantillas aprobadas (`[APPROVED]`) para contactar a cualquier usuario por primera vez o fuera de la ventana de 24h.
+- Si una plantilla primaria devuelve error, el sistema reintenta inmediatamente con la plantilla secundaria aprobada (`citaly_confirmacion_v1`) antes de ir al fallback de texto.
 
 ### Regla de Bot Transaccional Multi-Negocio (Auto-Reply Redirection):
-- Si el paciente escribe `CANCELAR` (o derivados) ➔ Cancela el turno y libera el slot en tiempo real.
+- Si el paciente escribe `CANCELAR` (o derivados) ➔ Cancela el turno y libera el slot en tiempo real con plantilla `prontoturno_cancelacion_v1`.
 - Ante cualquier otro mensaje entrante ➔ El bot responde automáticamente redirigiendo al paciente al teléfono de contacto del consultorio (`tenant.whatsapp_number` o `2302 555555`):
   > *"Hola 👋 Este es el canal automático de notificaciones de ProntoTurno App.\n\nPara consultas o atención personalizada, por favor comunicate directamente con [Consultorio] al 📞 [Teléfono]."*
 
