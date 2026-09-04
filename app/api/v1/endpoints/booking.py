@@ -15,7 +15,7 @@ from app.models.appointment import Appointment
 from app.models.whatsapp_log import WhatsAppLog
 from app.models.time_block import TimeBlock
 from app.services.booking import calculate_available_slots
-from app.services.whatsapp import whatsapp_service
+from app.services.whatsapp import whatsapp_service, normalize_whatsapp_phone
 
 router = APIRouter(prefix="/api/v1/booking", tags=["Booking"])
 
@@ -55,8 +55,22 @@ class RescheduleRequest(BaseModel):
 
 # Helper para normalizar teléfonos
 def clean_phone_digits(phone: str) -> str:
+    norm = normalize_whatsapp_phone(phone)
+    if norm:
+        return norm
     digits = re.sub(r'\D', '', phone or '')
     return digits[-10:] if len(digits) >= 10 else digits
+
+def is_same_phone(p1: str, p2: str) -> bool:
+    if not p1 or not p2:
+        return False
+    n1 = normalize_whatsapp_phone(p1)
+    n2 = normalize_whatsapp_phone(p2)
+    if n1 and n2 and n1 == n2:
+        return True
+    d1 = re.sub(r'\D', '', p1)[-10:]
+    d2 = re.sub(r'\D', '', p2)[-10:]
+    return bool(d1 and d2 and d1 == d2)
 
 def get_or_create_primary_tenant(db: Session) -> Tenant:
     tenant = db.query(Tenant).first()
@@ -143,14 +157,13 @@ def check_patient(phone: str, service_id: Optional[str] = None, db: Session = De
     Verifica si un paciente ya cuenta con un turno activo para el mismo servicio.
     """
     tenant = get_or_create_primary_tenant(db)
-    target_digits = clean_phone_digits(phone)
-    if not target_digits:
+    if not phone or len(phone.strip()) < 6:
         return {"has_active_appointment": False}
 
     patients = db.query(Patient).filter(Patient.tenant_id == tenant.id).all()
     patient = None
     for p in patients:
-        if clean_phone_digits(p.whatsapp_phone) == target_digits:
+        if is_same_phone(p.whatsapp_phone, phone):
             patient = p
             break
 
@@ -269,18 +282,24 @@ async def create_appointment(
         end_dt = start_dt + timedelta(minutes=service.duration_minutes)
 
         # 2. Registrar o vincular al paciente
-        target_digits = clean_phone_digits(payload.patient_whatsapp)
+        norm_phone = normalize_whatsapp_phone(payload.patient_whatsapp) or payload.patient_whatsapp
         patients = db.query(Patient).filter(Patient.tenant_id == tenant.id).all()
         patient = None
         for p in patients:
-            if clean_phone_digits(p.whatsapp_phone) == target_digits:
+            if is_same_phone(p.whatsapp_phone, payload.patient_whatsapp):
                 patient = p
                 break
 
         p_name = (payload.patient_full_name or payload.patient_name or "Paciente").strip()
         if patient:
+            needs_update = False
             if p_name and p_name != patient.full_name:
                 patient.full_name = p_name
+                needs_update = True
+            if norm_phone and patient.whatsapp_phone != norm_phone:
+                patient.whatsapp_phone = norm_phone
+                needs_update = True
+            if needs_update:
                 db.commit()
                 db.refresh(patient)
         else:
@@ -288,7 +307,7 @@ async def create_appointment(
                 id=str(uuid.uuid4()),
                 tenant_id=tenant.id,
                 full_name=p_name,
-                whatsapp_phone=payload.patient_whatsapp
+                whatsapp_phone=norm_phone
             )
             db.add(patient)
             db.commit()
@@ -497,15 +516,14 @@ def get_my_appointment(
     Retorna una lista de turnos agendados en orden cronológico.
     """
     tenant = get_or_create_primary_tenant(db)
-    target_digits = clean_phone_digits(phone)
-    if not target_digits or len(target_digits) < 6:
+    if not phone or len(phone.strip()) < 6:
         return {"has_active_appointment": False, "appointments": []}
 
     # Buscar paciente por teléfono normalizado
     patients = db.query(Patient).filter(Patient.tenant_id == tenant.id).all()
     matched_patient = None
     for p in patients:
-        if clean_phone_digits(p.whatsapp_phone) == target_digits:
+        if is_same_phone(p.whatsapp_phone, phone):
             matched_patient = p
             break
 

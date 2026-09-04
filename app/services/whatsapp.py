@@ -3,6 +3,65 @@ import re
 from typing import Dict, Any, Optional
 from app.core.config import settings
 
+def normalize_whatsapp_phone(phone: str) -> str:
+    """
+    Normaliza cualquier formato de número argentino o internacional
+    al estándar internacional E.164 requerido por Meta WhatsApp Cloud API (ej: 5492302640284).
+    Limpia prefijos locales como '0', '15' y espacios/guiones.
+    """
+    if not phone:
+        return ""
+    digits = re.sub(r'\D', '', str(phone))
+    if not digits:
+        return ""
+
+    # Quitar 00 inicial internacional
+    if digits.startswith("00"):
+        digits = digits[2:]
+
+    # Si empieza con 54 (+54)
+    if digits.startswith("54"):
+        local = digits[2:]
+        if local.startswith("9"):
+            local = local[1:]
+        if local.startswith("0"):
+            local = local[1:]
+    else:
+        local = digits
+        if local.startswith("0"):
+            local = local[1:]
+
+    # Remover prefijo celular argentino '15' interno si existe
+    # Caso 12 dígitos: ej 11 15 xxxxxxxx, 221 15 xxxxxxx, 2302 15 xxxxxx
+    if len(local) == 12:
+        if local.startswith("11") and local[2:4] == "15":
+            local = "11" + local[4:]
+        elif local[3:5] == "15":
+            local = local[:3] + local[5:]
+        elif local[4:6] == "15":
+            local = local[:4] + local[6:]
+
+    # Caso 11 dígitos que arranca con 15
+    if len(local) == 11 and local.startswith("15"):
+        local = local[2:]
+
+    # Si tiene 10 dígitos estándar argentino (código área + abonado), agregar prefijo 549
+    if len(local) == 10:
+        return f"549{local}"
+
+    # Si ya tiene 13 dígitos y empieza con 549
+    if len(digits) == 13 and digits.startswith("549"):
+        return digits
+
+    # Número internacional de otro país (ej: Uruguay 598..., Chile 56..., etc.)
+    if len(digits) >= 11 and not digits.startswith("0"):
+        return digits
+
+    # Fallback con últimos 10 dígitos si es argentino
+    if len(local) >= 10:
+        return f"549{local[-10:]}"
+    return digits
+
 class WhatsAppService:
     def __init__(self):
         self.token = settings.WHATSAPP_TOKEN
@@ -19,17 +78,9 @@ class WhatsAppService:
     ) -> Dict[str, Any]:
         """
         Envía un mensaje de plantilla oficial usando Meta Cloud API Graph v18.0+.
-        Si la plantilla está en revisión (PENDING) o falla, envía fallback directo.
+        Si la plantilla primaria falla, reintenta con la plantilla aprobada secundaria antes del fallback de texto.
         """
-        digits = re.sub(r'\D', '', to_phone or '')
-        if len(digits) == 10:
-            clean_phone = f"549{digits}"
-        elif len(digits) == 11 and digits.startswith("9"):
-            clean_phone = f"54{digits}"
-        elif len(digits) == 11 and digits.startswith("0"):
-            clean_phone = f"549{digits[1:]}"
-        else:
-            clean_phone = digits
+        clean_phone = normalize_whatsapp_phone(to_phone)
 
         if not self.token or not self.phone_number_id or self.token == "YOUR_META_WHATSAPP_API_TOKEN":
             print(f"[SIMULACIÓN WHATSAPP] Enviando plantilla '{template_name}' a {clean_phone}")
@@ -66,13 +117,44 @@ class WhatsAppService:
             if response.status_code == 200:
                 return response.json()
             else:
-                print(f"[WARN WHATSAPP TEMPLATE] Template '{template_name}' status: {response.status_code}. Executing fallback...")
+                print(f"[WARN WHATSAPP TEMPLATE] Template '{template_name}' status: {response.status_code}. Response: {response.text}")
+                
+                # Mapeo de plantillas secundarias aprobadas como fallback
+                fallback_template_map = {
+                    "prontoturno_confirmacion_v1": "citaly_confirmacion_v1",
+                    "prontoturno_reprogramacion_v1": "citaly_reprogramacion_v1",
+                    "prontoturno_cancelacion_v1": "citaly_cancelacion_v1",
+                    "prontoturno_recordatorio_24h_v1": "citaly_recordatorio_24h_v1"
+                }
+
+                sec_template = fallback_template_map.get(template_name)
+                if sec_template and sec_template != template_name:
+                    print(f"[RETRY APPROVED TEMPLATE] Reintentando con plantilla aprobada secundaria '{sec_template}'...")
+                    sec_payload = {
+                        "messaging_product": "whatsapp",
+                        "to": clean_phone,
+                        "type": "template",
+                        "template": {
+                            "name": sec_template,
+                            "language": {"code": language_code}
+                        }
+                    }
+                    if parameters:
+                        sec_payload["template"]["components"] = payload["template"]["components"]
+                    
+                    sec_response = await client.post(self.base_url, headers=headers, json=sec_payload)
+                    if sec_response.status_code == 200:
+                        print(f"[RETRY SUCCESS] Delivered via secondary template '{sec_template}'")
+                        return sec_response.json()
+
+                # Fallback final a texto plano si estamos dentro de ventana de conversación
                 fallback_text = self._build_template_fallback_text(template_name, parameters, token)
                 if fallback_text:
                     fallback_res = await self.send_text_message(to_phone=to_phone, text_body=fallback_text)
                     if fallback_res.get("status") != "ERROR" and "messages" in fallback_res:
                         print(f"[FALLBACK SUCCESS] Message delivered directly via text fallback")
                         return fallback_res
+
                 return {
                     "status": "ERROR",
                     "error_code": response.status_code,
@@ -118,15 +200,7 @@ class WhatsAppService:
         """
         Envía un mensaje de texto directo usando Meta Cloud API Graph v18.0+.
         """
-        digits = re.sub(r'\D', '', to_phone or '')
-        if len(digits) == 10:
-            clean_phone = f"549{digits}"
-        elif len(digits) == 11 and digits.startswith("9"):
-            clean_phone = f"54{digits}"
-        elif len(digits) == 11 and digits.startswith("0"):
-            clean_phone = f"549{digits[1:]}"
-        else:
-            clean_phone = digits
+        clean_phone = normalize_whatsapp_phone(to_phone)
 
         if not self.token or not self.phone_number_id or self.token == "YOUR_META_WHATSAPP_API_TOKEN":
             print(f"[SIMULACIÓN WHATSAPP TEXTO] a {clean_phone}: '{text_body}'")

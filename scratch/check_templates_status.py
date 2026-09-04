@@ -113,7 +113,7 @@ except urllib.error.HTTPError as e:
     print(f"Error hello_world ({e.code}): {e.read().decode('utf-8')}")
 
 print("\n==========================================")
-print(" 4. TEST ENVÍO DE PLANTILLA V2 (NUEVA)    ")
+print(" 4. TEST ENVÍO PLANTILLA APROBADA OFICIAL  ")
 print("==========================================")
 test_payload = {
     "messaging_product": "whatsapp",
@@ -121,7 +121,7 @@ test_payload = {
     "to": "5491155769048",
     "type": "template",
     "template": {
-        "name": "citaly_confirma_v2",
+        "name": "prontoturno_confirmacion_v1",
         "language": {"code": "es_AR"},
         "components": [
             {
@@ -144,9 +144,9 @@ try:
         headers={**headers, "Content-Type": "application/json"}
     )
     with urllib.request.urlopen(req) as resp:
-        print("Resultado Envío citaly_confirma_v2:", resp.status, json.loads(resp.read().decode('utf-8')))
+        print("Resultado Envío prontoturno_confirmacion_v1:", resp.status, json.loads(resp.read().decode('utf-8')))
 except urllib.error.HTTPError as e:
-    print(f"Error Envío citaly_confirma_v2 ({e.code}): {e.read().decode('utf-8')}")
+    print(f"Error Envío prontoturno_confirmacion_v1 ({e.code}): {e.read().decode('utf-8')}")
 
 print("\n==========================================")
 print(" 5. TEST ENVÍO DE PLANTILLA REAL          ")
@@ -183,4 +183,3 @@ try:
         print("Resultado Template send:", resp.status, json.loads(resp.read().decode('utf-8')))
 except urllib.error.HTTPError as e:
     print(f"Error Envío Template ({e.code}): {e.read().decode('utf-8')}")
-
