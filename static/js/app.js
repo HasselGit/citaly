@@ -824,9 +824,22 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(data => {
         if (data && (data.patient_name || data.appointment_id)) {
           activateExpressRescheduleMode(data, paramRescheduleToken);
+        } else {
+          // Si el token no existe, restaurar modo estándar
+          window._isExpressReschedule = false;
+          if (servicesSection) servicesSection.style.display = 'block';
+          if (phoneSection) phoneSection.style.display = 'block';
+          fetchServices();
         }
       })
-      .catch(e => console.warn('Error pre-cargando paciente reprogramado:', e));
+      .catch(e => {
+        console.warn('Error pre-cargando paciente reprogramado:', e);
+        window._isExpressReschedule = false;
+        fetchServices();
+      });
+  } else {
+    // Modo normal sin reprogramación previa
+    fetchServices();
   }
 
   if (paramPhone && !paramRescheduleToken) {
@@ -839,9 +852,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 400);
     }
   }
-
-  // Inicializar
-  fetchServices();
 });
 
 // ─── Módulo: Consultar mi turno por celular ───────────────────────────────────
