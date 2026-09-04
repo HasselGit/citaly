@@ -157,8 +157,8 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 12. **Grilla de Agenda en Columnas Verticales Continuas:**
    - Los slots del día se renderizan divididos en **2 columnas verticales continuas** (Columna Izquierda: primera mitad cronológica; Columna Derecha: segunda mitad cronológica).
    - Esto garantiza que los tratamientos con múltiples slots (ej: Ortodoncia de 120 min) aparezcan agrupados de forma **consecutiva vertical**, facilitando la lectura natural como en un libro de citas médico sin saltos en zig-zag.
-13. **Modo Oscuro Oficial (Dark Mode Deep Titanium & Obsidian Navy):**
-   - Lienzo: `#0B0F17`, Tarjetas: `#131B2E`, Inputs/Slots: `#1E293B`, Bordes: `#2A374F`, Textos: `#F8FAFC`, Acento: `#F59E0B`.
+13. **Modo Oscuro Oficial (Gris Topo & Frosted Glassmorphism):**
+   - Lienzo Principal: Gris Topo Cálido (`#1C1C22`), Tarjetas: Vidrio Esmerilado Translúcido (`rgba(38, 38, 48, 0.65)` con `backdrop-filter: blur(24px)` y bordes translúcidos `rgba(255, 255, 255, 0.1)`), Inputs/Slots: Vidrio Muted (`rgba(28, 28, 36, 0.7)`), Textos: Luminous Off-White (`#F4F4F6`), Textos Secundarios: Muted Silver (`#A1A1AA`), Acento: Ámbar Cálido (`#F59E0B`).
    - Botón toggle Luna 🌙 / Sol ☀️ ubicado en la barra superior al lado izquierdo del botón de actualización en vivo (`#theme-toggle` / `#theme-toggle-pwa`).
    - Persistencia automática en `localStorage` (`prontoturno_theme`) y detección inteligente inicial de `prefers-color-scheme`.
 14. **Barra Lateral Desktop Integrada (Sin Bordes):**

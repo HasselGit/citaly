@@ -25,19 +25,19 @@
 html.dark,
 body.dark-theme,
 [data-theme="dark"] {
-  --primary-navy: #F8FAFC;
-  --primary-container: #1E293B;
+  --primary-navy: #F4F4F6;
+  --primary-container: #262630;
   --secondary-amber: #F59E0B;
   --amber-dark: #FBBF24;
   --amber-light: rgba(245, 158, 11, 0.18);
-  --bg-neutral: #0B0F17;
-  --surface-card: #131B2E;
-  --surface-subtle: #1E293B;
-  --text-dark: #F8FAFC;
-  --text-muted: #94A3B8;
-  --border-light: #2A374F;
-  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
-  --shadow-elevated: 0 12px 32px -4px rgba(0, 0, 0, 0.7);
+  --bg-neutral: #1C1C22;
+  --surface-card: rgba(38, 38, 48, 0.72);
+  --surface-subtle: rgba(28, 28, 36, 0.65);
+  --text-dark: #F4F4F6;
+  --text-muted: #A1A1AA;
+  --border-light: rgba(255, 255, 255, 0.1);
+  --shadow-soft: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+  --shadow-elevated: 0 16px 48px 0 rgba(0, 0, 0, 0.55);
 }
 
 * {
@@ -927,48 +927,65 @@ h1, h2, h3, h4, .font-display {
 
 html.dark body,
 body.dark-theme {
-  background-color: #0B0F17 !important;
-  color: #F8FAFC !important;
+  background-color: #1C1C22 !important;
+  color: #F4F4F6 !important;
 }
 
 html.dark .brand-header-sticky,
 body.dark-theme .brand-header-sticky,
 html.dark .client-business-header,
 body.dark-theme .client-business-header {
-  background: #0B0F17 !important;
+  background: rgba(28, 28, 34, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
 }
 
 html.dark .theme-toggle-btn,
 body.dark-theme .theme-toggle-btn {
-  background: #1E293B;
-  border-color: #2A374F;
-  color: #F59E0B;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  background: rgba(45, 45, 56, 0.65) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #F59E0B !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
 }
 
 html.dark .theme-toggle-btn:hover,
 body.dark-theme .theme-toggle-btn:hover {
-  border-color: #F59E0B;
+  border-color: #F59E0B !important;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.25) !important;
 }
 
+/* Tarjetas con Efecto Vidrio (Frosted Glassmorphism) */
 html.dark .section-card,
 body.dark-theme .section-card {
-  background: #131B2E !important;
-  border-color: #2A374F !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+  background: rgba(38, 38, 48, 0.65) !important;
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
 }
 
 html.dark .service-item,
 body.dark-theme .service-item {
-  background: #1E293B !important;
-  border-color: #2A374F !important;
-  color: #F8FAFC !important;
+  background: rgba(30, 30, 38, 0.6) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #F4F4F6 !important;
+}
+
+html.dark .service-item:hover,
+body.dark-theme .service-item:hover {
+  background: rgba(42, 42, 54, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
 }
 
 html.dark .service-item.selected,
 body.dark-theme .service-item.selected {
-  background: rgba(245, 158, 11, 0.15) !important;
+  background: rgba(245, 158, 11, 0.16) !important;
   border-color: #F59E0B !important;
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.2) !important;
 }
 
 html.dark .service-item.selected .service-name,
@@ -978,37 +995,49 @@ body.dark-theme .service-item.selected .service-name {
 
 html.dark .date-chip,
 body.dark-theme .date-chip {
-  background: #1E293B !important;
-  border-color: #2A374F !important;
-  color: #94A3B8 !important;
+  background: rgba(30, 30, 38, 0.6) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #A1A1AA !important;
 }
 
 html.dark .date-chip.selected,
 body.dark-theme .date-chip.selected {
   background: #F59E0B !important;
-  border-color: #F59E0B !important;
-  color: #0F172A !important;
+  border-color: #FBBF24 !important;
+  color: #18181B !important;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35) !important;
 }
 
 html.dark .date-chip.selected .date-day,
 html.dark .date-chip.selected .date-num,
 body.dark-theme .date-chip.selected .date-day,
 body.dark-theme .date-chip.selected .date-num {
-  color: #0F172A !important;
+  color: #18181B !important;
 }
 
 html.dark .slot-btn,
 body.dark-theme .slot-btn {
-  background: #1E293B !important;
-  border-color: #2A374F !important;
-  color: #F8FAFC !important;
+  background: rgba(30, 30, 38, 0.6) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #F4F4F6 !important;
+}
+
+html.dark .slot-btn:hover:not(:disabled),
+body.dark-theme .slot-btn:hover:not(:disabled) {
+  background: rgba(45, 45, 58, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
 }
 
 html.dark .slot-btn.selected,
 body.dark-theme .slot-btn.selected {
   background: #F59E0B !important;
-  border-color: #F59E0B !important;
-  color: #0F172A !important;
+  border-color: #FBBF24 !important;
+  color: #18181B !important;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35) !important;
 }
 
 html.dark .input-field,
@@ -1019,35 +1048,52 @@ body.dark-theme .input-field,
 body.dark-theme input[type="text"],
 body.dark-theme input[type="tel"],
 body.dark-theme input[type="search"] {
-  background: #1E293B !important;
-  border-color: #2A374F !important;
-  color: #F8FAFC !important;
+  background: rgba(28, 28, 36, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #F4F4F6 !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+html.dark .input-field:focus,
+body.dark-theme .input-field:focus {
+  border-color: #F59E0B !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2) !important;
 }
 
 html.dark .active-appt-card,
 body.dark-theme .active-appt-card {
-  background: #131B2E !important;
-  border-color: #2A374F !important;
+  background: rgba(38, 38, 48, 0.7) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3) !important;
 }
 
 html.dark #express-reschedule-banner,
 body.dark-theme #express-reschedule-banner {
-  background: #131B2E !important;
-  border-color: #2A374F !important;
+  background: rgba(38, 38, 48, 0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35) !important;
 }
 
 html.dark .modal-container,
 body.dark-theme .modal-container {
-  background: #131B2E !important;
-  border-color: #2A374F !important;
-  color: #F8FAFC !important;
+  background: rgba(32, 32, 40, 0.92) !important;
+  backdrop-filter: blur(32px) !important;
+  -webkit-backdrop-filter: blur(32px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6) !important;
+  color: #F4F4F6 !important;
 }
 
 html.dark .brand-name,
 body.dark-theme .brand-name,
 html.dark .client-doctor-name,
 body.dark-theme .client-doctor-name {
-  color: #F8FAFC !important;
+  color: #F4F4F6 !important;
 }
 
 

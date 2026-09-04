@@ -74,68 +74,120 @@
     ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-    /* ================= DARK MODE ================= */
+    /* ================= PRONTOTURNO PREMIUM DARK THEME (GRIS TOPO + FROSTED GLASS) ================= */
     html.dark body {
-      background-color: #0B0F17 !important;
-      color: #F8FAFC !important;
+      background-color: #1C1C22 !important;
+      color: #F4F4F6 !important;
     }
     html.dark aside {
       background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
     }
     html.dark header {
-      background-color: rgba(11, 15, 23, 0.95) !important;
-      border-color: #1E293B !important;
+      background-color: rgba(28, 28, 34, 0.85) !important;
+      backdrop-filter: blur(24px) !important;
+      -webkit-backdrop-filter: blur(24px) !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
     }
     html.dark .citaly-card {
-      background: #131B2E !important;
-      border-color: #2A374F !important;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+      background: rgba(38, 38, 48, 0.65) !important;
+      backdrop-filter: blur(24px) saturate(160%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
+      color: #F4F4F6 !important;
+    }
+    html.dark .citaly-card:hover {
+      border-color: rgba(255, 255, 255, 0.18) !important;
+      box-shadow: 0 16px 44px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.15) !important;
     }
     html.dark .text-navy {
-      color: #F8FAFC !important;
+      color: #F4F4F6 !important;
     }
     html.dark .bg-white {
-      background-color: #131B2E !important;
-      border-color: #2A374F !important;
+      background: rgba(38, 38, 48, 0.65) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-color: rgba(255, 255, 255, 0.1) !important;
+      color: #F4F4F6 !important;
     }
-    html.dark .text-slate-700,
+    html.dark .text-slate-900,
+    html.dark .text-slate-800,
+    html.dark .text-slate-700 {
+      color: #F4F4F6 !important;
+    }
     html.dark .text-slate-600 {
       color: #CBD5E1 !important;
     }
-    html.dark .text-slate-muted {
-      color: #94A3B8 !important;
+    html.dark .text-slate-muted,
+    html.dark .text-slate-500,
+    html.dark .text-slate-400 {
+      color: #A1A1AA !important;
     }
     html.dark .border-slate-200,
     html.dark .border-slate-200\/90,
     html.dark .border-slate-200\/80,
-    html.dark .border-slate-100 {
-      border-color: #2A374F !important;
+    html.dark .border-slate-100,
+    html.dark .border-slate-300 {
+      border-color: rgba(255, 255, 255, 0.1) !important;
     }
-    html.dark .bg-slate-50,
+    html.dark .bg-slate-50 {
+      background: rgba(28, 28, 36, 0.6) !important;
+      backdrop-filter: blur(12px) !important;
+    }
     html.dark .bg-slate-100 {
-      background-color: #1E293B !important;
+      background: rgba(35, 35, 45, 0.65) !important;
+      backdrop-filter: blur(12px) !important;
     }
     html.dark .bg-slate-200,
     html.dark .bg-slate-200\/70 {
-      background-color: #1E293B !important;
+      background: rgba(30, 30, 40, 0.75) !important;
+      backdrop-filter: blur(12px) !important;
     }
     html.dark input, html.dark select, html.dark textarea {
-      background-color: #1E293B !important;
-      border-color: #2A374F !important;
-      color: #F8FAFC !important;
+      background: rgba(28, 28, 36, 0.75) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      color: #F4F4F6 !important;
+      backdrop-filter: blur(12px) !important;
+      -webkit-backdrop-filter: blur(12px) !important;
+    }
+    html.dark input:focus, html.dark select:focus {
+      border-color: #F59E0B !important;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2) !important;
     }
     html.dark #btn-manual-sync,
     html.dark #theme-toggle {
-      background-color: #131B2E !important;
-      border-color: #2A374F !important;
-      color: #F8FAFC !important;
+      background: rgba(45, 45, 56, 0.7) !important;
+      backdrop-filter: blur(16px) !important;
+      -webkit-backdrop-filter: blur(16px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      color: #F4F4F6 !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+    }
+    html.dark #btn-manual-sync:hover,
+    html.dark #theme-toggle:hover {
+      border-color: #F59E0B !important;
+      color: #F59E0B !important;
     }
     html.dark .mobile-nav-bar {
-      background-color: #0B0F17 !important;
-      border-color: #1E293B !important;
+      background: rgba(24, 24, 30, 0.88) !important;
+      backdrop-filter: blur(24px) !important;
+      -webkit-backdrop-filter: blur(24px) !important;
+      border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
     }
     html.dark .sticky {
-      background-color: #131B2E !important;
+      background: rgba(28, 28, 36, 0.9) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    html.dark table thead th {
+      background: rgba(28, 28, 36, 0.85) !important;
+      color: #A1A1AA !important;
+    }
+    html.dark table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.04) !important;
     }
   </style>
 </head>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v2-dark-mode-theme-sync';
+const CACHE_NAME = 'prontoturno-v3-frosted-glass-dark-theme';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
