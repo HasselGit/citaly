@@ -498,14 +498,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (currentViewMode === 'table') {
       agendaContainer.innerHTML = `
-        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-[#3F453A]">
+        <div class="overflow-x-auto overflow-y-auto max-h-[68vh] rounded-xl border border-slate-200 dark:border-[#3F453A]">
           <table class="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr class="border-b-2 border-slate-200 dark:border-[#6A6A47]/40 text-slate-400 dark:text-[#D6C265] font-mono text-[11px] uppercase tracking-wider font-extrabold bg-slate-50 dark:bg-[#1D2524]">
-                <th class="sticky top-[11.75rem] md:top-[8.75rem] z-10 bg-slate-50/95 dark:bg-[#1D2524]/95 backdrop-blur-md py-3 px-3 shadow-2xs">Paciente</th>
-                <th class="sticky top-[11.75rem] md:top-[8.75rem] z-10 bg-slate-50/95 dark:bg-[#1D2524]/95 backdrop-blur-md py-3 px-3 shadow-2xs">Tratamiento</th>
-                <th class="sticky top-[11.75rem] md:top-[8.75rem] z-10 bg-slate-50/95 dark:bg-[#1D2524]/95 backdrop-blur-md py-3 px-3 shadow-2xs">Fecha y Hora</th>
-                <th class="sticky top-[11.75rem] md:top-[8.75rem] z-10 bg-slate-50/95 dark:bg-[#1D2524]/95 backdrop-blur-md py-3 px-3 shadow-2xs">Estado</th>
+            <thead class="sticky top-0 z-20">
+              <tr class="border-b-2 border-slate-200 dark:border-[#6A6A47]/40 text-slate-700 dark:text-[#D6C265] font-mono text-[11px] uppercase tracking-wider font-extrabold bg-slate-100 dark:bg-[#1D2524]">
+                <th class="sticky top-0 z-20 bg-slate-100 dark:bg-[#1D2524] py-3 px-3 shadow-xs">Paciente</th>
+                <th class="sticky top-0 z-20 bg-slate-100 dark:bg-[#1D2524] py-3 px-3 shadow-xs">Tratamiento</th>
+                <th class="sticky top-0 z-20 bg-slate-100 dark:bg-[#1D2524] py-3 px-3 shadow-xs">Fecha y Hora</th>
+                <th class="sticky top-0 z-20 bg-slate-100 dark:bg-[#1D2524] py-3 px-3 shadow-xs">Estado</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-[#3F453A]/60 bg-white dark:bg-[#25302E]">

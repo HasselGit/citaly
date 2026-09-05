@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v25-restore-table-sticky';
+const CACHE_NAME = 'prontoturno-v26-solid-sticky-thead-fix';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
