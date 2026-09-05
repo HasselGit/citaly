@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v12-patient-pwa-unification';
+const CACHE_NAME = 'prontoturno-v13-statusbar-table-fix';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
