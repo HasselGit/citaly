@@ -219,18 +219,33 @@
 </head>
 <body class="bg-[#F8FAFC] min-h-screen text-slate-900 antialiased">
 
+  <!-- ProntoTurno Animated Splash Screen (Breathing Hourglass & Smooth Sliding Text) -->
+  <div id="app-splash-screen" class="splash-screen-overlay">
+    <div class="splash-content-box">
+      <div class="splash-logo-container">
+        <img src="/static/img/prontoturno-icon.png" alt="ProntoTurno" class="splash-logo-img light-only" />
+        <img src="/static/img/prontoturno-icon-dark.png" alt="ProntoTurno" class="splash-logo-img dark-only" />
+      </div>
+      <div class="splash-brand-title">
+        <span class="splash-brand-name">ProntoTurno</span>
+        <span class="splash-brand-badge">App</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- SideNavBar Flotante Minimalista Integrada al Lienzo (Desktop) -->
   <aside class="hidden md:flex flex-col fixed left-4 top-4 bottom-4 h-[calc(100vh-2rem)] w-60 bg-transparent p-5 z-40">
     
-    <!-- Logo Minimalista ProntoTurno -->
+    <!-- Logo Minimalista ProntoTurno (Ultra-HD) -->
     <div class="flex items-center gap-2.5 mb-8 px-1">
-      <img src="/static/img/prontoturno-icon.png" alt="ProntoTurno" class="w-9 h-9 object-contain flex-shrink-0" />
+      <img src="/static/img/prontoturno-icon.png" alt="ProntoTurno" class="w-9 h-9 object-contain flex-shrink-0 light-only" />
+      <img src="/static/img/prontoturno-icon-dark.png" alt="ProntoTurno" class="w-9 h-9 object-contain flex-shrink-0 dark-only" />
       <div>
         <h1 class="text-lg font-bold text-navy tracking-tight font-display dark:text-[#F4F4F6]">ProntoTurno</h1>
-        <span class="text-[11px] font-bold text-amber-600 uppercase tracking-wide font-mono">Turnos al toque</span>
+        <span class="text-[11px] font-bold text-amber-600 dark:text-[#D6C265] uppercase tracking-wide font-mono">App</span>
       </div>
     </div>
 

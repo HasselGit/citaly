@@ -59,6 +59,123 @@ h1, h2, h3, h4, .font-display {
   font-family: 'Montserrat', sans-serif;
 }
 
+/* ==========================================================================
+   PRONTOTURNO ANIMATED SPLASH SCREEN (BREATHING LOGO & SLIDING TEXT)
+   ========================================================================== */
+.splash-screen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #F8FAFC;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s ease;
+  pointer-events: all;
+}
+
+html.dark .splash-screen-overlay,
+body.dark-theme .splash-screen-overlay {
+  background-color: #1D2524 !important;
+}
+
+.splash-screen-overlay.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-content-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  user-select: none;
+}
+
+.splash-logo-container {
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: splashBreathe 2.8s ease-in-out infinite;
+}
+
+.splash-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.splash-logo-img.dark-only { display: none; }
+.splash-logo-img.light-only { display: block; }
+
+html.dark .splash-logo-img.dark-only,
+body.dark-theme .splash-logo-img.dark-only { display: block !important; }
+html.dark .splash-logo-img.light-only,
+body.dark-theme .splash-logo-img.light-only { display: none !important; }
+
+@keyframes splashBreathe {
+  0% { transform: scale(1); filter: drop-shadow(0 4px 12px rgba(15, 23, 42, 0.08)); }
+  50% { transform: scale(1.09); filter: drop-shadow(0 10px 24px rgba(214, 194, 101, 0.25)); }
+  100% { transform: scale(1); filter: drop-shadow(0 4px 12px rgba(15, 23, 42, 0.08)); }
+}
+
+.splash-brand-title {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  opacity: 0;
+  transform: translateX(-40px);
+  animation: splashSlidePauseExit 2.2s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
+}
+
+.splash-brand-name {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #0F172A;
+}
+
+html.dark .splash-brand-name,
+body.dark-theme .splash-brand-name {
+  color: #F4F4F6 !important;
+}
+
+.splash-brand-badge {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #D97706;
+}
+
+html.dark .splash-brand-badge,
+body.dark-theme .splash-brand-badge {
+  color: #D6C265 !important;
+}
+
+@keyframes splashSlidePauseExit {
+  0% {
+    opacity: 0;
+    transform: translateX(-45px);
+  }
+  25% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  75% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(35px);
+  }
+}
+
 /* App Main Container */
 .app-container {
   max-width: 580px;

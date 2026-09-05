@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" fill="none">
+  <!-- Outer Hourglass Body -->
+  <path d="M 140 80
+           L 372 80
+           C 395 80 410 100 405 125
+           C 390 190 315 240 275 256
+           C 315 272 390 322 405 387
+           C 410 412 395 432 372 432
+           L 140 432
+           C 117 432 102 412 107 387
+           C 122 322 197 272 237 256
+           C 197 240 122 190 107 125
+           C 102 100 117 80 140 80 Z"
+        stroke="#D6C265" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  
+  <!-- Pin / Loop in Upper Chamber -->
+  <circle cx="256" cy="175" r="42" stroke="#D6C265" stroke-width="32" fill="none"/>
+  <path d="M 226 205 L 256 256 L 286 205" stroke="#D6C265" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Checkmark in Lower Chamber -->
+  <path d="M 210 355 L 245 390 L 315 315" stroke="#D6C265" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

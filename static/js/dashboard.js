@@ -1,4 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // 0. Dismiss Splash Screen
+  const splashScreen = document.getElementById('app-splash-screen');
+  if (splashScreen) {
+    setTimeout(() => {
+      splashScreen.classList.add('fade-out');
+      setTimeout(() => {
+        if (splashScreen.parentNode) splashScreen.remove();
+      }, 700);
+    }, 2100);
+  }
+
   // 1. Elementos DOM de Pestañas
   const tabPanel = document.getElementById('view-panel');
   const tabReservas = document.getElementById('view-reservas');

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v14-pure-status-bar-matching';
+const CACHE_NAME = 'prontoturno-v15-hd-splash-animation';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

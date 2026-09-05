@@ -51,6 +51,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ==========================================
+  // DISMISS ANIMATED SPLASH SCREEN
+  // ==========================================
+  const splashScreen = document.getElementById('app-splash-screen');
+  if (splashScreen) {
+    setTimeout(() => {
+      splashScreen.classList.add('fade-out');
+      setTimeout(() => {
+        splashScreen.remove();
+      }, 700);
+    }, 2100);
+  }
+
   const servicesContainer = document.getElementById('services-container');
   const servicesSection = document.getElementById('services-section');
   const serviceCollapsedBar = document.getElementById('service-collapsed-bar');
