@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v23-fixed-header-two-lines-no-border';
+const CACHE_NAME = 'prontoturno-v24-solid-splash-dark-status-bar';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

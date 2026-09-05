@@ -1,13 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // 0. Dismiss Splash Screen
+  // 0. Dismiss Splash Screen (Rápido y fluido)
   const splashScreen = document.getElementById('app-splash-screen');
   if (splashScreen) {
     setTimeout(() => {
       splashScreen.classList.add('fade-out');
       setTimeout(() => {
         if (splashScreen.parentNode) splashScreen.remove();
-      }, 700);
-    }, 2100);
+      }, 450);
+    }, 1400);
   }
 
   // 1. Elementos DOM de Pestañas

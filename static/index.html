@@ -7,7 +7,9 @@
   <meta property="og:title" content="Consultorio Dr. Alejandro Pérez">
   <meta property="og:description" content="Agenda de turnos online">
   <link rel="icon" type="image/png" href="/static/favicon.png">
-  <meta name="theme-color" content="#F8FAFC" id="meta-theme-color">
+  <meta name="theme-color" content="#1D2524" id="meta-theme-color">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <script>
     (function() {
       try {
@@ -23,20 +25,21 @@
           root.classList.remove('dark');
           root.classList.add('light');
         }
-        var oldM = document.getElementById('meta-theme-color');
-        if (oldM) oldM.remove();
-        var newM = document.createElement('meta');
-        newM.name = 'theme-color';
-        newM.id = 'meta-theme-color';
-        newM.content = color;
-        document.head.appendChild(newM);
+        var m = document.getElementById('meta-theme-color');
+        if (m) {
+          m.content = color;
+        } else {
+          var newM = document.createElement('meta');
+          newM.name = 'theme-color';
+          newM.id = 'meta-theme-color';
+          newM.content = color;
+          document.head.appendChild(newM);
+        }
       } catch(e) {}
     })();
   </script>
   <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
   <link rel="manifest" href="/static/manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   
   <!-- Fonts: Montserrat, Inter, JetBrains Mono -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet"/>

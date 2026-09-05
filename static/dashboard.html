@@ -5,7 +5,9 @@
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
   <title>ProntoTurno Pro â€” Panel de Control | Dr. Alejandro PÃ©rez</title>
   <link rel="icon" type="image/png" href="/static/favicon.png">
-  <meta name="theme-color" content="#F8FAFC" id="meta-theme-color">
+  <meta name="theme-color" content="#1D2524" id="meta-theme-color">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <script>
     (function() {
       try {
@@ -21,20 +23,21 @@
           root.classList.remove('dark');
           root.classList.add('light');
         }
-        var oldM = document.getElementById('meta-theme-color');
-        if (oldM) oldM.remove();
-        var newM = document.createElement('meta');
-        newM.name = 'theme-color';
-        newM.id = 'meta-theme-color';
-        newM.content = color;
-        document.head.appendChild(newM);
+        var m = document.getElementById('meta-theme-color');
+        if (m) {
+          m.content = color;
+        } else {
+          var newM = document.createElement('meta');
+          newM.name = 'theme-color';
+          newM.id = 'meta-theme-color';
+          newM.content = color;
+          document.head.appendChild(newM);
+        }
       } catch(e) {}
     })();
   </script>
   <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
   <link rel="manifest" href="/static/manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -254,40 +257,56 @@
     html.dark svg.dark-only, body.dark-theme svg.dark-only { display: inline-block !important; }
     html.dark .light-only, body.dark-theme .light-only { display: none !important; }
 
-    /* ===== SPLASH SCREEN (Logo chico que respira + texto deslizante que pausa y sale) ===== */
+    /* ===== SPLASH SCREEN (Fondo sólido inmediato -> Logo que respira y texto -> salida rápida) ===== */
     .splash-screen-overlay {
       position: fixed; inset: 0; z-index: 99999;
       display: flex; align-items: center; justify-content: center;
       background-color: #F8FAFC;
-      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s ease;
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s ease;
       pointer-events: all;
     }
     html.dark .splash-screen-overlay { background-color: #1D2524 !important; }
     .splash-screen-overlay.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
-    .splash-content-box { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; user-select: none; }
-    .splash-logo-container { width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; animation: splashBreathe 2.6s ease-in-out infinite; }
+    
+    /* El contenido arranca oculto (opacity 0) para garantizar fondo sólido primero */
+    .splash-content-box {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; user-select: none;
+      opacity: 0;
+      animation: splashAppear 0.45s ease-out 0.2s forwards;
+    }
+    @keyframes splashAppear {
+      0%   { opacity: 0; transform: scale(0.96); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .splash-logo-container {
+      width: 68px; height: 68px; display: flex; align-items: center; justify-content: center;
+      animation: splashBreathe 2.4s ease-in-out infinite;
+    }
     .splash-logo-img { width: 100%; height: 100%; object-fit: contain; }
     @keyframes splashBreathe {
       0%   { transform: scale(1); filter: drop-shadow(0 4px 12px rgba(15,23,42,0.08)); }
-      50%  { transform: scale(1.08); filter: drop-shadow(0 8px 20px rgba(214,194,101,0.25)); }
+      50%  { transform: scale(1.07); filter: drop-shadow(0 8px 20px rgba(214,194,101,0.25)); }
       100% { transform: scale(1); filter: drop-shadow(0 4px 12px rgba(15,23,42,0.08)); }
     }
-    .splash-brand-title { display: flex; align-items: baseline; gap: 5px; opacity: 0; transform: translateX(-35px); animation: splashSlidePauseExit 2.1s cubic-bezier(0.25, 1, 0.35, 1) 0.1s forwards; }
-    .splash-brand-name { font-family: 'Montserrat', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.03em; color: #0F172A; }
+    .splash-brand-title {
+      display: flex; align-items: baseline; gap: 5px;
+      opacity: 0; transform: translateX(-20px);
+      animation: splashSlideIn 0.5s cubic-bezier(0.25, 1, 0.35, 1) 0.3s forwards;
+    }
+    .splash-brand-name { font-family: 'Montserrat', sans-serif; font-size: 21px; font-weight: 800; letter-spacing: -0.03em; color: #0F172A; }
     html.dark .splash-brand-name { color: #F4F4F6 !important; }
     .splash-brand-badge { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 800; color: #D97706; }
     html.dark .splash-brand-badge { color: #D6C265 !important; }
-    @keyframes splashSlidePauseExit {
-      0%  { opacity: 0; transform: translateX(-40px); }
-      22% { opacity: 1; transform: translateX(0); }
-      75% { opacity: 1; transform: translateX(0); }
-      100%{ opacity: 0; transform: translateX(35px); }
+    @keyframes splashSlideIn {
+      0%  { opacity: 0; transform: translateX(-20px); }
+      100%{ opacity: 1; transform: translateX(0); }
     }
   </style>
 </head>
 <body class="bg-[#F8FAFC] min-h-screen text-slate-900 antialiased">
 
-  <!-- ProntoTurno Animated Splash Screen -->
+  <!-- ProntoTurno Animated Splash Screen (Fondo sólido inmediato -> Logo respirando + Texto) -->
   <div id="app-splash-screen" class="splash-screen-overlay">
     <div class="splash-content-box">
       <div class="splash-logo-container">

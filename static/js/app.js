@@ -62,16 +62,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // DISMISS ANIMATED SPLASH SCREEN
+  // DISMISS ANIMATED SPLASH SCREEN (Rápido y fluido)
   // ==========================================
   const splashScreen = document.getElementById('app-splash-screen');
   if (splashScreen) {
     setTimeout(() => {
       splashScreen.classList.add('fade-out');
       setTimeout(() => {
-        splashScreen.remove();
-      }, 700);
-    }, 2100);
+        if (splashScreen.parentNode) splashScreen.remove();
+      }, 450);
+    }, 1400);
   }
 
   const servicesContainer = document.getElementById('services-container');
