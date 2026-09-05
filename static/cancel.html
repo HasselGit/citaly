@@ -31,6 +31,31 @@
       border: 1.5px solid rgba(226, 232, 240, 0.9);
       box-shadow: 0 12px 36px 0 rgba(15, 23, 42, 0.08);
     }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #1D2524 !important;
+        color: #F4F4F6 !important;
+      }
+      .glass-card {
+        background: rgba(37, 48, 46, 0.92) !important;
+        border-color: rgba(106, 106, 71, 0.45) !important;
+        box-shadow: 0 16px 44px rgba(0, 0, 0, 0.6) !important;
+      }
+      .text-slate-900 {
+        color: #F4F4F6 !important;
+      }
+      .text-slate-500 {
+        color: #A1A1AA !important;
+      }
+      #status-card {
+        background: rgba(29, 37, 36, 0.9) !important;
+        border-color: rgba(106, 106, 71, 0.35) !important;
+      }
+      #status-card .border-t {
+        border-color: rgba(106, 106, 71, 0.25) !important;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#F8FAFC]">

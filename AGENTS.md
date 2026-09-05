@@ -157,12 +157,12 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
 12. **Grilla de Agenda en Columnas Verticales Continuas:**
    - Los slots del día se renderizan divididos en **2 columnas verticales continuas** (Columna Izquierda: primera mitad cronológica; Columna Derecha: segunda mitad cronológica).
    - Esto garantiza que los tratamientos con múltiples slots (ej: Ortodoncia de 120 min) aparezcan agrupados de forma **consecutiva vertical**, facilitando la lectura natural como en un libro de citas médico sin saltos en zig-zag.
-13. **Modo Oscuro Oficial (Gris Topo & Frosted Glassmorphism):**
-   - Lienzo Principal: Gris Topo Cálido (`#1C1C22`), Tarjetas: Vidrio Esmerilado Translúcido (`rgba(38, 38, 48, 0.65)` con `backdrop-filter: blur(24px)` y bordes translúcidos `rgba(255, 255, 255, 0.1)`), Inputs/Slots: Vidrio Muted (`rgba(28, 28, 36, 0.7)`), Textos: Luminous Off-White (`#F4F4F6`), Textos Secundarios: Muted Silver (`#A1A1AA`), Acento: Ámbar Cálido (`#F59E0B`).
+13. **Modo Oscuro Oficial (Obsidian Gold & Industrial High-End):**
+   - Lienzo Principal: Obsidian Charcoal (`#1D2524`), Tarjetas y Superficies: Dark Olive Slate (`rgba(37, 48, 46, 0.92)` / `#25302E` con bordes Muted Olive Gold `rgba(106, 106, 71, 0.35)`), Acento Principal & Botones Destacados: Vibrant Brass Gold (`#D6C265` con texto oscuro `#1D2524`), Estados Positivos/Disponibles: Sage Mint (`#749E90`), Reprogramación/Info: Steel Blue (`#557DA1`), Alertas/Bloqueos: Warm Bronze Umber (`#594B29`), Textos: Luminous Off-White (`#F4F4F6`), Textos Secundarios: Muted Slate (`#94A3B8` / `#A1A1AA`).
    - Botón toggle Luna 🌙 / Sol ☀️ ubicado en la barra superior al lado izquierdo del botón de actualización en vivo (`#theme-toggle` / `#theme-toggle-pwa`).
    - Persistencia automática en `localStorage` (`prontoturno_theme`) y detección inteligente inicial de `prefers-color-scheme`.
 14. **Barra Lateral Desktop Integrada (Sin Bordes):**
-   - La barra vertical de navegación del Dashboard utiliza fondo 100% integrado al lienzo (`bg-transparent`) y sin bordes divisorios (`border-0`), permitiendo que los botones de navegación floten de forma fluida.
+   - La barra vertical de navegación del Dashboard utiliza fondo 100% integrado al lienzo (`bg-transparent`) y sin bordes divisorios (`border-0`), con botones activos en Brass Gold `#D6C265` y texto `#1D2524`.
 
 ---
 

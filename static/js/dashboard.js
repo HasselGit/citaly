@@ -214,22 +214,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // Actualizar botones de escritorio
     desktopTabBtns.forEach(btn => {
       if (btn.getAttribute('data-tab') === tabId) {
-        btn.classList.add('bg-navy', 'text-white', 'font-bold', 'shadow-xs');
-        btn.classList.remove('text-slate-600', 'hover:bg-slate-100', 'hover:text-navy');
+        btn.classList.add('bg-navy', 'text-white', 'dark:bg-[#D6C265]', 'dark:text-[#1D2524]', 'font-bold', 'shadow-xs');
+        btn.classList.remove('text-slate-600', 'hover:bg-slate-100', 'hover:text-navy', 'dark:text-slate-400', 'dark:hover:bg-[#2D3A38]', 'dark:hover:text-[#D6C265]');
       } else {
-        btn.classList.remove('bg-navy', 'text-white', 'font-bold', 'shadow-xs');
-        btn.classList.add('text-slate-600', 'hover:bg-slate-100', 'hover:text-navy');
+        btn.classList.remove('bg-navy', 'text-white', 'dark:bg-[#D6C265]', 'dark:text-[#1D2524]', 'font-bold', 'shadow-xs');
+        btn.classList.add('text-slate-600', 'hover:bg-slate-100', 'hover:text-navy', 'dark:text-slate-400', 'dark:hover:bg-[#2D3A38]', 'dark:hover:text-[#D6C265]');
       }
     });
 
     // Actualizar botones móviles (fondo pill y sombra al seleccionar)
     mobileTabBtns.forEach(btn => {
       if (btn.getAttribute('data-tab') === tabId) {
-        btn.classList.add('text-navy', 'font-bold', 'bg-slate-200/80', 'shadow-xs');
-        btn.classList.remove('text-slate-500', 'font-medium');
+        btn.classList.add('text-navy', 'font-bold', 'bg-slate-200/80', 'dark:bg-[#D6C265]', 'dark:text-[#1D2524]', 'shadow-xs');
+        btn.classList.remove('text-slate-500', 'dark:text-slate-400', 'font-medium');
       } else {
-        btn.classList.remove('text-navy', 'font-bold', 'bg-slate-200/80', 'shadow-xs');
-        btn.classList.add('text-slate-500', 'font-medium');
+        btn.classList.remove('text-navy', 'font-bold', 'bg-slate-200/80', 'dark:bg-[#D6C265]', 'dark:text-[#1D2524]', 'shadow-xs');
+        btn.classList.add('text-slate-500', 'dark:text-slate-400', 'font-medium');
       }
     });
 
@@ -471,28 +471,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (currentViewMode === 'table') {
       agendaContainer.innerHTML = `
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-[#3F453A]">
           <table class="w-full text-left border-collapse text-xs">
             <thead>
-              <tr class="border-b border-slate-200 text-slate-400 font-mono text-[11px] uppercase">
-                <th class="py-2.5 px-3">Paciente</th>
-                <th class="py-2.5 px-3">Tratamiento</th>
-                <th class="py-2.5 px-3">Fecha y Hora</th>
-                <th class="py-2.5 px-3">Estado</th>
+              <tr class="border-b-2 border-slate-200 dark:border-[#D6C265] text-slate-400 dark:text-[#D6C265] font-mono text-[11px] uppercase tracking-wider font-extrabold bg-slate-50 dark:bg-[#1D2524]">
+                <th class="py-3 px-3">Paciente</th>
+                <th class="py-3 px-3">Tratamiento</th>
+                <th class="py-3 px-3">Fecha y Hora</th>
+                <th class="py-3 px-3">Estado</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody class="divide-y divide-slate-100 dark:divide-[#3F453A]/60 bg-white dark:bg-[#25302E]">
               ${filtered.map(a => `
-                <tr class="hover:bg-slate-50">
-                  <td class="py-3 px-3 font-semibold text-navy">
-                    <div class="font-display">${a.patient_name}</div>
-                    <div class="text-[11px] text-slate-400 font-mono">${a.patient_whatsapp || 'Sin celular'}</div>
+                <tr class="hover:bg-slate-50 dark:hover:bg-[#2D3A38] transition-colors">
+                  <td class="py-3 px-3 font-semibold text-navy dark:text-[#F4F4F6]">
+                    <div class="font-display font-bold">${a.patient_name}</div>
+                    <div class="text-[11px] text-slate-400 dark:text-[#749E90] font-mono">${a.patient_whatsapp || 'Sin celular'}</div>
                   </td>
-                  <td class="py-3 px-3 text-slate-700 font-medium">${a.service_name}</td>
-                  <td class="py-3 px-3 font-mono font-semibold text-navy">${a.date_formatted} • ${a.time_str} hs</td>
+                  <td class="py-3 px-3 text-slate-700 dark:text-[#D6C265] font-medium">${a.service_name}</td>
+                  <td class="py-3 px-3 font-mono font-semibold text-navy dark:text-[#F4F4F6]">${a.date_formatted} • <span class="dark:text-[#D6C265] font-bold">${a.time_str} hs</span></td>
                   <td class="py-3 px-3">
-                    <span class="px-2.5 py-1 ${a.status === 'CANCELLED' ? 'bg-slate-100 text-slate-500' : 'bg-navy text-white shadow-2xs'} text-[10px] font-semibold font-mono rounded-md">
-                      ${a.status === 'CANCELLED' ? 'Cancelado' : 'Confirmado'}
+                    <span class="px-2.5 py-1 ${a.status === 'CANCELLED' ? 'bg-slate-100 text-slate-500 dark:bg-[#2A241F] dark:text-[#94A3B8]' : 'bg-navy text-white dark:bg-[#1F2927] dark:text-[#749E90] dark:border dark:border-[#749E90]/40'} text-[10px] font-bold font-mono rounded-md shadow-2xs">
+                      ${a.status === 'CANCELLED' ? 'Cancelado' : '● Confirmado'}
                     </span>
                   </td>
                 </tr>
@@ -505,14 +505,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     agendaContainer.innerHTML = filtered.map(a => `
-      <div class="p-3.5 bg-white rounded-xl border border-slate-200 flex items-center justify-between gap-3 shadow-xs">
+      <div class="p-3.5 bg-white dark:bg-[#25302E] rounded-xl border border-slate-200 dark:border-[#3F453A] flex items-center justify-between gap-3 shadow-xs hover:border-slate-300 dark:hover:border-[#6A6A47] transition-all">
         <div>
-          <div class="font-bold text-navy text-xs font-display">${a.patient_name}</div>
-          <div class="text-[11px] text-slate-500 mt-0.5">${a.service_name} (${a.duration_minutes || 30} min) • ${a.patient_whatsapp || ''}</div>
+          <div class="font-bold text-navy dark:text-[#F4F4F6] text-xs font-display">${a.patient_name}</div>
+          <div class="text-[11px] text-slate-500 dark:text-[#A1A1AA] mt-0.5"><span class="dark:text-[#D6C265] font-semibold">${a.service_name}</span> (${a.duration_minutes || 30} min) • <span class="dark:text-[#749E90] font-mono">${a.patient_whatsapp || ''}</span></div>
         </div>
         <div class="text-right font-mono">
-          <div class="text-xs font-bold text-navy">${a.date_formatted} • ${a.time_str} hs</div>
-          <span class="text-[10px] ${a.status === 'CANCELLED' ? 'text-slate-400' : 'text-emerald-700 font-bold'}">${a.status === 'CANCELLED' ? 'Cancelado' : '● Confirmado'}</span>
+          <div class="text-xs font-bold text-navy dark:text-[#F4F4F6]">${a.date_formatted} • <span class="dark:text-[#D6C265]">${a.time_str} hs</span></div>
+          <span class="text-[10px] ${a.status === 'CANCELLED' ? 'text-slate-400 dark:text-[#94A3B8]' : 'text-emerald-700 font-bold dark:text-[#749E90]'}">${a.status === 'CANCELLED' ? 'Cancelado' : '● Confirmado'}</span>
         </div>
       </div>
     `).join('');
@@ -572,10 +572,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const countLabel = count === 0 ? 'Libre' : `${count} ${count === 1 ? 'turno' : 'turnos'}`;
 
       return `
-        <button data-day-iso="${dIso}" class="agenda-day-btn p-2.5 rounded-xl flex flex-col items-center justify-center text-center transition-all ${isSelected ? 'bg-navy text-white shadow-xs font-bold' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'}">
-          <span class="text-[10px] font-bold uppercase font-mono ${isSelected ? 'text-amber-400' : 'text-slate-500'}">${dayName}</span>
+        <button data-day-iso="${dIso}" class="agenda-day-btn p-2.5 rounded-xl flex flex-col items-center justify-center text-center transition-all ${isSelected ? 'bg-navy text-white shadow-xs font-bold dark:bg-[#D6C265] dark:text-[#1D2524]' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200 dark:bg-[#25302E] dark:text-[#F4F4F6] dark:border-[#3F453A] dark:hover:border-[#6A6A47]'}">
+          <span class="text-[10px] font-bold uppercase font-mono ${isSelected ? 'text-amber-400 dark:text-[#1D2524]' : 'text-slate-500 dark:text-[#A1A1AA]'}">${dayName}</span>
           <span class="text-sm font-bold font-display my-0.5">${dayNum}/${monthNum}</span>
-          <span class="text-[9px] font-semibold font-mono ${isSelected ? 'text-slate-300' : (count > 0 ? 'text-amber-700 font-bold' : 'text-slate-500')}">${countLabel}</span>
+          <span class="text-[9px] font-semibold font-mono ${isSelected ? 'text-slate-300 dark:text-[#263230]' : (count > 0 ? 'text-amber-700 dark:text-[#D6C265] font-bold' : 'text-slate-500 dark:text-[#749E90]')}">${countLabel}</span>
         </button>
       `;
     }).join('');
@@ -682,34 +682,36 @@ document.addEventListener('DOMContentLoaded', () => {
       if (appt) {
         const cleanPhone = (appt.patient_whatsapp || '').replace(/\D/g, '');
         return `
-          <div class="p-3 bg-slate-50/90 rounded-xl border border-slate-200 flex flex-col gap-2 shadow-2xs">
+          <div class="p-3 bg-slate-50/90 dark:bg-[#232E2C] rounded-xl border border-slate-200 dark:border-[#3F453A] flex flex-col gap-2 shadow-2xs transition-all hover:border-slate-300 dark:hover:border-[#6A6A47]/60">
             <!-- Fila 1: Hora + Nombre Completo + Estado -->
             <div class="flex items-center justify-between gap-2.5">
               <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                <span class="px-2.5 py-1 bg-navy text-white text-xs font-bold font-mono rounded-lg flex-shrink-0 shadow-xs">
+                <span class="px-2.5 py-1 bg-navy dark:bg-[#D6C265] text-white dark:text-[#1D2524] text-xs font-bold font-mono rounded-lg flex-shrink-0 shadow-xs">
                   ${timeSlot} hs
                 </span>
                 <div class="min-w-0 flex-1">
-                  <div class="text-xs font-bold text-navy font-display truncate">${appt.patient_name}</div>
-                  <div class="text-[11px] text-slate-500 font-sans truncate">${appt.service_name} ${cleanPhone ? `• ${appt.patient_whatsapp}` : ''}</div>
+                  <div class="text-xs font-bold text-navy dark:text-[#F4F4F6] font-display truncate">${appt.patient_name}</div>
+                  <div class="text-[11px] text-slate-500 dark:text-[#A1A1AA] font-sans truncate">
+                    <span class="dark:text-[#D6C265] font-semibold">${appt.service_name}</span> ${cleanPhone ? `• <span class="dark:text-[#749E90] font-mono">${appt.patient_whatsapp}</span>` : ''}
+                  </div>
                 </div>
               </div>
-              <span class="px-2 py-0.5 bg-navy/10 text-navy text-[10px] font-bold font-mono rounded-md flex-shrink-0">
+              <span class="px-2 py-0.5 bg-navy/10 text-navy dark:bg-[#594B29]/60 dark:text-[#D6C265] dark:border dark:border-[#6A6A47]/50 text-[10px] font-bold font-mono rounded-md flex-shrink-0">
                 Ocupado
               </span>
             </div>
 
             <!-- Fila 2: Botones de Acción -->
             ${isPastSlot ? `
-              <div class="flex items-center justify-end pt-1 border-t border-slate-200/50">
-                <span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold font-mono rounded-md">Finalizado</span>
+              <div class="flex items-center justify-end pt-1 border-t border-slate-200/50 dark:border-[#3F453A]/60">
+                <span class="px-2 py-0.5 bg-slate-100 dark:bg-[#1D2524] text-slate-500 dark:text-slate-400 text-[10px] font-bold font-mono rounded-md">Finalizado</span>
               </div>
             ` : `
-              <div class="flex items-center justify-end gap-1.5 pt-1.5 border-t border-slate-200/60">
-                <button type="button" data-action="admin-reschedule-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-patient-phone="${cleanPhone || ''}" data-service-id="${appt.service_id || ''}" data-service-name="${appt.service_name || 'Especialidad'}" data-duration="${appt.duration_minutes || 30}" data-slot-info="${timeSlot} hs (${dayOfWeekName} ${dayNumber} de ${monthName})" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-navy border border-slate-300 rounded-lg text-[10px] font-bold font-mono transition-all shadow-2xs" title="Reprogramar fecha y horario">
+              <div class="flex items-center justify-end gap-1.5 pt-1.5 border-t border-slate-200/60 dark:border-[#3F453A]/80">
+                <button type="button" data-action="admin-reschedule-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-patient-phone="${cleanPhone || ''}" data-service-id="${appt.service_id || ''}" data-service-name="${appt.service_name || 'Especialidad'}" data-duration="${appt.duration_minutes || 30}" data-slot-info="${timeSlot} hs (${dayOfWeekName} ${dayNumber} de ${monthName})" class="px-2.5 py-1 bg-white hover:bg-slate-100 text-navy dark:bg-[#2A3634] dark:hover:bg-[#354442] dark:text-[#D6C265] border border-slate-300 dark:border-[#6A6A47] rounded-lg text-[10px] font-bold font-mono transition-all shadow-2xs" title="Reprogramar fecha y horario">
                   Reprogramar
                 </button>
-                <button type="button" data-action="admin-cancel-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-slot-info="${timeSlot} hs (${dayOfWeekName} ${dayNumber} de ${monthName})" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-navy border border-slate-200 rounded-lg text-[10px] font-bold font-mono transition-all" title="Cancelar este turno y liberar el horario">
+                <button type="button" data-action="admin-cancel-appt" data-appt-id="${appt.id}" data-patient-name="${appt.patient_name || 'Paciente'}" data-slot-info="${timeSlot} hs (${dayOfWeekName} ${dayNumber} de ${monthName})" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-navy dark:bg-[#1D2524] dark:hover:bg-red-950/40 dark:text-slate-400 dark:hover:text-red-400 border border-slate-200 dark:border-[#3F453A] rounded-lg text-[10px] font-bold font-mono transition-all" title="Cancelar este turno y liberar el horario">
                   Cancelar
                 </button>
               </div>
@@ -718,30 +720,30 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
       } else if (timeBlock) {
         return `
-          <div class="p-3 bg-slate-100/80 rounded-xl border border-slate-300 flex items-center justify-between gap-3 shadow-2xs">
+          <div class="p-3 bg-slate-100/80 dark:bg-[#2A271F] rounded-xl border border-slate-300 dark:border-[#594B29] flex items-center justify-between gap-3 shadow-2xs">
             <div class="flex items-center gap-3 overflow-hidden">
-              <span class="px-2.5 py-1 bg-slate-200 text-slate-800 text-xs font-bold font-mono rounded-lg flex-shrink-0">
+              <span class="px-2.5 py-1 bg-slate-200 text-slate-800 dark:bg-[#594B29] dark:text-[#D6C265] text-xs font-bold font-mono rounded-lg flex-shrink-0">
                 ${timeSlot} hs
               </span>
               <div class="overflow-hidden">
-                <div class="text-xs font-bold text-navy font-display truncate">🔒 ${timeBlock.reason || 'Agenda Bloqueada'}</div>
-                <div class="text-[11px] text-slate-500 font-sans truncate">No disponible para turnos</div>
+                <div class="text-xs font-bold text-navy dark:text-[#D6C265] font-display truncate">🔒 ${timeBlock.reason || 'Agenda Bloqueada'}</div>
+                <div class="text-[11px] text-slate-500 dark:text-[#94A3B8] font-sans truncate">No disponible para turnos</div>
               </div>
             </div>
-            <button type="button" data-action="admin-delete-block" data-block-id="${timeBlock.id}" class="px-2.5 py-1 bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg text-[10px] font-bold font-mono transition-all shadow-2xs">
+            <button type="button" data-action="admin-delete-block" data-block-id="${timeBlock.id}" class="px-2.5 py-1 bg-white hover:bg-slate-200 text-slate-700 dark:bg-[#232E2C] dark:hover:bg-[#2D3A38] dark:text-[#D6C265] border border-slate-300 dark:border-[#6A6A47] rounded-lg text-[10px] font-bold font-mono transition-all shadow-2xs">
               Desbloquear
             </button>
           </div>
         `;
       } else {
         return `
-          <div class="p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between gap-3 shadow-2xs hover:border-slate-300 transition-all">
+          <div class="p-3 bg-white dark:bg-[#1D2524]/60 rounded-xl border border-slate-200 dark:border-[#3F453A] flex items-center justify-between gap-3 shadow-2xs hover:border-slate-300 dark:hover:border-[#6A6A47] transition-all">
             <div class="flex items-center gap-3">
-              <span class="px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-bold font-mono rounded-lg flex-shrink-0">
+              <span class="px-2.5 py-1 bg-slate-100 dark:bg-[#2D3A38] text-slate-700 dark:text-[#CBD5E1] text-xs font-bold font-mono rounded-lg flex-shrink-0">
                 ${timeSlot} hs
               </span>
             </div>
-            <span class="text-[11px] font-semibold text-slate-500 font-mono">● Disponible</span>
+            <span class="text-[11px] font-semibold text-slate-500 dark:text-[#749E90] font-mono">● Disponible</span>
           </div>
         `;
       }
@@ -792,16 +794,17 @@ document.addEventListener('DOMContentLoaded', () => {
     selectedAvailabilityFilter = filter;
     [btnFilterAll, btnFilterFree, btnFilterOccupied].forEach(b => {
       if (b) {
-        b.className = 'px-2.5 py-1 text-slate-600 hover:bg-slate-200 rounded-lg transition-all font-semibold font-mono text-xs';
+        b.className = 'px-2.5 py-1 text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-[#2D3A38] dark:hover:text-[#D6C265] rounded-lg transition-all font-semibold font-mono text-xs';
       }
     });
 
+    const activeClass = 'px-2.5 py-1 bg-navy text-white dark:bg-[#D6C265] dark:text-[#1D2524] rounded-lg transition-all shadow-xs font-bold font-mono text-xs';
     if (filter === 'all' && btnFilterAll) {
-      btnFilterAll.className = 'px-2.5 py-1 bg-navy text-white rounded-lg transition-all shadow-xs font-bold font-mono text-xs';
+      btnFilterAll.className = activeClass;
     } else if (filter === 'free' && btnFilterFree) {
-      btnFilterFree.className = 'px-2.5 py-1 bg-navy text-white rounded-lg transition-all shadow-xs font-bold font-mono text-xs';
+      btnFilterFree.className = activeClass;
     } else if (filter === 'occupied' && btnFilterOccupied) {
-      btnFilterOccupied.className = 'px-2.5 py-1 bg-navy text-white rounded-lg transition-all shadow-xs font-bold font-mono text-xs';
+      btnFilterOccupied.className = activeClass;
     }
 
     renderWeeklyAgenda();
@@ -825,9 +828,9 @@ document.addEventListener('DOMContentLoaded', () => {
     nuevoTurnoServicesGrid.innerHTML = dentalServices.map(srv => {
       const isSelected = selectedAdminService.id === srv.id;
       return `
-        <button type="button" data-srv-id="${srv.id}" class="admin-srv-btn p-3 rounded-xl border text-left transition-all ${isSelected ? 'bg-navy text-white border-navy shadow-xs' : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'}">
-          <div class="text-xs font-bold font-display truncate ${isSelected ? 'text-amber-400' : 'text-navy'}">${srv.name}</div>
-          <div class="flex items-center justify-between mt-1 text-[10px] font-mono ${isSelected ? 'text-slate-300' : 'text-slate-500'}">
+        <button type="button" data-srv-id="${srv.id}" class="admin-srv-btn p-3 rounded-xl border text-left transition-all ${isSelected ? 'bg-navy text-white border-navy shadow-xs dark:bg-[#D6C265] dark:text-[#1D2524] dark:border-[#D6C265]' : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300 dark:bg-[#25302E] dark:text-[#F4F4F6] dark:border-[#3F453A] dark:hover:border-[#6A6A47]'}">
+          <div class="text-xs font-bold font-display truncate ${isSelected ? 'text-amber-400 dark:text-[#1D2524]' : 'text-navy dark:text-[#F4F4F6]'}">${srv.name}</div>
+          <div class="flex items-center justify-between mt-1 text-[10px] font-mono ${isSelected ? 'text-slate-300 dark:text-[#263230]' : 'text-slate-500 dark:text-[#A1A1AA]'}">
             <span>${srv.duration} min</span>
             <span class="font-bold">${srv.price}</span>
           </div>
@@ -920,10 +923,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }).length;
 
       return `
-        <button type="button" data-admin-day-iso="${dIso}" class="admin-day-btn p-2 rounded-xl flex flex-col items-center justify-center text-center transition-all ${isSelected ? 'bg-navy text-white shadow-xs font-bold' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'}">
-          <span class="text-[9px] font-bold uppercase font-mono ${isSelected ? 'text-amber-400' : 'text-slate-500'}">${dayName}</span>
+        <button type="button" data-admin-day-iso="${dIso}" class="admin-day-btn p-2 rounded-xl flex flex-col items-center justify-center text-center transition-all ${isSelected ? 'bg-navy text-white shadow-xs font-bold dark:bg-[#D6C265] dark:text-[#1D2524]' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200 dark:bg-[#25302E] dark:text-[#F4F4F6] dark:border-[#3F453A] dark:hover:border-[#6A6A47]'}">
+          <span class="text-[9px] font-bold uppercase font-mono ${isSelected ? 'text-amber-400 dark:text-[#1D2524]' : 'text-slate-500 dark:text-[#A1A1AA]'}">${dayName}</span>
           <span class="text-xs font-bold font-display my-0.5">${dayNum}/${monthNum}</span>
-          <span class="text-[8px] font-semibold font-mono ${isSelected ? 'text-slate-300' : 'text-slate-500'}">${freeCount} libres</span>
+          <span class="text-[8px] font-semibold font-mono ${isSelected ? 'text-slate-300 dark:text-[#263230]' : 'text-slate-500 dark:text-[#749E90]'}">${freeCount} libres</span>
         </button>
       `;
     }).join('');
@@ -1000,8 +1003,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (freeSlots.length === 0) {
       adminBookingSlotsGrid.innerHTML = `
-        <div class="col-span-full p-4 text-center bg-slate-50 rounded-xl border border-slate-200">
-          <p class="text-xs text-slate-500 font-sans">No hay horarios libres disponibles para este día.</p>
+        <div class="col-span-full p-4 text-center bg-slate-50 dark:bg-[#1D2524] rounded-xl border border-slate-200 dark:border-[#3F453A]">
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-sans">No hay horarios libres disponibles para este día.</p>
         </div>
       `;
       selectedAdminSlot = null;
@@ -1017,7 +1020,7 @@ document.addEventListener('DOMContentLoaded', () => {
     adminBookingSlotsGrid.innerHTML = freeSlots.map(timeStr => {
       const isSelected = selectedAdminSlot === timeStr;
       return `
-        <button type="button" data-admin-slot="${timeStr}" class="admin-slot-btn py-2 px-1 rounded-xl text-xs font-mono font-bold transition-all ${isSelected ? 'bg-navy text-white shadow-xs border-navy' : 'bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-400 border border-slate-200 shadow-2xs'}">
+        <button type="button" data-admin-slot="${timeStr}" class="admin-slot-btn py-2 px-1 rounded-xl text-xs font-mono font-bold transition-all ${isSelected ? 'bg-navy text-white shadow-xs border-navy dark:bg-[#D6C265] dark:text-[#1D2524] dark:border-[#D6C265]' : 'bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-400 border border-slate-200 shadow-2xs dark:bg-[#25302E] dark:text-[#F4F4F6] dark:border-[#3F453A] dark:hover:border-[#6A6A47]'}">
           ${timeStr} hs
         </button>
       `;

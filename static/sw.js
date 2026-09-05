@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v8-official-brand';
+const CACHE_NAME = 'prontoturno-v9-obsidian-gold';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
