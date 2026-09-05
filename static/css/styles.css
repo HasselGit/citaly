@@ -109,13 +109,32 @@ body.dark-theme .splash-screen-overlay {
   object-fit: contain;
 }
 
-.splash-logo-img.dark-only { display: none; }
-.splash-logo-img.light-only { display: block; }
+/* Universal Light/Dark Theme Visibility */
+.dark-only {
+  display: none !important;
+}
+.light-only {
+  display: block !important;
+}
+span.light-only, a.light-only, svg.light-only {
+  display: inline-block !important;
+}
 
-html.dark .splash-logo-img.dark-only,
-body.dark-theme .splash-logo-img.dark-only { display: block !important; }
-html.dark .splash-logo-img.light-only,
-body.dark-theme .splash-logo-img.light-only { display: none !important; }
+html.dark .dark-only,
+body.dark-theme .dark-only {
+  display: block !important;
+}
+html.dark span.dark-only,
+body.dark-theme span.dark-only,
+html.dark svg.dark-only,
+body.dark-theme svg.dark-only {
+  display: inline-block !important;
+}
+
+html.dark .light-only,
+body.dark-theme .light-only {
+  display: none !important;
+}
 
 @keyframes splashBreathe {
   0% { transform: scale(1); filter: drop-shadow(0 4px 12px rgba(15, 23, 42, 0.08)); }

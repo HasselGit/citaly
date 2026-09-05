@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v15-hd-splash-animation';
+const CACHE_NAME = 'prontoturno-v16-authentic-laser-logo';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
