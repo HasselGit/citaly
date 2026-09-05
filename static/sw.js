@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v16-authentic-laser-logo';
+const CACHE_NAME = 'prontoturno-v17-status-bar-dark-sync';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

@@ -5,10 +5,24 @@
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
   <title>ProntoTurno Pro — Panel de Control | Dr. Alejandro Pérez</title>
   <link rel="icon" type="image/png" href="/static/favicon.png">
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('prontoturno_theme');
+        var isDark = saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (isDark) {
+          document.documentElement.classList.add('dark');
+          document.documentElement.classList.remove('light');
+        } else {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('light');
+        }
+      } catch(e) {}
+    })();
+  </script>
+  <meta name="theme-color" content="#F8FAFC" id="meta-theme-color">
   <link rel="apple-touch-icon" href="/static/img/icon-192.png">
   <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#F8FAFC" media="(prefers-color-scheme: light)" id="meta-theme-light">
-  <meta name="theme-color" content="#1D2524" media="(prefers-color-scheme: dark)" id="meta-theme-dark">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   
@@ -287,20 +301,20 @@
     <header class="fixed top-0 left-0 md:left-[16.5rem] right-0 z-30 h-20 bg-[#F8FAFC]/95 dark:bg-[#1D2524]/95 backdrop-blur-sm flex justify-between items-center px-4 md:px-10">
       
       <!-- Tarjeta Ejecutiva del Consultorio -->
-      <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-slate-200/90 shadow-xs">
-        <div class="w-10 h-10 rounded-xl bg-navy text-white flex items-center justify-center font-display font-bold text-sm shadow-xs flex-shrink-0">
+      <div class="flex items-center gap-3 bg-white dark:bg-[#25302E] px-4 py-2 rounded-2xl border border-slate-200/90 dark:border-[rgba(106,106,71,0.35)] shadow-xs transition-colors">
+        <div class="w-10 h-10 rounded-xl bg-navy dark:bg-[#D6C265] text-white dark:text-[#1D2524] flex items-center justify-center font-display font-bold text-sm shadow-xs flex-shrink-0 transition-colors">
           AP
         </div>
         <div class="flex flex-col">
-          <span class="text-sm text-navy font-bold font-display leading-tight">Dr. Alejandro Pérez</span>
-          <span class="text-xs text-slate-muted font-sans font-medium">Odontología Integral</span>
+          <span class="text-sm text-navy dark:text-[#F4F4F6] font-bold font-display leading-tight">Dr. Alejandro Pérez</span>
+          <span class="text-xs text-slate-muted dark:text-[#94A3B8] font-sans font-medium">Odontología Integral</span>
         </div>
       </div>
 
       <!-- Acciones de Encabezado -->
       <div class="flex items-center gap-2">
         <!-- Botón Modo Oscuro / Claro Premium -->
-        <button id="theme-toggle" title="Cambiar a Modo Oscuro / Claro" class="p-2.5 bg-white hover:bg-slate-100 text-slate-700 rounded-xl transition-all font-mono text-xs flex items-center justify-center border border-slate-200 shadow-2xs" aria-label="Cambiar tema">
+        <button id="theme-toggle" title="Cambiar a Modo Oscuro / Claro" class="p-2.5 bg-white dark:bg-[#25302E] hover:bg-slate-100 dark:hover:bg-[#2e3c3a] text-slate-700 dark:text-[#F4F4F6] rounded-xl transition-all font-mono text-xs flex items-center justify-center border border-slate-200 dark:border-[rgba(106,106,71,0.35)] shadow-2xs" aria-label="Cambiar tema">
           <svg id="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
@@ -317,7 +331,7 @@
           </svg>
         </button>
 
-        <button id="btn-manual-sync" title="Sincronizar en vivo" class="p-2.5 bg-white hover:bg-slate-100 text-slate-700 rounded-xl transition-all font-mono text-xs flex items-center gap-2 border border-slate-200 shadow-2xs">
+        <button id="btn-manual-sync" title="Sincronizar en vivo" class="p-2.5 bg-white dark:bg-[#25302E] hover:bg-slate-100 dark:hover:bg-[#2e3c3a] text-slate-700 dark:text-[#F4F4F6] rounded-xl transition-all font-mono text-xs flex items-center gap-2 border border-slate-200 dark:border-[rgba(106,106,71,0.35)] shadow-2xs">
           <svg id="sync-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
           <span class="hidden sm:inline font-semibold">Actualizar</span>
         </button>

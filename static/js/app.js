@@ -22,16 +22,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const sunIconPwa = document.getElementById('pwa-theme-icon-sun');
 
   function applyTheme(theme) {
+    const isDark = theme === 'dark';
+    const themeColor = isDark ? '#1D2524' : '#F8FAFC';
+
+    // Update Theme-Color for Android/iOS System Status Bar
+    let meta = document.getElementById('meta-theme-color') || document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.removeAttribute('media');
+      meta.setAttribute('content', themeColor);
+    }
     document.querySelectorAll('meta[name="theme-color"]').forEach(m => {
-      m.setAttribute('content', theme === 'dark' ? '#1D2524' : '#F8FAFC');
+      m.removeAttribute('media');
+      m.setAttribute('content', themeColor);
     });
-    if (theme === 'dark') {
+
+    if (isDark) {
       document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
       document.body.classList.add('dark-theme');
       if (moonIconPwa) moonIconPwa.style.display = 'none';
       if (sunIconPwa) sunIconPwa.style.display = 'block';
     } else {
       document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
       document.body.classList.remove('dark-theme');
       if (moonIconPwa) moonIconPwa.style.display = 'block';
       if (sunIconPwa) sunIconPwa.style.display = 'none';
