@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v18-dark-statusbar-manifest-fix';
+const CACHE_NAME = 'prontoturno-v19-logo-header-splash-fix';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

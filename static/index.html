@@ -12,6 +12,7 @@
       try {
         var saved = localStorage.getItem('prontoturno_theme');
         var isDark = saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        var color = isDark ? '#1D2524' : '#F8FAFC';
         if (isDark) {
           document.documentElement.classList.add('dark');
           document.documentElement.classList.remove('light');
@@ -19,13 +20,15 @@
           document.documentElement.classList.remove('dark');
           document.documentElement.classList.add('light');
         }
-        // Update meta theme-color SYNCHRONOUSLY before first paint
-        var mc = document.querySelector('meta[name="theme-color"]');
-        if (mc) mc.setAttribute('content', isDark ? '#1D2524' : '#F8FAFC');
+        // Create meta theme-color dynamically BEFORE first paint
+        var meta = document.createElement('meta');
+        meta.name = 'theme-color';
+        meta.id = 'meta-theme-color';
+        meta.content = color;
+        document.head.appendChild(meta);
       } catch(e) {}
     })();
   </script>
-  <meta name="theme-color" content="#F8FAFC" id="meta-theme-color">
   <link rel="apple-touch-icon" href="/static/img/icon-192.png">
   <link rel="manifest" href="/static/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
