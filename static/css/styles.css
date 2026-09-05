@@ -194,8 +194,8 @@ h1, h2, h3, h4, .font-display {
 .title-icon {
   width: 32px;
   height: 32px;
-  background: var(--amber-light);
-  color: var(--secondary-amber);
+  background: rgba(15, 23, 42, 0.07);
+  color: var(--primary-navy);
   border-radius: 10px;
   display: flex;
   align-items: center;

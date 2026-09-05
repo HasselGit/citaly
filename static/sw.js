@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v13-statusbar-table-fix';
+const CACHE_NAME = 'prontoturno-v14-pure-status-bar-matching';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

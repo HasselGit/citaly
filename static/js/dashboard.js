@@ -67,17 +67,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const sunIcon = document.getElementById('theme-icon-sun');
 
   function applyDashboardTheme(theme) {
-    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m => {
+      m.setAttribute('content', theme === 'dark' ? '#1D2524' : '#F8FAFC');
+    });
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
       document.body.classList.add('dark-theme');
-      if (metaTheme) metaTheme.setAttribute('content', '#1D2524');
       if (moonIcon) moonIcon.classList.add('hidden');
       if (sunIcon) sunIcon.classList.remove('hidden');
     } else {
       document.documentElement.classList.remove('dark');
       document.body.classList.remove('dark-theme');
-      if (metaTheme) metaTheme.setAttribute('content', '#F8FAFC');
       if (moonIcon) moonIcon.classList.remove('hidden');
       if (sunIcon) sunIcon.classList.add('hidden');
     }

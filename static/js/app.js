@@ -22,17 +22,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const sunIconPwa = document.getElementById('pwa-theme-icon-sun');
 
   function applyTheme(theme) {
-    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m => {
+      m.setAttribute('content', theme === 'dark' ? '#1D2524' : '#F8FAFC');
+    });
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
       document.body.classList.add('dark-theme');
-      if (metaTheme) metaTheme.setAttribute('content', '#1D2524');
       if (moonIconPwa) moonIconPwa.style.display = 'none';
       if (sunIconPwa) sunIconPwa.style.display = 'block';
     } else {
       document.documentElement.classList.remove('dark');
       document.body.classList.remove('dark-theme');
-      if (metaTheme) metaTheme.setAttribute('content', '#F8FAFC');
       if (moonIconPwa) moonIconPwa.style.display = 'block';
       if (sunIconPwa) sunIconPwa.style.display = 'none';
     }
