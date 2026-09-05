@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v9-obsidian-gold';
+const CACHE_NAME = 'prontoturno-v10-seamless';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
