@@ -225,10 +225,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Actualizar botones móviles (fondo pill y sombra al seleccionar)
     mobileTabBtns.forEach(btn => {
       if (btn.getAttribute('data-tab') === tabId) {
-        btn.classList.add('text-navy', 'font-bold', 'bg-slate-200/80', 'dark:bg-[#D6C265]', 'dark:text-[#1D2524]', 'shadow-xs');
+        btn.classList.add('text-navy', 'font-bold', 'bg-slate-200/80', 'dark:bg-[#25302E]', 'dark:text-[#D6C265]', 'dark:border', 'dark:border-[#6A6A47]/40', 'shadow-xs');
         btn.classList.remove('text-slate-500', 'dark:text-slate-400', 'font-medium');
       } else {
-        btn.classList.remove('text-navy', 'font-bold', 'bg-slate-200/80', 'dark:bg-[#D6C265]', 'dark:text-[#1D2524]', 'shadow-xs');
+        btn.classList.remove('text-navy', 'font-bold', 'bg-slate-200/80', 'dark:bg-[#25302E]', 'dark:text-[#D6C265]', 'dark:border', 'dark:border-[#6A6A47]/40', 'shadow-xs');
         btn.classList.add('text-slate-500', 'dark:text-slate-400', 'font-medium');
       }
     });
@@ -474,11 +474,11 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-[#3F453A]">
           <table class="w-full text-left border-collapse text-xs">
             <thead>
-              <tr class="border-b-2 border-slate-200 dark:border-[#D6C265] text-slate-400 dark:text-[#D6C265] font-mono text-[11px] uppercase tracking-wider font-extrabold bg-slate-50 dark:bg-[#1D2524]">
-                <th class="py-3 px-3">Paciente</th>
-                <th class="py-3 px-3">Tratamiento</th>
-                <th class="py-3 px-3">Fecha y Hora</th>
-                <th class="py-3 px-3">Estado</th>
+              <tr class="border-b-2 border-slate-200 dark:border-[#6A6A47]/40 text-slate-400 dark:text-[#D6C265] font-mono text-[11px] uppercase tracking-wider font-extrabold bg-slate-50 dark:bg-[#1D2524]">
+                <th class="sticky top-[8.75rem] z-10 bg-slate-50/95 dark:bg-[#1D2524]/95 backdrop-blur-md py-3 px-3 shadow-2xs">Paciente</th>
+                <th class="sticky top-[8.75rem] z-10 bg-slate-50/95 dark:bg-[#1D2524]/95 backdrop-blur-md py-3 px-3 shadow-2xs">Tratamiento</th>
+                <th class="sticky top-[8.75rem] z-10 bg-slate-50/95 dark:bg-[#1D2524]/95 backdrop-blur-md py-3 px-3 shadow-2xs">Fecha y Hora</th>
+                <th class="sticky top-[8.75rem] z-10 bg-slate-50/95 dark:bg-[#1D2524]/95 backdrop-blur-md py-3 px-3 shadow-2xs">Estado</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-[#3F453A]/60 bg-white dark:bg-[#25302E]">

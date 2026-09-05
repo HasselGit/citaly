@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v10-seamless';
+const CACHE_NAME = 'prontoturno-v11-sticky-headers';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

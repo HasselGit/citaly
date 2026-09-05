@@ -960,13 +960,13 @@ body.dark-theme .theme-toggle-btn {
   -webkit-backdrop-filter: blur(16px) !important;
   border: 1px solid rgba(214, 194, 101, 0.35) !important;
   color: #D6C265 !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
 }
 
 html.dark .theme-toggle-btn:hover,
 body.dark-theme .theme-toggle-btn:hover {
   border-color: #D6C265 !important;
-  box-shadow: 0 6px 20px rgba(214, 194, 101, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
   transform: scale(1.06);
 }
 
@@ -977,7 +977,7 @@ body.dark-theme .section-card {
   backdrop-filter: blur(24px) saturate(140%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(140%) !important;
   border: 1px solid rgba(106, 106, 71, 0.35) !important;
-  box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(214, 194, 101, 0.08) !important;
+  box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.35) !important;
 }
 
 html.dark .section-title,
@@ -1010,9 +1010,9 @@ body.dark-theme .service-item:hover {
 html.dark .service-item.selected,
 body.dark-theme .service-item.selected {
   background: #D6C265 !important;
-  border-color: #E6D585 !important;
+  border-color: #D6C265 !important;
   color: #1D2524 !important;
-  box-shadow: 0 6px 22px rgba(214, 194, 101, 0.35) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25) !important;
 }
 
 html.dark .service-item.selected .service-name,
@@ -1047,9 +1047,9 @@ body.dark-theme .date-chip:hover:not(.disabled) {
 html.dark .date-chip.selected,
 body.dark-theme .date-chip.selected {
   background: #D6C265 !important;
-  border-color: #E6D585 !important;
+  border-color: #D6C265 !important;
   color: #1D2524 !important;
-  box-shadow: 0 6px 20px rgba(214, 194, 101, 0.35) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25) !important;
 }
 
 html.dark .date-chip.selected .date-day,
@@ -1079,10 +1079,10 @@ body.dark-theme .slot-btn:hover:not(:disabled) {
 html.dark .slot-btn.selected,
 body.dark-theme .slot-btn.selected {
   background: #D6C265 !important;
-  border-color: #E6D585 !important;
+  border-color: #D6C265 !important;
   color: #1D2524 !important;
   font-weight: 800 !important;
-  box-shadow: 0 6px 22px rgba(214, 194, 101, 0.4) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25) !important;
 }
 
 html.dark .input-field,
@@ -1103,7 +1103,7 @@ body.dark-theme input[type="search"] {
 html.dark .input-field:focus,
 body.dark-theme .input-field:focus {
   border-color: #D6C265 !important;
-  box-shadow: 0 0 0 3px rgba(214, 194, 101, 0.25) !important;
+  box-shadow: 0 0 0 2px rgba(214, 194, 101, 0.2) !important;
 }
 
 html.dark .active-appt-card,
@@ -1112,7 +1112,7 @@ body.dark-theme .active-appt-card {
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
   border: 1px solid rgba(106, 106, 71, 0.45) !important;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
 }
 
 html.dark #express-reschedule-banner,
@@ -1121,7 +1121,7 @@ body.dark-theme #express-reschedule-banner {
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
   border: 1.5px solid rgba(214, 194, 101, 0.45) !important;
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
 }
 
 html.dark #express-greeting-title {
@@ -1144,7 +1144,7 @@ body.dark-theme .modal-container {
   backdrop-filter: blur(32px) !important;
   -webkit-backdrop-filter: blur(32px) !important;
   border: 1.5px solid rgba(106, 106, 71, 0.45) !important;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7) !important;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6) !important;
   color: #F4F4F6 !important;
 }
 
@@ -1165,13 +1165,13 @@ body.dark-theme .phone-lookup-btn {
   color: #1D2524 !important;
   font-weight: 800 !important;
   border: none !important;
-  box-shadow: 0 4px 16px rgba(214, 194, 101, 0.3) !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2) !important;
 }
 
 html.dark .phone-lookup-btn:hover,
 body.dark-theme .phone-lookup-btn:hover {
   background: #E6D585 !important;
-  box-shadow: 0 6px 20px rgba(214, 194, 101, 0.45) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
 }
 
 html.dark .submit-btn,
@@ -1179,13 +1179,13 @@ body.dark-theme .submit-btn {
   background: #D6C265 !important;
   color: #1D2524 !important;
   font-weight: 800 !important;
-  box-shadow: 0 8px 26px rgba(214, 194, 101, 0.35) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
 }
 
 html.dark .submit-btn:hover:not(:disabled),
 body.dark-theme .submit-btn:hover:not(:disabled) {
   background: #E6D585 !important;
-  box-shadow: 0 10px 30px rgba(214, 194, 101, 0.5) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important;
 }
 
 html.dark .appt-btn-reschedule {
