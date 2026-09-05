@@ -240,8 +240,8 @@ body.dark-theme .splash-brand-badge {
 }
 
 .prontoturno-header-icon {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
   flex-shrink: 0;
   display: block;
@@ -250,21 +250,21 @@ body.dark-theme .splash-brand-badge {
 .brand-title-box {
   display: flex;
   align-items: baseline;
-  gap: 5px;
+  gap: 4px;
 }
 
 .brand-name {
   font-family: 'Montserrat', sans-serif;
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 800;
   color: var(--primary-navy);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1;
 }
 
 .brand-badge-app {
   font-family: 'Montserrat', sans-serif;
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 800;
   color: var(--secondary-amber);
   letter-spacing: -0.01em;
