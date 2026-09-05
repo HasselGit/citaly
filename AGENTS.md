@@ -163,6 +163,13 @@ Los modelos SQLAlchemy en `app/models/` son la fuente de verdad del esquema:
    - Persistencia automática en `localStorage` (`prontoturno_theme`) y detección inteligente inicial de `prefers-color-scheme`.
 14. **Barra Lateral Desktop Integrada (Sin Bordes):**
    - La barra vertical de navegación del Dashboard utiliza fondo 100% integrado al lienzo (`bg-transparent`) y sin bordes divisorios (`border-0`), con botones activos en Brass Gold `#D6C265` y texto `#1D2524`.
+15. **Barra de Estado del Sistema Android/iOS (Status Bar):**
+   - `manifest.json` utiliza `background_color: #1D2524` y `theme_color: #1D2524` por defecto para prevenir destellos blancos en la barra de Android.
+   - Tanto `dashboard.html` como `index.html` arrancan con `<meta name="theme-color" content="#1D2524">` y `<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">`, sincronizados dinámicamente con el tema del usuario.
+16. **Secuencia de Splash Screen (Fondo Sólido Primero -> Aparición Ágil):**
+   - Para evitar parpadeos, renderizados truncados de imágenes o recuadros estáticos, el splash screen cubre inmediatamente la pantalla con un fondo 100% sólido puro (`#1D2524` en oscuro / `#F8FAFC` en claro).
+   - Inmediatamente (0.2s) se anima el desvanecimiento de entrada suave del isotipo oficial respirando y el texto *ProntoTurno App*.
+   - El splash se descarta de forma rápida y ágil a los 1.4s totales sin demoras molestas.
 
 ---
 
