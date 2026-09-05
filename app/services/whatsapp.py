@@ -104,13 +104,35 @@ class WhatsAppService:
             }
         }
 
+        components = []
         if parameters:
-            payload["template"]["components"] = [
-                {
-                    "type": "body",
-                    "parameters": parameters
-                }
-            ]
+            components.append({
+                "type": "body",
+                "parameters": parameters
+            })
+
+        if token and "_btn_" in template_name:
+            # Para plantillas con botón URL dinámico (index 1 si hay Quick Reply antes, o index 0)
+            btn_idx = "1" if template_name in ["prontoturno_confirmacion_btn_v1", "prontoturno_reprograma_btn_v1", "prontoturno_recordatorio_btn_v1"] else "0"
+            components.append({
+                "type": "button",
+                "sub_type": "url",
+                "index": btn_idx,
+                "parameters": [
+                    {"type": "text", "text": token}
+                ]
+            })
+
+        payload = {
+            "messaging_product": "whatsapp",
+            "to": clean_phone,
+            "type": "template",
+            "template": {
+                "name": template_name,
+                "language": {"code": language_code},
+                "components": components
+            }
+        }
 
         async with httpx.AsyncClient() as client:
             response = await client.post(self.base_url, headers=headers, json=payload)
@@ -121,6 +143,10 @@ class WhatsAppService:
                 
                 # Mapeo de plantillas secundarias aprobadas como fallback
                 fallback_template_map = {
+                    "prontoturno_confirmacion_btn_v1": "prontoturno_confirmacion_v1",
+                    "prontoturno_reprograma_btn_v1": "prontoturno_reprogramacion_v1",
+                    "prontoturno_recordatorio_btn_v1": "prontoturno_recordatorio_24h_v1",
+                    "prontoturno_confirma_btn_v1": "prontoturno_confirmacion_v1",
                     "prontoturno_confirmacion_v1": "citaly_confirmacion_v1",
                     "prontoturno_reprogramacion_v1": "citaly_reprogramacion_v1",
                     "prontoturno_cancelacion_v1": "citaly_cancelacion_v1",
@@ -130,17 +156,19 @@ class WhatsAppService:
                 sec_template = fallback_template_map.get(template_name)
                 if sec_template and sec_template != template_name:
                     print(f"[RETRY APPROVED TEMPLATE] Reintentando con plantilla aprobada secundaria '{sec_template}'...")
+                    sec_components = []
+                    if parameters:
+                        sec_components.append({"type": "body", "parameters": parameters})
                     sec_payload = {
                         "messaging_product": "whatsapp",
                         "to": clean_phone,
                         "type": "template",
                         "template": {
                             "name": sec_template,
-                            "language": {"code": language_code}
+                            "language": {"code": language_code},
+                            "components": sec_components
                         }
                     }
-                    if parameters:
-                        sec_payload["template"]["components"] = payload["template"]["components"]
                     
                     sec_response = await client.post(self.base_url, headers=headers, json=sec_payload)
                     if sec_response.status_code == 200:

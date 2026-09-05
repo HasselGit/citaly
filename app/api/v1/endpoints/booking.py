@@ -399,7 +399,7 @@ async def create_appointment(
             {"type": "text", "text": time_param}
         ]
 
-        template_name = "prontoturno_reprogramacion_v1" if was_rescheduled else "prontoturno_confirmacion_v1"
+        template_name = "prontoturno_reprograma_btn_v1" if was_rescheduled else "prontoturno_confirmacion_btn_v1"
 
         meta_result = await whatsapp_service.send_template_message(
             to_phone=patient.whatsapp_phone,
