@@ -288,6 +288,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Inicializar estilos de pestañas según el tema activo
+  switchTab('panel');
+
   // 4. Copiar Enlace de Reservas
   if (btnCopyCardLink) {
     btnCopyCardLink.addEventListener('click', async () => {

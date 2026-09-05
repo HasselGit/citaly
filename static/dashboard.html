@@ -5,29 +5,32 @@
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
   <title>ProntoTurno Pro â€” Panel de Control | Dr. Alejandro PÃ©rez</title>
   <link rel="icon" type="image/png" href="/static/favicon.png">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F8FAFC">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1D2524">
+  <meta name="theme-color" content="#F8FAFC" id="meta-theme-color">
   <script>
     (function() {
       try {
         var saved = localStorage.getItem('prontoturno_theme');
-        var isDark = saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var isDark = saved === 'dark' || (!saved && prefersDark);
+        var root = document.documentElement;
         var color = isDark ? '#1D2524' : '#F8FAFC';
         if (isDark) {
-          document.documentElement.classList.add('dark');
-          document.documentElement.classList.remove('light');
+          root.classList.add('dark');
+          root.classList.remove('light');
         } else {
-          document.documentElement.classList.remove('dark');
-          document.documentElement.classList.add('light');
+          root.classList.remove('dark');
+          root.classList.add('light');
         }
-        // Create meta theme-color dynamically BEFORE first paint
-        var meta = document.createElement('meta');
-        meta.name = 'theme-color';
-        meta.id = 'meta-theme-color';
-        meta.content = color;
-        document.head.appendChild(meta);
+        var metas = document.querySelectorAll('meta[name="theme-color"]');
+        for (var i = 0; i < metas.length; i++) {
+          metas[i].setAttribute('content', color);
+        }
       } catch(e) {}
     })();
   </script>
-  <link rel="apple-touch-icon" href="/static/img/icon-192.png">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
   <link rel="manifest" href="/static/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -244,34 +247,34 @@
     html.dark svg.dark-only, body.dark-theme svg.dark-only { display: inline-block !important; }
     html.dark .light-only, body.dark-theme .light-only { display: none !important; }
 
-    /* ===== SPLASH SCREEN ===== */
+    /* ===== SPLASH SCREEN (Logo chico que respira + texto deslizante que pausa y sale) ===== */
     .splash-screen-overlay {
       position: fixed; inset: 0; z-index: 99999;
       display: flex; align-items: center; justify-content: center;
       background-color: #F8FAFC;
-      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s ease;
+      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s ease;
       pointer-events: all;
     }
     html.dark .splash-screen-overlay { background-color: #1D2524 !important; }
     .splash-screen-overlay.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
-    .splash-content-box { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; user-select: none; }
-    .splash-logo-container { width: 96px; height: 96px; display: flex; align-items: center; justify-content: center; animation: splashBreathe 2.8s ease-in-out infinite; }
+    .splash-content-box { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; user-select: none; }
+    .splash-logo-container { width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; animation: splashBreathe 2.6s ease-in-out infinite; }
     .splash-logo-img { width: 100%; height: 100%; object-fit: contain; }
     @keyframes splashBreathe {
-      0%   { transform: scale(1);    filter: drop-shadow(0 4px 12px rgba(15,23,42,0.08)); }
-      50%  { transform: scale(1.09); filter: drop-shadow(0 10px 24px rgba(214,194,101,0.25)); }
-      100% { transform: scale(1);    filter: drop-shadow(0 4px 12px rgba(15,23,42,0.08)); }
+      0%   { transform: scale(1); filter: drop-shadow(0 4px 12px rgba(15,23,42,0.08)); }
+      50%  { transform: scale(1.08); filter: drop-shadow(0 8px 20px rgba(214,194,101,0.25)); }
+      100% { transform: scale(1); filter: drop-shadow(0 4px 12px rgba(15,23,42,0.08)); }
     }
-    .splash-brand-title { display: flex; align-items: baseline; gap: 6px; opacity: 0; transform: translateX(-40px); animation: splashSlidePauseExit 2.2s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards; }
-    .splash-brand-name { font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 800; letter-spacing: -0.03em; color: #0F172A; }
+    .splash-brand-title { display: flex; align-items: baseline; gap: 5px; opacity: 0; transform: translateX(-35px); animation: splashSlidePauseExit 2.1s cubic-bezier(0.25, 1, 0.35, 1) 0.1s forwards; }
+    .splash-brand-name { font-family: 'Montserrat', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.03em; color: #0F172A; }
     html.dark .splash-brand-name { color: #F4F4F6 !important; }
-    .splash-brand-badge { font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 800; color: #D97706; }
+    .splash-brand-badge { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 800; color: #D97706; }
     html.dark .splash-brand-badge { color: #D6C265 !important; }
     @keyframes splashSlidePauseExit {
-      0%  { opacity: 0; transform: translateX(-45px); }
-      25% { opacity: 1; transform: translateX(0); }
+      0%  { opacity: 0; transform: translateX(-40px); }
+      22% { opacity: 1; transform: translateX(0); }
       75% { opacity: 1; transform: translateX(0); }
-      100%{ opacity: 0; transform: translateX(30px); }
+      100%{ opacity: 0; transform: translateX(35px); }
     }
   </style>
 </head>
@@ -347,11 +350,29 @@
   <!-- Main Content Area -->
   <main class="flex-1 md:ml-[16.5rem] min-h-screen w-full flex flex-col">
     
-    <!-- TopNavBar Minimalista — Tarjeta Ejecutiva del Consultorio -->
-    <header class="fixed top-0 left-0 md:left-[16.5rem] right-0 z-30 h-16 bg-[#F8FAFC] dark:bg-[#1D2524] flex justify-between items-center px-4 md:px-10">
+    <!-- TopNavBar: ProntoTurno App + Dr. Alejandro Pérez + Controles -->
+    <header class="fixed top-0 left-0 md:left-[16.5rem] right-0 z-30 h-16 bg-[#F8FAFC] dark:bg-[#1D2524] flex justify-between items-center px-3.5 md:px-10 border-b border-transparent">
       
-      <!-- Tarjeta Ejecutiva del Consultorio (visible en todos los tamaños) -->
-      <div class="flex items-center gap-3 bg-white dark:bg-[#25302E] px-3 py-2 rounded-2xl border border-slate-200/90 dark:border-[rgba(106,106,71,0.35)] shadow-xs transition-colors">
+      <!-- Marca ProntoTurno App (visible en mobile) -->
+      <div class="flex md:hidden items-center gap-2 flex-shrink-0">
+        <img src="/static/img/prontoturno-icon.png" alt="ProntoTurno" class="w-7 h-7 object-contain light-only" />
+        <img src="/static/img/prontoturno-icon-dark.png" alt="ProntoTurno" class="w-7 h-7 object-contain dark-only" />
+        <div class="flex flex-col leading-none">
+          <span class="text-sm font-extrabold text-navy dark:text-[#F4F4F6] font-display tracking-tight">ProntoTurno</span>
+          <span class="text-[9px] font-bold text-amber-600 dark:text-[#D6C265] font-mono uppercase tracking-wider">App</span>
+        </div>
+      </div>
+
+      <!-- Chip Ejecutivo del Consultorio (Mobile: Dr. Pérez compacto) -->
+      <div class="flex md:hidden items-center gap-1.5 bg-white dark:bg-[#25302E] px-2.5 py-1.5 rounded-xl border border-slate-200/90 dark:border-[rgba(106,106,71,0.35)] shadow-2xs">
+        <div class="w-6 h-6 rounded-lg bg-navy dark:bg-[#D6C265] text-white dark:text-[#1D2524] flex items-center justify-center font-display font-bold text-[10px] flex-shrink-0">
+          AP
+        </div>
+        <span class="text-xs font-bold font-display text-navy dark:text-[#F4F4F6] truncate max-w-[95px]">Dr. Pérez</span>
+      </div>
+
+      <!-- Tarjeta Ejecutiva del Consultorio Completa (Desktop) -->
+      <div class="hidden md:flex items-center gap-3 bg-white dark:bg-[#25302E] px-3.5 py-2 rounded-2xl border border-slate-200/90 dark:border-[rgba(106,106,71,0.35)] shadow-xs transition-colors">
         <div class="w-9 h-9 rounded-xl bg-navy dark:bg-[#D6C265] text-white dark:text-[#1D2524] flex items-center justify-center font-display font-bold text-sm shadow-xs flex-shrink-0 transition-colors">
           AP
         </div>
@@ -444,12 +465,12 @@
 
         </div>
 
-        <!-- SecciÃ³n Turnos del DÃ­a (Sticky Header Adhesivo Activo) -->
+        <!-- Sección Turnos del Día -->
         <div class="citaly-card mb-6">
-          <!-- Cabecera Adhesiva Sticky -->
-          <div class="sticky top-16 z-20 bg-white rounded-t-2xl p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <!-- Cabecera de Tarjeta -->
+          <div class="bg-white dark:bg-[#25302E] rounded-t-2xl p-4 sm:p-5 border-b border-slate-200 dark:border-[rgba(106,106,71,0.35)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 class="text-base font-bold text-navy font-display">Turnos del DÃ­a</h3>
+              <h3 class="text-base font-bold text-navy dark:text-[#F4F4F6] font-display">Turnos del Día</h3>
               <span id="today-summary-subtitle" class="text-xs text-slate-muted font-mono">Cargando turnos de hoy...</span>
             </div>
             <!-- PÃ­ldoras de Especialidad RÃ¡pidas -->
@@ -686,12 +707,12 @@
             </div>
           </div>
 
-          <!-- Planilla de Horarios del DÃ­a (Sticky Header Adhesivo Activo) -->
+          <!-- Planilla de Horarios del Día -->
           <div class="citaly-card">
-            <!-- Cabecera Adhesiva Sticky -->
-            <div class="sticky top-16 z-20 bg-white rounded-t-2xl p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+            <!-- Cabecera de Tarjeta -->
+            <div class="bg-white dark:bg-[#25302E] rounded-t-2xl p-4 sm:p-5 border-b border-slate-200 dark:border-[rgba(106,106,71,0.35)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h3 id="agenda-current-day-title" class="text-base font-bold text-navy font-display">Lunes 31 de Agosto</h3>
+                <h3 id="agenda-current-day-title" class="text-base font-bold text-navy dark:text-[#F4F4F6] font-display">Lunes 31 de Agosto</h3>
                 <span id="agenda-current-day-stats" class="text-xs text-slate-muted font-mono">0 turnos agendados</span>
               </div>
               
@@ -755,26 +776,26 @@
 
   <!-- BottomNavBar (Mobile - Fondo puro #F8FAFC en claro / #1D2524 en oscuro, idÃ©ntico a la cabecera superior, logos 26px y sombra en botÃ³n seleccionado) -->
   <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-3 py-2 bg-[#F8FAFC] dark:bg-[#1D2524]" id="mobile-nav-container">
-    <button data-tab="panel" class="mobile-tab-btn flex flex-col items-center px-3.5 py-1.5 rounded-full text-navy font-bold transition-all bg-slate-200/80 shadow-xs">
+    <button data-tab="panel" class="mobile-tab-btn flex flex-col items-center px-3.5 py-1.5 rounded-full text-navy dark:text-[#D6C265] font-bold transition-all bg-slate-200/80 dark:bg-[#25302E] dark:border dark:border-[#6A6A47]/40 shadow-xs">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
       <span class="text-[11px] mt-0.5 font-mono">Panel</span>
     </button>
 
-    <!-- Nuevo Acceso RÃ¡pido MÃ³vil: + Nuevo -->
-    <button data-tab="nuevo-turno" class="mobile-tab-btn flex flex-col items-center px-3.5 py-1.5 rounded-full text-slate-500 font-medium transition-all">
+    <!-- Nuevo Acceso Rápido Móvil: + Nuevo -->
+    <button data-tab="nuevo-turno" class="mobile-tab-btn flex flex-col items-center px-3.5 py-1.5 rounded-full text-slate-500 dark:text-slate-400 font-medium transition-all">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
       <span class="text-[11px] mt-0.5 font-mono">+ Nuevo</span>
     </button>
 
-    <button data-tab="reservas" class="mobile-tab-btn flex flex-col items-center px-3.5 py-1.5 rounded-full text-slate-500 font-medium transition-all">
+    <button data-tab="reservas" class="mobile-tab-btn flex flex-col items-center px-3.5 py-1.5 rounded-full text-slate-500 dark:text-slate-400 font-medium transition-all">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
       <span class="text-[11px] mt-0.5 font-mono">Agenda</span>
     </button>
 
-    <button data-tab="reprogramados" class="mobile-tab-btn relative flex flex-col items-center px-3.5 py-1.5 rounded-full text-slate-500 font-medium transition-all">
+    <button data-tab="reprogramados" class="mobile-tab-btn relative flex flex-col items-center px-3.5 py-1.5 rounded-full text-slate-500 dark:text-slate-400 font-medium transition-all">
       <div class="relative flex items-center justify-center">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6"/><path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.2L2.5 16"/></svg>
-        <span id="mobile-badge-reprogramados" class="absolute -top-1.5 -right-2.5 min-w-[16px] h-[16px] px-1 bg-navy text-white text-[9px] font-mono font-bold rounded-full flex items-center justify-center hidden shadow-xs">0</span>
+        <span id="mobile-badge-reprogramados" class="absolute -top-1.5 -right-2.5 min-w-[16px] h-[16px] px-1 bg-navy dark:bg-[#D6C265] text-white dark:text-[#1D2524] text-[9px] font-mono font-bold rounded-full flex items-center justify-center hidden shadow-xs">0</span>
       </div>
       <span class="text-[11px] mt-0.5 font-mono">Reprog.</span>
     </button>

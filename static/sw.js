@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v20-doctor-card-splash-logo-fix';
+const CACHE_NAME = 'prontoturno-v21-transparent-icons-root-fixes';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

@@ -7,29 +7,32 @@
   <meta property="og:title" content="Consultorio Dr. Alejandro Pérez">
   <meta property="og:description" content="Agenda de turnos online">
   <link rel="icon" type="image/png" href="/static/favicon.png">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F8FAFC">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1D2524">
+  <meta name="theme-color" content="#F8FAFC" id="meta-theme-color">
   <script>
     (function() {
       try {
         var saved = localStorage.getItem('prontoturno_theme');
-        var isDark = saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var isDark = saved === 'dark' || (!saved && prefersDark);
+        var root = document.documentElement;
         var color = isDark ? '#1D2524' : '#F8FAFC';
         if (isDark) {
-          document.documentElement.classList.add('dark');
-          document.documentElement.classList.remove('light');
+          root.classList.add('dark');
+          root.classList.remove('light');
         } else {
-          document.documentElement.classList.remove('dark');
-          document.documentElement.classList.add('light');
+          root.classList.remove('dark');
+          root.classList.add('light');
         }
-        // Create meta theme-color dynamically BEFORE first paint
-        var meta = document.createElement('meta');
-        meta.name = 'theme-color';
-        meta.id = 'meta-theme-color';
-        meta.content = color;
-        document.head.appendChild(meta);
+        var metas = document.querySelectorAll('meta[name="theme-color"]');
+        for (var i = 0; i < metas.length; i++) {
+          metas[i].setAttribute('content', color);
+        }
       } catch(e) {}
     })();
   </script>
-  <link rel="apple-touch-icon" href="/static/img/icon-192.png">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
   <link rel="manifest" href="/static/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -38,7 +41,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet"/>
   
   <!-- CSS Personalizado Ultra-Ajustado -->
-  <link rel="stylesheet" href="/static/css/styles.css?v=20260905-logo-size-v20">
+  <link rel="stylesheet" href="/static/css/styles.css?v=20260905-logo-size-v21">
 </head>
 <body>
 
