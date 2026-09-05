@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v24-solid-splash-dark-status-bar';
+const CACHE_NAME = 'prontoturno-v25-restore-table-sticky';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
