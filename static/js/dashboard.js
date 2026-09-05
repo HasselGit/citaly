@@ -81,16 +81,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const isDark = theme === 'dark';
     const themeColor = isDark ? '#1D2524' : '#F8FAFC';
 
-    // Update Theme-Color for Android/iOS System Status Bar
-    let meta = document.getElementById('meta-theme-color') || document.querySelector('meta[name="theme-color"]');
-    if (meta) {
-      meta.removeAttribute('media');
-      meta.setAttribute('content', themeColor);
-    }
-    document.querySelectorAll('meta[name="theme-color"]').forEach(m => {
-      m.removeAttribute('media');
-      m.setAttribute('content', themeColor);
-    });
+    // Update Theme-Color for Android/iOS System Status Bar (node replacement for Chrome Android)
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.remove());
+    const newMeta = document.createElement('meta');
+    newMeta.name = 'theme-color';
+    newMeta.id = 'meta-theme-color';
+    newMeta.content = themeColor;
+    document.head.appendChild(newMeta);
 
     if (isDark) {
       document.documentElement.classList.add('dark');

@@ -23,11 +23,13 @@
           root.classList.remove('dark');
           root.classList.add('light');
         }
-        var m = document.getElementById('meta-theme-color');
-        if (m) {
-          m.removeAttribute('media');
-          m.setAttribute('content', color);
-        }
+        var oldM = document.getElementById('meta-theme-color');
+        if (oldM) oldM.remove();
+        var newM = document.createElement('meta');
+        newM.name = 'theme-color';
+        newM.id = 'meta-theme-color';
+        newM.content = color;
+        document.head.appendChild(newM);
       } catch(e) {}
     })();
   </script>
