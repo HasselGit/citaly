@@ -5,8 +5,6 @@
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
   <title>ProntoTurno Pro â€” Panel de Control | Dr. Alejandro PÃ©rez</title>
   <link rel="icon" type="image/png" href="/static/favicon.png">
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F8FAFC">
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1D2524">
   <meta name="theme-color" content="#F8FAFC" id="meta-theme-color">
   <script>
     (function() {
@@ -23,9 +21,10 @@
           root.classList.remove('dark');
           root.classList.add('light');
         }
-        var metas = document.querySelectorAll('meta[name="theme-color"]');
-        for (var i = 0; i < metas.length; i++) {
-          metas[i].setAttribute('content', color);
+        var m = document.getElementById('meta-theme-color');
+        if (m) {
+          m.removeAttribute('media');
+          m.setAttribute('content', color);
         }
       } catch(e) {}
     })();
@@ -65,6 +64,12 @@
   </script>
 
   <style>
+    html {
+      background-color: #F8FAFC;
+    }
+    html.dark {
+      background-color: #1D2524 !important;
+    }
     body {
       font-family: 'Inter', sans-serif;
       background-color: #F8FAFC;
@@ -350,28 +355,20 @@
   <!-- Main Content Area -->
   <main class="flex-1 md:ml-[16.5rem] min-h-screen w-full flex flex-col">
     
-    <!-- TopNavBar: ProntoTurno App + Dr. Alejandro Pérez + Controles -->
-    <header class="fixed top-0 left-0 md:left-[16.5rem] right-0 z-30 h-16 bg-[#F8FAFC] dark:bg-[#1D2524] flex justify-between items-center px-3.5 md:px-10 border-b border-transparent">
+    <!-- TopNavBar: ProntoTurno App Oficial (mobile) / Tarjeta Dr. Pérez (desktop) + Controles -->
+    <header class="fixed top-0 left-0 md:left-[16.5rem] right-0 z-30 h-16 bg-[#F8FAFC] dark:bg-[#1D2524] flex justify-between items-center px-4 md:px-10 border-b border-transparent">
       
-      <!-- Marca ProntoTurno App (visible en mobile) -->
-      <div class="flex md:hidden items-center gap-2 flex-shrink-0">
-        <img src="/static/img/prontoturno-icon.png" alt="ProntoTurno" class="w-7 h-7 object-contain light-only" />
-        <img src="/static/img/prontoturno-icon-dark.png" alt="ProntoTurno" class="w-7 h-7 object-contain dark-only" />
+      <!-- Marca Oficial ProntoTurno App (visible en mobile con excelente presencia) -->
+      <div class="flex md:hidden items-center gap-2.5 flex-shrink-0">
+        <img src="/static/img/prontoturno-icon.png" alt="ProntoTurno" class="w-8 h-8 object-contain light-only" />
+        <img src="/static/img/prontoturno-icon-dark.png" alt="ProntoTurno" class="w-8 h-8 object-contain dark-only" />
         <div class="flex flex-col leading-none">
-          <span class="text-sm font-extrabold text-navy dark:text-[#F4F4F6] font-display tracking-tight">ProntoTurno</span>
-          <span class="text-[9px] font-bold text-amber-600 dark:text-[#D6C265] font-mono uppercase tracking-wider">App</span>
+          <span class="text-base font-extrabold text-navy dark:text-[#F4F4F6] font-display tracking-tight">ProntoTurno</span>
+          <span class="text-[10px] font-bold text-amber-600 dark:text-[#D6C265] font-mono uppercase tracking-widest">App</span>
         </div>
       </div>
 
-      <!-- Chip Ejecutivo del Consultorio (Mobile: Dr. Pérez compacto) -->
-      <div class="flex md:hidden items-center gap-1.5 bg-white dark:bg-[#25302E] px-2.5 py-1.5 rounded-xl border border-slate-200/90 dark:border-[rgba(106,106,71,0.35)] shadow-2xs">
-        <div class="w-6 h-6 rounded-lg bg-navy dark:bg-[#D6C265] text-white dark:text-[#1D2524] flex items-center justify-center font-display font-bold text-[10px] flex-shrink-0">
-          AP
-        </div>
-        <span class="text-xs font-bold font-display text-navy dark:text-[#F4F4F6] truncate max-w-[95px]">Dr. Pérez</span>
-      </div>
-
-      <!-- Tarjeta Ejecutiva del Consultorio Completa (Desktop) -->
+      <!-- Tarjeta Ejecutiva del Consultorio Completa (Desktop: Dr. Alejandro Pérez) -->
       <div class="hidden md:flex items-center gap-3 bg-white dark:bg-[#25302E] px-3.5 py-2 rounded-2xl border border-slate-200/90 dark:border-[rgba(106,106,71,0.35)] shadow-xs transition-colors">
         <div class="w-9 h-9 rounded-xl bg-navy dark:bg-[#D6C265] text-white dark:text-[#1D2524] flex items-center justify-center font-display font-bold text-sm shadow-xs flex-shrink-0 transition-colors">
           AP
@@ -412,7 +409,24 @@
     <!-- Dashboard Canvas Content -->
     <div class="pt-20 pb-36 md:pb-16 px-4 md:px-10 max-w-7xl w-full flex-1">
       
-      <!-- ================= PESTAÃ‘A 1: PANEL GENERAL ================= -->
+      <!-- Cabecera Institucional del Cliente (Dr. Alejandro Pérez) - Mobile: uno debajo del otro -->
+      <div class="md:hidden mb-4 bg-white dark:bg-[#25302E] p-3.5 rounded-2xl border border-slate-200/90 dark:border-[rgba(106,106,71,0.35)] shadow-xs transition-colors flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-navy dark:bg-[#D6C265] text-white dark:text-[#1D2524] flex items-center justify-center font-display font-bold text-sm shadow-xs flex-shrink-0 transition-colors">
+            AP
+          </div>
+          <div class="flex flex-col">
+            <span class="text-sm text-navy dark:text-[#F4F4F6] font-bold font-display leading-tight">Dr. Alejandro Pérez</span>
+            <span class="text-xs text-slate-muted dark:text-[#94A3B8] font-sans font-medium">Consultorio Odontológico Especializado</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-lg text-xs font-mono font-semibold border border-emerald-200 dark:border-emerald-800/40">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="text-[11px]">En línea</span>
+        </div>
+      </div>
+
+      <!-- ================= PESTAÑA 1: PANEL GENERAL ================= -->
       <div id="view-panel" class="tab-content-anim" style="display: block;">
         
         <!-- Cabecera Adhesiva Sticky: Resumen General -->

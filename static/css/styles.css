@@ -47,6 +47,14 @@ body.dark-theme,
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  background-color: #F8FAFC;
+}
+
+html.dark {
+  background-color: #1D2524 !important;
+}
+
 body {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-neutral);

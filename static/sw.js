@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v21-transparent-icons-root-fixes';
+const CACHE_NAME = 'prontoturno-v22-header-stack-status-bar-fix';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
