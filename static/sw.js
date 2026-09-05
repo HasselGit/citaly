@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v17-status-bar-dark-sync';
+const CACHE_NAME = 'prontoturno-v18-dark-statusbar-manifest-fix';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

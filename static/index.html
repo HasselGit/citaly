@@ -19,6 +19,9 @@
           document.documentElement.classList.remove('dark');
           document.documentElement.classList.add('light');
         }
+        // Update meta theme-color SYNCHRONOUSLY before first paint
+        var mc = document.querySelector('meta[name="theme-color"]');
+        if (mc) mc.setAttribute('content', isDark ? '#1D2524' : '#F8FAFC');
       } catch(e) {}
     })();
   </script>
