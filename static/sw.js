@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prontoturno-v11-sticky-headers';
+const CACHE_NAME = 'prontoturno-v12-patient-pwa-unification';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
